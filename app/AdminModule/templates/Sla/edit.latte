@@ -1,0 +1,59 @@
+{* Latte template *}
+
+{block content}
+
+<h1>{$h1 = 'Editování záznamu'}</h1>
+
+{form edit}
+	{control edit errors}
+	
+	<table>
+		{formContainer new}
+		<tr>{*	v admin modu se pridava osoba, ktera se nepouziva v klientskem modu*}
+			<th>{label tarif/}</th>
+			<td colspan="5">{input tarif}</td>
+		</tr>
+		<tr>
+			<th>{label priorita/}</th>
+			<td colspan="5">{input priorita}</td>
+		</tr>
+		<tr>
+			<th>{label cena_koeficient/}</th>
+			<td colspan="5">{input cena_koeficient}</td>
+		</tr>
+		<tr>
+			<th>Cas reakce</th>
+			<td>Mesíců</td>
+			<td>Dnů</td>
+			<td>Hodin</td>
+			<td>Minut</td>
+		</tr>
+		<tr>
+			<th>&nbsp;</th>
+			<td>{input reakce_mesic}</td>
+			<td>{input reakce_den}</td>
+			<td>{input reakce_hod}</td>
+			<td>{input reakce_min}</td>
+		</tr>
+		<tr>
+			<th>Cas vyhotoveni</th>
+			<td>Mesíců</td>
+			<td>Dnů</td>
+			<td>Hodin</td>
+			<td>Minut</td>
+		</tr>
+		<tr>
+			<th>&nbsp;</th>
+			<td>{input hotovo_mesic}</td>
+			<td>{input hotovo_den}</td>
+			<td>{input hotovo_hod}</td>
+			<td>{input hotovo_min}</td>
+		</tr>
+		{/formContainer}
+		<tr>
+			<th>&nbsp;</td>
+			<td colspan="4">{input btSbmt}</td>
+		</tr>
+	</table>
+
+{/form}

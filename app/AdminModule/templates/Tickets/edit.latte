@@ -1,0 +1,116 @@
+{* Latte template *}
+
+{block content}
+{dump $incId}
+
+{form editTiket}
+	{control editTiket errors}
+<table>
+	<tr>
+		<td colspan="4" class="formSbmt">
+			<a n:href="tiketTask:add,$incId" onclick="return confirm('Opravdu chcete vytvořit nový úkol ?');">Vytvoř úkol</a>
+			{input btSbmt}
+		</td>
+	</tr>
+	{formContainer new}
+	<tr>
+		<th>{label idTxt/}</th>
+		<td>{input idTxt}</td>
+		<th>{label incident_stav/}</th>
+		<td>{input incident_stav}</td>
+	</tr>
+	<tr>
+		<th>{label typ_incident/}</th>
+		<td>{input typ_incident}</td>
+		<th>{label fronta_osoba/}</th>
+		<td>{input fronta_osoba}</td>
+	</tr>
+	<tr>
+		<th>{label priorita/}</th>
+		<td>{input priorita}</td>
+		<th>{label fronta/}</th>
+		<td>{input fronta}</td>
+	</tr>
+	<tr>
+		<th>{label ovlivneni/}</th>
+		<td>{input ovlivneni}</td>
+		<th>{label ukon/}</th>
+		<td>{input ukon}</td>
+	</tr>
+	<tr>
+		<th>{label osoba_vytvoril/}</th>
+		<td>{input osoba_vytvoril}</td>
+		<th>{label datum_reakce/}</th>
+		<td>{input datum_reakce}</td>
+	</tr>
+	<tr>
+		<th>{label firma_nazev/}</th>
+		<td>{input firma_nazev}</td>
+		<th>{label datum_ukonceni/}</th>
+		<td>{input datum_ukonceni}</td>
+	</tr>
+	<tr>
+		<th>{label ci/}</th>
+		<td>{input ci}</td>
+		<th>&nbsp;</th>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<th>{label maly_popis/}</th>
+		<td colspan="3" id="malyPopisInput">{input maly_popis}</td>
+	</tr>
+	<tr>
+		<th>{label datum_vytvoreni/}</th>
+		<td>{input datum_vytvoreni}</td>
+		<th>{label zpusob_uzavreni/}</th>
+		<td>{input zpusob_uzavreni}</td>
+	</tr>
+	<tr>
+		<th colspan="2" class="thTextArea">{label obsah/}</th>
+		<th colspan="2">{label obsah_uzavreni/}</th>
+	</tr>
+	<tr>
+		<td colspan="2" id="zadaniTiketu">{input obsah}</td>
+		<td colspan="2">{input obsah_uzavreni}</td>
+	</tr>
+	<tr>
+		<th colspan="4" class="thTextArea">{label wl/}</th>
+	</tr>
+	<tr>
+		<td colspan="4">{input wl}</td>
+	</tr>
+	{/formContainer}
+	<tr>
+		<td colspan="4" class="formSbmt">
+			<a n:href="tiketTask:add,$incId" onclick="return confirm('Opravdu chcete vytvořit nový úkol ?');">Vytvoř úkol</a>
+			{input btSbmt}
+		</td>
+	</tr>
+</table>
+{*{/form}*}
+
+
+
+<div id="tabs">
+	<ul>
+		<li><a href="#tabs-1">Pracovní záznamy</a></li>
+		<li><a href="#tabs-2">Uzavření tiketu</a></li>
+		<li><a href="#tabs-3">Seznam úkolů ({$pocetPotomku})</a></li>
+	</ul>
+
+	<div id="tabs-1">
+		{control wl,$incId}
+	</div>
+
+	<div id="tabs-2">
+		<h2>Volne misto</h2>
+	</div>
+{*	je potreba ukoncit formular jeste pred volanim dalsi komponenty. V opacnem 
+  pripade se neodesila ID prave editovaneho formulare. *}
+{/form}
+			
+	<div id="tabs-3">
+		<h2>Seznam úkolů</h2>
+		{control childTaskList}
+	</div>
+</div>

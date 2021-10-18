@@ -1,0 +1,21 @@
+{* Latte template *}
+
+{block content}
+
+<h1>{$h1 = 'Editování záznamu'}</h1>
+
+{control edit}
+
+
+<h2>Sub CI</h2>
+
+{control potomciGrid}
+
+<a n:href="addChild, $id">Přidej sub CI</a>
+
+<h2>Log</h2>
+
+<p id="log_area" n:inner-foreach="$ciLog as $item">
+	<div class="log_item_date">{$item['datum_vytvoreni']}</div>
+	<div class="log_item_body">{!$item['obsah']}</div>
+</p>

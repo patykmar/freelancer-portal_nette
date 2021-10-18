@@ -1,0 +1,60 @@
+{* Latte template *}
+
+{block content}
+
+<h1>{$h1 = 'Přidej nový záznam'}</h1>
+
+{*
+{control add}
+*}
+
+
+{form add}
+	{control add errors}
+	
+	<table>
+		<tr>{*	v admin modu se pridava osoba, ktera se nepouziva v klientskem modu*}
+			<th>{label nazev/}</th>
+			<td>{input nazev}</td>
+		</tr>
+	</table>
+	
+	<table>
+		<tr>
+			<th rowspan="2">Priorita</th>
+			<th rowspan="2">Cenovy koeficient</th>
+			<th colspan="4">Cas reakce</th>
+			<th colspan="4">Cas vyhotoveni</th>
+		</tr>
+		<tr>
+			<td>Mesíců</td>
+			<td>Dnů</td>
+			<td>Hodin</td>
+			<td>Minut</td>
+			<td>Mesíců</td>
+			<td>Dnů</td>
+			<td>Hodin</td>
+			<td>Minut</td>
+		</tr>
+
+	{foreach $form['hodnoty']->components as $items}
+		<tr>
+			<td>{input $items['priorita']}</td>
+			<td>{input $items['cena_koeficient']}</td>
+			<td>{input $items['mesic_reakce']}</td>
+			<td>{input $items['den_reakce']}</td>
+			<td>{input $items['hodin_reakce']}</td>
+			<td>{input $items['minut_reakce']}</td>
+			
+			<td>{input $items['mesic_vyhotoveni']}</td>
+			<td>{input $items['den_vyhotoveni']}</td>
+			<td>{input $items['hodin_vyhotoveni']}</td>
+			<td>{input $items['minut_vyhotoveni']}</td>
+		</tr>
+	{/foreach}
+	</table>
+
+	<div>
+		{input btSbmt}
+	</div>
+{/form}

@@ -1,0 +1,114 @@
+{* Latte template *}
+
+{block content}
+
+<h1>Nova faktura</h1>
+{form add}
+	{control add errors}
+	<table>
+		<tr>
+			<th>{label dodavatel_nazev/}</th>
+			<td>{input dodavatel_nazev}</td>
+			<th>{label odberatel_nazev/}</th>
+			<td>{input odberatel_nazev}</td>
+		</tr>
+		<tr>
+			<th>{label dodavatel_ico/}</th>
+			<td>{input dodavatel_ico}</td>
+			<th>{label odberatel_ico/}</th>
+			<td>{input odberatel_ico}</td>
+		</tr>
+		<tr>
+			<th>{label dodavatel_dic/}</th>
+			<td>{input dodavatel_dic}</td>
+			<th>{label odberatel_dic/}</th>
+			<td>{input odberatel_dic}</td>
+		</tr>
+		<tr>
+			<th>{label dodavatel_ulice/}</th>
+			<td>{input dodavatel_ulice}</td>
+			<th>{label odberatel_ulice/}</th>
+			<td>{input odberatel_ulice}</td>
+		</tr>
+		<tr>
+			<th>{label dodavatel_obec/}</th>
+			<td>{input dodavatel_obec}</td>
+			<th>{label odberatel_obec/}</th>
+			<td>{input odberatel_obec}</td>
+		</tr>
+		<tr>
+			<th>{label dodavatel_psc/}</th>
+			<td>{input dodavatel_psc}</td>
+			<th>{label odberatel_psc/}</th>
+			<td>{input odberatel_psc}</td>
+		</tr>
+		<tr>
+			<th>{label dodavatel_zeme/}</th>
+			<td>{input dodavatel_zeme}</td>
+			<th>{label odberatel_zeme/}</th>
+			<td>{input odberatel_zeme}</td>
+		</tr>
+		<tr>
+			<th>{label dodavatel_cislo_uctu/}</th>
+			<td>{input dodavatel_cislo_uctu}</td>
+			<th>{label odberatel_cislo_uctu/}</th>
+			<td>{input odberatel_cislo_uctu}</td>
+		</tr>
+		<tr>
+			<th>{label dodavatel_iban/}</th>
+			<td>{input dodavatel_iban}</td>
+			<th>{label odberatel_iban/}</th>
+			<td>{input odberatel_iban}</td>
+		</tr>
+		<tr>
+			<th>{label splatnost/}</th>
+			<td>{input splatnost}</td>
+			<th>{label datum_vystaveni/}</th>
+			<td>{input datum_vystaveni}</td>
+		</tr>
+		<tr>
+			<th>{label vs/}</th>
+			<td>{input vs}</td>
+			<th>{label datum_splatnosti/}</th>
+			<td>{input datum_splatnosti}</td>
+		</tr>
+		<tr>
+			<th>{label ks/}</th>
+			<td>{input ks}</td>
+			<th>{label datum_zaplaceni/}</th>
+			<td>{input datum_zaplaceni}</td>
+		</tr>
+		<tr>
+			<th>{label vytvoril/}</th>
+			<td>{input vytvoril}</td>
+			<th>{label forma_uhrady/}</th>
+			<td>{input forma_uhrady}</td>
+		</tr>
+	</table>
+
+
+<h2>Položky faktury</h2>
+
+<table>
+	<tr>
+		<th>nazev</th>
+		<th>pocet_polozek</th>
+		<th>jednotka</th>
+		<th>dph</th>
+		<th>cena</th>
+		<th>cssclass</th>
+	</tr>
+	<tr n:foreach="$form['polozky']->getComponents() as $item">
+		<td>{$item['nazev']->getControl()}</td>
+		<td>{$item['pocet_polozek']->getControl()}</td>
+		<td>{$item['jednotka']->getControl()}</td>
+		<td>{$item['dph']->getControl()}</td>
+		<td>{$item['cena']->getControl()}</td>
+		<td>{$item['cssclass']->getControl()}</td>
+	</tr>
+	<tr>
+		<th colspan="5">&nbsp;</th>
+		<td style="text-align: right;">{input btSbmt}</td>
+	</tr>
+</table>
+{/form}
