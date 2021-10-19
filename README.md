@@ -8,13 +8,20 @@ Developed on Nette framework
 |-----|---|
 |2.1.x|5.6|
 
+## Create missing folders
+
+Please make sure that you have created folders, before start.
+- app/log
+- app/temp
+- app/temp/cache
+
 ## Docker
 
 ### Development
 Docker command for developing inside docker container
 
 ```shell
-docker run -dp 8081:8081 -w /app -v "$(pwd):/app" php:5.6.40-alpine sh -c "php -S 0.0.0.0:8081 -t /app/www"
+docker-compose up
 ```
 
 ### Build 
