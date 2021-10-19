@@ -1,0 +1,1 @@
+<?php/** * Description of CronBasePresenter * * @author Martin Patyk */namespace App\CronModule;use App\BasePresenter;abstract class CronBasePresenter extends BasePresenter {}
