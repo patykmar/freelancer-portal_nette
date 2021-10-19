@@ -1,0 +1,21 @@
+version: "3.3"
+services:
+  php-apache:
+    build:
+      context: .
+      args:
+        - WITH_XDEBUG=true
+      dockerfile: ./docker/php-apache/Dockerfile
+    ports:
+      - "8000:80"
+      - "9001:9001"
+    volumes:
+      - .:/var/www
+    environment:
+      - APP_KEY=SomeRandomStringToAddSecurity123
+      - APP_ENV=development
+      - APP_DEBUG=true
+      - APACHE_RUN_USER=apache-www-volume
+      - APACHE_RUN_GROUP=apache-www-volume
+      - PHP_IDE_CONFIG=serverName=nette_freelancer-portal
+      - XDEBUG_CONFIG=remote_host=172.20.0.1 remote_port=9001
