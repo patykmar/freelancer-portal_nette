@@ -12,7 +12,7 @@ use App\Model\OvlivneniModel;
 use DibiException;
 use Exception;
 use Gridy\Admin\OvlivneniGrid;
-use MyForms\Admin\Edit\OvlivneniForm;
+use App\Form\Admin\Edit\OvlivneniForm;
 use Nette\Application\AbortException;
 use Nette\Diagnostics\Debugger;
 use Nette\InvalidArgumentException;

@@ -11,7 +11,7 @@ namespace App\AdminModule;
 use App\Model\SlaModel;
 use Exception;
 use Gridy\Admin\SlaGrid;
-use MyForms\Admin\Edit;
+use App\Form\Admin\Edit;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Diagnostics\Debugger;

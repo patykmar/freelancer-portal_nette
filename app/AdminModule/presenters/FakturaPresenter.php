@@ -8,12 +8,12 @@
 
 namespace App\AdminModule;
 
-use MyForms\Admin\Add\FakturaForm;
-use MyForms\Admin\Add\SelectOdberatelDodavatelForm;
+use App\Form\Admin\Add\FakturaForm;
+use App\Form\Admin\Add\SelectOdberatelDodavatelForm;
 use App\Model\FakturaModel;
 use App\Model\FakturaPolozkaModel;
 use App\Model\FirmaModel;
-use MyForms\Admin\Edit\FakturaForm as FakturaFormAlias;
+use App\Form\Admin\Edit\FakturaForm as FakturaFormAlias;
 use Nette\Application\BadRequestException;
 use Nette\InvalidArgumentException;
 use Nette\NotImplementedException;

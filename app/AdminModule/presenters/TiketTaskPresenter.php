@@ -9,7 +9,7 @@
 namespace App\AdminModule;
 
 use Exception;
-use MyForms\Admin\Add\TaskForm;
+use App\Form\Admin\Add\TaskForm;
 use App\Model;
 use Nette\Application\AbortException;
 use Nette\ArrayHash;

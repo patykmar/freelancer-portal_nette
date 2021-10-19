@@ -12,8 +12,8 @@ namespace App\AdminModule;
 
 use Exception;
 use Gridy\FkGrid;
-use MyForms\Admin\Add;
-use MyForms\Admin\Edit;
+use App\Form\Admin\Add;
+use App\Form\Admin\Edit;
 use App\Model\ChangeStavModel;
 use Nette\Application\AbortException as AbortExceptionAlias;
 use Nette\DI\Container;

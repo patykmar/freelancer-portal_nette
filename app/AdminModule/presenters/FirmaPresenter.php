@@ -10,8 +10,8 @@ namespace App\AdminModule;
 
 use DibiException;
 use Exception;
-use MyForms\Admin\Add;
-use MyForms\Admin\Edit;
+use App\Form\Admin\Add;
+use App\Form\Admin\Edit;
 use App\Model\FirmaModel;
 use Nette\Application\AbortException as AbortExceptionAlias;
 use Nette\Diagnostics\Debugger;
