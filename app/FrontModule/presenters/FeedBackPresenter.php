@@ -1,16 +1,17 @@
 <?php
 
-namespace App\FrontModule;
+namespace App\FrontModule\Presenters;
 
-use App\BasePresenter;
+use App\Form\Front\FeedBackNegativeForm;
 use App\Model\IncidentModel;
-use MyForms\Front\FeedBackNegativeForm;
+use App\Presenters\BasePresenter;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\ArrayHash;
 use Nette\DI\Container;
 use Nette\InvalidArgumentException;
 use Nette\NotImplementedException;
+use Nette\Utils\Strings;
 
 /**
  * Homepage presenter.
@@ -102,7 +103,7 @@ class FeedBackPresenter extends BasePresenter
             $change->offsetSet('odezva_cekam', NULL); // znemoznim pridavani dalsiho feedbacku
             $change->offsetSet('odezva_odeslan_pozadavek', NULL); // nastavim znova moznost odeslani feedbacku
             $change->offsetSet('identity', $dbVal['osoba_vytvoril']); // predpoklada se, ze na odkaz klikne prijemce mailu
-            $change->offsetSet('wl', '**Vyjádření zákaznika:** <br />' . \Nette\Utils\Strings::trim($v['wl'])); // do WL zapisu feedback od zakaznika
+            $change->offsetSet('wl', '**Vyjádření zákaznika:** <br />' . Strings::trim($v['wl'])); // do WL zapisu feedback od zakaznika
             $this->model->update($change, $v['id']);
             $this->redirect('close');
             unset($change, $v, $dbVal);

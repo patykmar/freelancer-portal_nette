@@ -1,8 +1,9 @@
 <?php
 
-namespace App\FrontModule;
+namespace App\FrontModule\Presenters;
 
-use App\BasePresenter;
+use App\Presenters\BasePresenter;
+use Exception;
 use Nette;
 use Nette\Application\AbortException;
 use Nette\Diagnostics\Debugger;
