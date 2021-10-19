@@ -6,5 +6,6 @@ temp/
 vendor/
 
 www/adminer/
+www/webtemp/
 
 composer.lock
