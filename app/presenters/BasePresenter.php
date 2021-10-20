@@ -89,12 +89,13 @@ abstract class BasePresenter extends Presenter
      */
     protected function createComponentCss()
     {
-        $this->cssFiles->addFiles(
-            array(
-                'NiftyGrid/grid.css',
-                'NiftyGrid/example.css',
-            )
-        );
+        $this->cssFiles->addRemoteFiles([
+            'https://code.jquery.com/ui/1.8.20/themes/black-tie/jquery-ui.css',
+        ]);
+        $this->cssFiles->addFiles([
+            'NiftyGrid/grid.css',
+            'NiftyGrid/example.css',
+        ]);
 
         $compiler = Compiler::createCssCompiler(
             $this->cssFiles,
@@ -110,11 +111,10 @@ abstract class BasePresenter extends Presenter
     public function createComponentJs()
     {
         $this->jsFiles->addRemoteFiles([
-            'https://jush.sourceforge.net/jush.js',
+            'https://jush.sourceforge.io/jush.js',
             'https://code.jquery.com/jquery-1.9.0.min.js',
             'https://code.jquery.com/ui/1.10.0/jquery-ui.min.js',
         ]);
-
         $this->jsFiles->addFiles([
             'netteForms.js',
             'dateInput.js',
