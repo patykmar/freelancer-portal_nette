@@ -90,7 +90,7 @@ abstract class BasePresenter extends Presenter
     protected function createComponentCss()
     {
         $this->cssFiles->addRemoteFiles([
-            'https://code.jquery.com/ui/1.8.20/themes/black-tie/jquery-ui.css',
+            'https://code.jquery.com/ui/1.11.0/themes/black-tie/jquery-ui.css',
         ]);
         $this->cssFiles->addFiles([
             'NiftyGrid/grid.css',
