@@ -2,7 +2,8 @@
 .vscode/
 
 log/
-temp/
+temp/cache/
+temp/sessions/
 vendor/
 
 www/adminer/
