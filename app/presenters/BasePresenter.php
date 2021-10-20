@@ -112,8 +112,8 @@ abstract class BasePresenter extends Presenter
     {
         $this->jsFiles->addRemoteFiles([
             'https://jush.sourceforge.io/jush.js',
-            'https://code.jquery.com/jquery-1.9.0.min.js',
-            'https://code.jquery.com/ui/1.10.0/jquery-ui.min.js',
+            'https://code.jquery.com/jquery-1.11.1.min.js',
+            'https://code.jquery.com/ui/1.11.1/jquery-ui.min.js',
         ]);
         $this->jsFiles->addFiles([
             'netteForms.js',
