@@ -6,7 +6,7 @@
 jush.create_links = false;
 jush.highlight_tag('code');
 $('code.jush').each(function () {
-    $(this).html($(this).html().replace(/\x7B[/$\w].*?\}/g, '<span class="jush-latte">$&</span>'))
+    $(this).html($(this).html().replace(/\x7B[/$\w].*?}/g, '<span class="jush-latte">$&</span>'))
 });
 
 $('a[href^=#]').click(function () {
