@@ -10,6 +10,7 @@
 namespace Components\Navigation;
 
 use Nette\Application\UI\Control;
+use Nette\ComponentModel\IComponent;
 
 class Navigation extends Control
 {
@@ -56,7 +57,7 @@ class Navigation extends Control
      * Setup homepage
      * @param string $label
      * @param string $url
-     * @return NavigationNode
+     * @return IComponent
      */
     public function setupHomepage($label, $url)
     {
