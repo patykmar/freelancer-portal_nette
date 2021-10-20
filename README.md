@@ -14,6 +14,7 @@ Please make sure that you have created folders, before start.
 - app/log
 - app/temp
 - app/temp/cache
+- www/webtemp
 
 ## Docker
 

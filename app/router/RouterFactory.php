@@ -2,10 +2,9 @@
 
 namespace App;
 
-use Nette,
-	Nette\Application\Routers\RouteList,
-	Nette\Application\Routers\Route,
-	Nette\Application\Routers\SimpleRouter;
+use	Nette\Application\Routers\RouteList;
+use	Nette\Application\Routers\Route;
+use Nette\Application\IRouter;
 
 
 /**
@@ -15,13 +14,28 @@ class RouterFactory
 {
 
 	/**
-	 * @return \Nette\Application\IRouter
-	 */
+	 * @return RouteList
+     */
 	public static function createRouter()
 	{
-		$router = new RouteList();
-		$router[] = new Route('<presenter>/<action>[/<id>]', 'Homepage:default');
-		return $router;
+        $router = new RouteList;
+
+        Route::$defaultFlags = IRouter::SECURED;
+        $router[] = new Route('index.php', 'Front:Home:default', IRouter::ONE_WAY);
+
+        $router[] = $adminRouter = new RouteList('Admin');
+        $adminRouter[] = new Route('admin/<presenter>/<action>[/<id>]', 'Homepage:default');
+
+        $router[] = $clientRouter = new RouteList('Klient');
+        $clientRouter[] = new Route('klient/<presenter>/<action>[/<id>]', 'Homepage:default');
+
+        $router[] = $frontRouter = new RouteList('Cron');
+        $frontRouter[] = new Route('cron/<presenter>/<action>[/<id>]', 'Homepage:default');
+
+        $router[] = $frontRouter = new RouteList('Front');
+        $frontRouter[] = new Route('<presenter>/<action>[/<id>]', 'Homepage:default');
+
+        return $router;
 	}
 
 }

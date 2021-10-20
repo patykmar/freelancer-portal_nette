@@ -22,7 +22,11 @@
         "dg/adminer-custom": "~1.5",
         "greeny/maillibrary": "^3.2",
         "dibi/dibi": "v2.2.5",
-        "mpdf/mpdf": "v5.7.4"
+        "mpdf/mpdf": "v5.7.4",
+        "voda/date-input": "v1.0.8",
+        "janmarek/webloader": "v2.2.1",
+        "texy/texy": "v2.3",
+        "natxet/cssmin": "v3.0.6"
     },
     "require-dev": {
         "nette/tester": "~1.0"
