@@ -7,7 +7,6 @@ use Components\Navigation\Navigation;
 use CssMin;
 use Nette\Application\UI\InvalidLinkException;
 use Nette\Application\UI\Presenter;
-use Nette\DI\Container;
 use Nette\Forms\Controls\CsrfProtection;
 use Nette\Forms\Controls\SelectBox;
 use Nette\Forms\Controls\SubmitButton;
@@ -34,20 +33,17 @@ abstract class BasePresenter extends Presenter
     /** @var FileCollection */
     public $jsFiles;
 
-    /** @var Container */
+    /** @inject @var Nette\DI\Container */
     public $context;
 
-    public function __construct(Container $context)
+    protected function startup()
     {
-        parent::__construct();
-
-        $this->context = $context;
-
         //	WebLoader nastavim cesty k css souborum
         $this->cssFiles = new FileCollection($this->context->getParameters()['wwwDir'] . '/css');
 
         //	WebLoader nastavim cesty k css souborum
         $this->jsFiles = new FileCollection($this->context->getParameters()['wwwDir'] . '/js');
+        parent::startup();
     }
 
     public function beforeRender()
