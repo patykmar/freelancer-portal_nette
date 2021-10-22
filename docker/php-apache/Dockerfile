@@ -4,8 +4,14 @@ ARG WITH_XDEBUG=false
 
 COPY ["docker/php-apache/000-default.conf", "/etc/apache2/sites-available/000-default.conf"]
 
+RUN apt update && apt upgrade -y
+RUN apt install sqlite3 -y
+
+# Removed temporary file of APT
+RUN rm /var/lib/apt/lists/* -R
+
 RUN a2enmod rewrite
-RUN docker-php-ext-install pdo mysqli mbstring
+RUN docker-php-ext-install pdo mysqli pdo_mysql mbstring
 
 RUN if [ $WITH_XDEBUG = "true" ] ; then \
     pecl install xdebug-2.5.5; \
@@ -28,7 +34,12 @@ fi;
 RUN groupadd apache-www-volume -g 1000
 RUN useradd apache-www-volume -u 1000 -g 1000
 
+# Load data to SQLite database
+RUN sqlite3 /var/www/html/temp/database.db < /var/www/html/docker/sqlite/portal_sqlite.sql
+RUN sqlite3 /var/www/html/temp/database.db < /var/www/html/docker/sqlite/faktury_import.sql
+
 #COPY . /var/www/
 RUN chown -R www-data:www-data /var/www
+
 
 CMD ["apache2-foreground"]
