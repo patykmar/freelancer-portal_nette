@@ -20,7 +20,8 @@ class RouterFactory
 	{
         $router = new RouteList;
 
-        Route::$defaultFlags = IRouter::SECURED;
+//        Route::$defaultFlags = IRouter::SECURED;
+//TODO: could be fine to have it as parameter instead of hard code SECURED/INSECURED
         $router[] = new Route('index.php', 'Front:Home:default', IRouter::ONE_WAY);
 
         $router[] = $adminRouter = new RouteList('Admin');
