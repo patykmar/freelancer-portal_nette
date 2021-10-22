@@ -6,7 +6,8 @@
  * @author Martin Patyk
  */
 
-namespace App\AdminModule;
+namespace App\AdminModule\Presenters;
+
 
 final class HomepagePresenter extends AdminbasePresenter
 {

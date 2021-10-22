@@ -6,21 +6,15 @@
  * @author Martin Patyk
  */
 
-namespace App\AdminModule;
+namespace App\AdminModule\Presenters;
 
-use App\BasePresenter;
-use Nette\Environment;
+use App\Presenters\BasePresenter;
+use Components\Navigation\Navigation;
 use Nette\Http\UserStorage;
 use Nette\Security\Identity;
 
 abstract class AdminbasePresenter extends BasePresenter
 {
-
-    /**
-     * (non-phpDoc)
-     * @see Nette\Application\Presenter#startup()
-     */
-
     /** @var int identifikator prave prihlaseneho uzivatele */
     protected $userId;
 
@@ -29,8 +23,7 @@ abstract class AdminbasePresenter extends BasePresenter
 
     protected function startup()
     {
-        parent::startup();
-        $user = Environment::getUser();
+        $user = $this->getUser();
         if (!$user->isLoggedIn()) {
             if ($user->getLogoutReason() === UserStorage::INACTIVITY) {
                 $this->flashMessage('Byl jste odhlašen z důvodu nečinnosti');
@@ -45,17 +38,14 @@ abstract class AdminbasePresenter extends BasePresenter
         if (!$this->identity->data['je_admin']) {
             $this->redirect(':Klient:Homepage:');
         }
-    }
 
-    public function __construct()
-    {
-        parent::__construct();
         $this->cssFiles->addFile('vzhled.css');
+        parent::startup();
     }
 
     public function createComponentAdminMainMenu($name)
     {
-        $nav = new \Navigation\Navigation($this, $name);
+        $nav = new Navigation($this, $name);
         $nav->setupHomepage('Administrace', $this->link(':Admin:Homepage:'));
         $nav->add('Klient', $this->link(':Klient:Homepage:'));
 

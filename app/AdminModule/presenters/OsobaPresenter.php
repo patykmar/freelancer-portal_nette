@@ -6,7 +6,7 @@
  * @author Martin Patyk
  */
 
-namespace App\AdminModule;
+namespace App\AdminModule\Presenters;
 
 use DibiException;
 use DibiRow;

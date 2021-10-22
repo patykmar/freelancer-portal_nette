@@ -10,7 +10,7 @@
 
  */
 
-namespace App\AdminModule;
+namespace App\AdminModule\Presenters;
 
 use DibiException;
 use Exception;

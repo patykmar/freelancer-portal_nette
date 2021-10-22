@@ -8,7 +8,7 @@
  */
 
 
-namespace App\AdminModule;
+namespace App\AdminModule\Presenters;
 
 use Exception;
 use Gridy\FkGrid;

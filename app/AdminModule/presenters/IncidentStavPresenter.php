@@ -6,7 +6,7 @@
  * @author Martin Patyk
  */
 
-namespace App\AdminModule;
+namespace App\AdminModule\Presenters;
 
 use App\Model\IncidentStavModel;
 use DibiException;

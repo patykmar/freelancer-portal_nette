@@ -6,7 +6,7 @@
  * @author Martin Patyk
  */
 
-namespace App\AdminModule;
+namespace App\AdminModule\Presenters;
 
 use Exception;
 use App\Form\Admin\Add\TaskForm;

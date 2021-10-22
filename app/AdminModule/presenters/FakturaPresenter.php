@@ -6,7 +6,7 @@
  * @author Martin Patyk
  */
 
-namespace App\AdminModule;
+namespace App\AdminModule\Presenters;
 
 use App\Form\Admin\Add\FakturaForm;
 use App\Form\Admin\Add\SelectOdberatelDodavatelForm;
