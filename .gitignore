@@ -8,6 +8,7 @@ temp/sessions/
 vendor/
 
 www/adminer/
-www/webtemp/
+www/webtemp/*.js
+www/webtemp/*.css
 
 composer.lock
