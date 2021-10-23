@@ -25,13 +25,13 @@ use WebLoader\Nette\JavaScriptLoader;
 abstract class BasePresenter extends Presenter
 {
     /** @var string Obsahuje stejnou cestu jako basePath v sablone */
-    public $basePath;
+    protected $basePath;
 
     /** @var FileCollection Description */
-    public $cssFiles;
+    protected $cssFiles;
 
     /** @var FileCollection */
-    public $jsFiles;
+    protected $jsFiles;
 
     /** @inject @var Nette\DI\Container */
     public $context;
