@@ -8,31 +8,35 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Grids\Admin\TypIncidentGrid;
 use App\Model\TypIncidentModel;
 use DibiException;
 use Exception;
-use Gridy\Admin\TypIncidentGrid;
 use App\Form\Admin\Add\TypIncidentForm as AddTypIncidentForm;
 use App\Form\Admin\Edit\TypIncidentForm as EditTypIncidentForm;
 use Nette\Application\AbortException;
+use Nette\Database\Context;
 use Nette\Diagnostics\Debugger;
 use Nette\InvalidArgumentException;
 
 class TypIncidentPresenter extends AdminbasePresenter
 {
-
     /** @var TypIncidentModel */
     private $model;
 
-    public function __construct()
+    /** @var Context */
+    private $typIncidentu;
+
+    public function __construct(Context $context, TypIncidentModel $model)
     {
         parent::__construct();
-        $this->model = new TypIncidentModel;
+        $this->model = $model;
+        $this->typIncidentu = $context;
     }
 
     protected function createComponentGrid()
     {
-        return new TypIncidentGrid($this->context->database->context->table('typ_incident'));
+        return new TypIncidentGrid($this->typIncidentu->table('typ_incident'));
     }
 
     public function renderDefault()
@@ -50,6 +54,7 @@ class TypIncidentPresenter extends AdminbasePresenter
     public function createComponentAdd()
     {
         $form = new AddTypIncidentForm();
+        $form['typ_incident']->setItems($this->model->fetchPairs());
         $form->onSuccess[] = callback($this, 'add');
         return $form;
     }
