@@ -26,7 +26,8 @@
         "voda/date-input": "v1.0.8",
         "janmarek/webloader": "v2.2.1",
         "texy/texy": "v2.3",
-        "natxet/cssmin": "v3.0.6"
+        "natxet/cssmin": "v3.0.6",
+        "miloslavkostir/datagrid": "v1.2.2"
     },
     "require-dev": {
         "nette/tester": "~1.0"
