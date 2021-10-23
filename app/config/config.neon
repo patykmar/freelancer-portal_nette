@@ -24,4 +24,10 @@ nette:
 services:
 	- App\Model\UserManager
 	- App\Model\TypIncidentModel
+	- App\Model\IncidentStavModel
+	- App\Model\ZpusobUzavreniModel
+	- App\Model\IncidentModel
+	- App\Model\IncidentLogModel
+	- App\Model\UkonModel
+	- App\Model\OvlivneniModel
 	router: App\RouterFactory::createRouter
