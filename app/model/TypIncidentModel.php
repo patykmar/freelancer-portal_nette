@@ -2,30 +2,26 @@
 
 namespace App\Model;
 
-use dibi;
-
 /**
  * Description of TypIncidentModel
  *
  * @author Martin Patyk
  */
-final class TypIncidentModel extends BaseModel
+final class TypIncidentModel extends BaseNDbModel
 {
-    /** @var string nazev tabulky */
-    protected $name = 'typ_incident';
+    /** @var string */
+    protected $tableName = 'typ_incident';
 
     /**
      * Vrati nazev a primarni klic v paru k pouziti nacteni
      * cizich klicu ve formulari
      * @return array id, zazev
      */
-    public static function fetchPairs()
+    public function fetchPairs()
     {
-        return dibi::select('id')
-            ->select('nazev')
-            ->from('typ_incident')
-            ->orderBy('nazev')
-            ->fetchPairs();
+        return $this->fetchAll()
+            ->order('nazev DESC')
+            ->fetchPairs('id', 'nazev');
     }
 
     /**
@@ -33,21 +29,15 @@ final class TypIncidentModel extends BaseModel
      * @param bool $rodice Ovlivnuje jestli se nactou potomci nebo rodicovske typy
      * @return array id, zazev
      */
-    public static function fetchPairsMain($rodice = TRUE)
+    public function fetchPairsMain($rodice = TRUE)
     {
         if ($rodice) {
-            return dibi::select('id')
-                ->select('nazev')
-                ->from('typ_incident')
-                ->orderBy('nazev')
-                ->where('typ_incident')->is(Null)
+            return $this->fetchAll()
+                ->where('typ_incident IS NULL')
                 ->fetchPairs();
         } else {
-            return dibi::select('id')
-                ->select('nazev')
-                ->from('typ_incident')
-                ->orderBy('nazev')
-                ->where('typ_incident')->isNot(Null)
+            return $this->fetchAll()
+                ->where('typ_incident IS NOT NULL')
                 ->fetchPairs();
         }
     }
