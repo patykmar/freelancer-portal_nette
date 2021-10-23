@@ -10,8 +10,10 @@ namespace App\AdminModule\Presenters;
 
 use App\Presenters\BasePresenter;
 use Components\Navigation\Navigation;
-use Nette\Http\UserStorage;
+use Nette\Application\UI\InvalidLinkException;
 use Nette\Security\Identity;
+use Nette\Application\AbortException;
+use Nette\Security\IUserStorage;
 
 abstract class AdminbasePresenter extends BasePresenter
 {
@@ -21,11 +23,15 @@ abstract class AdminbasePresenter extends BasePresenter
     /** @var Identity identita prihlaseneho uzivatele */
     protected $identity;
 
+    /**
+     * @throws AbortException
+     */
     protected function startup()
     {
+        parent::startup();
         $user = $this->getUser();
         if (!$user->isLoggedIn()) {
-            if ($user->getLogoutReason() === UserStorage::INACTIVITY) {
+            if ($user->getLogoutReason() === IUserStorage::INACTIVITY) {
                 $this->flashMessage('Byl jste odhlašen z důvodu nečinnosti');
             }
             $this->redirect(':Front:Sign:in');
@@ -40,9 +46,11 @@ abstract class AdminbasePresenter extends BasePresenter
         }
 
         $this->cssFiles->addFile('vzhled.css');
-        parent::startup();
     }
 
+    /**
+     * @throws InvalidLinkException
+     */
     public function createComponentAdminMainMenu($name)
     {
         $nav = new Navigation($this, $name);
