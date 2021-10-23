@@ -36,6 +36,9 @@ RUN useradd apache-www-volume -u 1000 -g 1000
 RUN mkdir /var/www/html/temp/AdminModule/templates/Tarif
 RUN mkdir /var/www/html/temp/AdminModule/templates/TypIncident
 RUN mkdir /var/www/html/temp/AdminModule/templates/IncidentStav
+RUN mkdir /var/www/html/temp/AdminModule/templates/ZpusobUzavreni
+RUN mkdir /var/www/html/temp/AdminModule/templates/Ukon
+RUN mkdir /var/www/html/temp/AdminModule/templates/Ovlivneni
 
 # Load data to SQLite database
 RUN sqlite3 /var/www/html/temp/database.db < /var/www/html/docker/sqlite/portal_sqlite.sql
