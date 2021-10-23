@@ -30,9 +30,12 @@ fi;
 #RUN echo "xdebug.remote_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini
 #COPY docker/php-apache/docker-xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
-# use your users $UID and $GID below
-RUN groupadd apache-www-volume -g 1000
+# use your users $UID and $G`ID below
+RUN group`add apache-www-volume -g 1000
 RUN useradd apache-www-volume -u 1000 -g 1000
+RUN mkdir /var/www/html/temp/AdminModule/templates/Tarif
+RUN mkdir /var/www/html/temp/AdminModule/templates/TypIncident
+RUN mkdir /var/www/html/temp/AdminModule/templates/IncidentStav
 
 # Load data to SQLite database
 RUN sqlite3 /var/www/html/temp/database.db < /var/www/html/docker/sqlite/portal_sqlite.sql
