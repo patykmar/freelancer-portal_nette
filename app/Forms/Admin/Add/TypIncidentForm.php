@@ -8,9 +8,8 @@ namespace App\Form\Admin\Add;
  * @author Martin Patyk
  */
 
-use App\Model\TypIncidentModel;
-use Nette\Application\UI\Form as UIForm,
-    Nette\ComponentModel\IContainer;
+use Nette\Application\UI\Form as UIForm;
+use Nette\ComponentModel\IContainer;
 use Nette\Forms\Form;
 
 class TypIncidentForm extends UIForm
@@ -28,7 +27,7 @@ class TypIncidentForm extends UIForm
         $this->addText('koeficient_cas', 'Koeficient čas:', null, 10)
             ->setType('number')
             ->addRule(Form::FLOAT);
-        $this->addSelect('typ_incident', 'Typ incidentu - rodič:', TypIncidentModel::fetchPairsMain())
+        $this->addSelect('typ_incident', 'Typ incidentu - rodič:')
             ->setPrompt(' - - - ');
         //	Obrana před Cross-Site Request Forgery (CSRF)
         $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
