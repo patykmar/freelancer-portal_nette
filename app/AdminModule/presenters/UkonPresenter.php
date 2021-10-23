@@ -8,25 +8,29 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Grids\Admin\UkonGrid;
 use App\Model\UkonModel;
 use DibiException;
-use Gridy\Admin\UkonGrid;
 use App\Form\Admin\Edit\UkonForm as EditUkonForm;
 use App\Form\Admin\Add\UkonForm as AddUkonForm;
 use Nette\Application\AbortException;
+use Nette\Database\Context;
 use Nette\Diagnostics\Debugger;
 use Nette\InvalidArgumentException;
 
 class UkonPresenter extends AdminbasePresenter
 {
-
     /** @var UkonModel */
     private $model;
 
-    public function __construct()
+    /** @var Context */
+    private $netteModel;
+
+    public function __construct(Context $context, UkonModel $ukonModel)
     {
         parent::__construct();
-        $this->model = new UkonModel();
+        $this->model = $ukonModel;
+        $this->netteModel = $context;
     }
 
     /**
@@ -34,7 +38,7 @@ class UkonPresenter extends AdminbasePresenter
      */
     protected function createComponentGrid()
     {
-        return new UkonGrid($this->context->database->context->table('ukon'));
+        return new UkonGrid($this->netteModel->table('ukon'));
     }
 
     public function renderDefault()

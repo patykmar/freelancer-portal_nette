@@ -14,22 +14,31 @@ use Exception;
 use Gridy\FkGrid;
 use App\Form\Admin\Add\FkBaseForm as AddFkBaseForm;
 use App\Form\Admin\Edit\FkBaseForm as EditFkBaseForm;
-use Nette\DI\Container;
+use Nette\Application\AbortException;
+use Nette\Database\Context;
 use Nette\Diagnostics\Debugger;
 use Nette\InvalidArgumentException;
 
 class IncidentStavPresenter extends AdminbasePresenter
 {
+    /** @var string */
+    private $tableName = 'incident_stav';
+
     /** @var IncidentStavModel */
     private $model;
 
+    /** @var Context */
+    private $netteModel;
+
     /**
-     * @param Container $context
+     * @param Context $context
+     * @param IncidentStavModel $model
      */
-    public function __construct(Container $context)
+    public function __construct(Context $context, IncidentStavModel $model)
     {
-        parent::__construct($context);
-        $this->model = new IncidentStavModel;
+        parent::__construct();
+        $this->netteModel = $context;
+        $this->model = $model;
     }
 
     /**
@@ -37,7 +46,7 @@ class IncidentStavPresenter extends AdminbasePresenter
      */
     protected function createComponentGrid()
     {
-        return new FkGrid($this->context->database->context->table('incident_stav'));
+        return new FkGrid($this->netteModel->table($this->tableName));
     }
 
     public function renderDefault()
@@ -60,7 +69,7 @@ class IncidentStavPresenter extends AdminbasePresenter
     }
 
     /**
-     * @throws \Nette\Application\AbortException
+     * @throws AbortException
      */
     public function add(AddFkBaseForm $form)
     {
@@ -79,6 +88,7 @@ class IncidentStavPresenter extends AdminbasePresenter
 
     /**
      * @param int $id Identifikator polozky
+     * @throws AbortException
      */
     public function renderEdit($id)
     {
@@ -106,7 +116,7 @@ class IncidentStavPresenter extends AdminbasePresenter
     }
 
     /**
-     * @throws \Nette\Application\AbortException
+     * @throws AbortException
      */
     public function edit(EditFkBaseForm $form)
     {
@@ -125,7 +135,7 @@ class IncidentStavPresenter extends AdminbasePresenter
 
     /**
      * @param int $id Identifikator polozky
-     * @throws \Nette\Application\AbortException
+     * @throws AbortException
      */
     public function actionDrop($id)
     {

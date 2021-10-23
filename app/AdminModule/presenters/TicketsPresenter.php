@@ -8,23 +8,22 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Grids\Admin\IncidentGrid;
+use App\Grids\Admin\TiketChildTaskGrid;
 use App\Model\IncidentLogModel;
 use App\Model\IncidentModel;
 use DibiException;
-use Gridy\Admin\IncidentGrid;
-use Gridy\TiketChildTaskGrid;
 use App\Form\Admin\Add;
 use App\Form\Admin\Edit;
 use App\Model;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
-use Nette\Database\Table\Selection;
+use Nette\Database\Context;
 use Nette\DateTime;
 use Nette\Diagnostics\Debugger;
 use Nette\Forms\Form;
 use Nette\InvalidArgumentException;
 use Nette\Utils\Strings;
-use Portal\WorkLog\WorkLogControl;
 
 class TicketsPresenter extends AdminbasePresenter
 {
@@ -34,24 +33,15 @@ class TicketsPresenter extends AdminbasePresenter
     /** @var IncidentLogModel */
     private $modelIncWl;
 
-    /** @var Selection */
-    private $gridDb;
+    /** @var Context */
+    private $netteModel;
 
-    /** @var Selection */
-    private $childTaskDB;
-
-    public function __construct()
+    public function __construct(Context $context, IncidentModel $model, IncidentLogModel $incidentLogModel)
     {
         parent::__construct();
-        $this->model = new IncidentModel;
-        $this->modelIncWl = new IncidentLogModel;
-    }
-
-    public function startup()
-    {
-        parent::startup();
-        $this->gridDb = $this->context->database->context;
-        $this->childTaskDB = $this->context->database->context->table('incident');
+        $this->model = $model;
+        $this->modelIncWl = $incidentLogModel;
+        $this->netteModel = $context;
     }
 
     /*************************************** PART CREATE COMPONENTS **************************************/
@@ -59,7 +49,7 @@ class TicketsPresenter extends AdminbasePresenter
     //	default grid
     protected function createComponentGrid()
     {
-        return new IncidentGrid($this->gridDb);
+        return new IncidentGrid($this->netteModel);
     }
 
     /*************************************** PART HANDLE DEFAULT VALUE **************************************/
@@ -94,6 +84,7 @@ class TicketsPresenter extends AdminbasePresenter
 
     /**
      * @throws AbortException
+     * @throws DibiException
      */
     public function add(Add\IncidentForm $form)
     {
@@ -113,12 +104,6 @@ class TicketsPresenter extends AdminbasePresenter
 
     /*************************************** PART EDIT **************************************/
 
-    //	for load work load
-    protected function createComponentWl()
-    {
-        return new WorkLogControl();
-    }
-
     //	component for edit new item
     protected function createComponentEditTiket()
     {
@@ -130,12 +115,12 @@ class TicketsPresenter extends AdminbasePresenter
     //	grid child tickets
     protected function createComponentChildTaskList()
     {
-        return new TiketChildTaskGrid($this->childTaskDB);
+        return new TiketChildTaskGrid($this->netteModel->table('incident'));
     }
 
     /**
      * @param int $id cislo tiketu
-     * @throws BadRequestException
+     * @throws BadRequestException|DibiException
      */
     public function actionEdit($id)
     {
@@ -224,7 +209,7 @@ class TicketsPresenter extends AdminbasePresenter
     public function edit(Edit\IncidentForm $form)
     {
         try {
-            /*
+            /**
              * Nactu si data odeslana z formulare do promenne $v a pro potreby
              * porovnavani zmeny stavu nactu take data z databaze a ulozim
              * do promenne $dbData.

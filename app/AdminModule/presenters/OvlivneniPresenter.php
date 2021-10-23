@@ -8,25 +8,29 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Grids\Admin\OvlivneniGrid;
 use App\Model\OvlivneniModel;
 use DibiException;
 use Exception;
-use Gridy\Admin\OvlivneniGrid;
 use App\Form\Admin\Edit\OvlivneniForm;
 use Nette\Application\AbortException;
+use Nette\Database\Context;
 use Nette\Diagnostics\Debugger;
 use Nette\InvalidArgumentException;
 
 class OvlivneniPresenter extends AdminbasePresenter
 {
+    /** @var Context */
+    private $netteModel;
 
     /** @var OvlivneniModel */
     private $model;
 
-    public function __construct()
+    public function __construct(Context $context, OvlivneniModel $ovlivneniModel)
     {
         parent::__construct();
-        $this->model = new OvlivneniModel;
+        $this->model = $ovlivneniModel;
+        $this->netteModel = $context;
     }
 
     /**
@@ -34,7 +38,7 @@ class OvlivneniPresenter extends AdminbasePresenter
      */
     protected function createComponentGrid()
     {
-        return new OvlivneniGrid($this->context->database->context->table('ovlivneni'));
+        return new OvlivneniGrid($this->netteModel->table('ovlivneni'));
     }
 
     public function renderDefault()
@@ -51,7 +55,7 @@ class OvlivneniPresenter extends AdminbasePresenter
 
     public function createComponentAdd()
     {
-        $form = new \MyForms\Admin\Add\OvlivneniForm;
+        $form = new OvlivneniForm();
         $form->onSuccess[] = callback($this, 'add');
         return $form;
     }
@@ -59,7 +63,7 @@ class OvlivneniPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function add(\MyForms\Admin\Add\OvlivneniForm $form)
+    public function add(OvlivneniForm $form)
     {
         try {
             $v = $form->getValues();
