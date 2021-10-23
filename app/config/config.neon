@@ -23,6 +23,5 @@ nette:
 
 services:
 	- App\Model\UserManager
+	- App\Model\TypIncidentModel
 	router: App\RouterFactory::createRouter
-	connection:
-		class: DibiConnection(%database%)
