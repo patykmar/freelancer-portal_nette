@@ -9,21 +9,19 @@ use dibi;
  *
  * @author Martin Patyk
  */
-final class UkonModel extends BaseModel
+final class UkonModel extends BaseNDbModel
 {
     /** @var string nazev tabulky */
-    protected $name = 'ukon';
+    protected $tableName = 'ukon';
 
     /**
      * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
      * @return array id, zazev
      */
-    public static function fetchPairs()
+    public function fetchPairs()
     {
-        return dibi::select('[id]')
-            ->select('[nazev]')
-            ->from('[ukon]')
-            ->orderBy('[nazev]')
-            ->fetchPairs();
+        return $this->fetchAll()
+            ->order('nazev')
+            ->fetchPairs('id', 'nazev');
     }
 }

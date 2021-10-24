@@ -13,7 +13,7 @@ use DibiException;
 final class PrioritaModel extends BaseNDbModel
 {
     /** @var string nazev tabulky */
-    protected $name = 'priorita';
+    protected $tableName = 'priorita';
 
     /**
      * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari

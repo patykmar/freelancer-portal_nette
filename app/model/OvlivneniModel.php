@@ -12,7 +12,7 @@ use DibiException;
 final class OvlivneniModel extends BaseNDbModel
 {
     /** @var string nazev tabulky */
-    protected $name = 'ovlivneni';
+    protected $tableName = 'ovlivneni';
 
     /**
      * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
