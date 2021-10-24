@@ -1,0 +1,119 @@
+<table class="icicialy" style="font-family: DejaVuSans; color: black; font-size: 10px;  text-align: left;">
+	<tr>
+		<td style="vertical-align: top; width: 400px">
+			<span style="font-weight: bold; text-transform: uppercase;">Dodavatel:</span>
+			<table style="margin-bottom: 15px;">
+				<tr>
+					<th style="font-weight: bold;">&nbsp;</th>
+					<td style="font-weight: bold;">{$faktura['dodavatel_nazev']}</td>
+				</tr>
+				<tr>
+					<th style="font-weight: bold;">&nbsp;</th>
+					<td>{$faktura['dodavatel_ulice']}</td>
+				</tr>
+				<tr>
+					<th style="font-weight: bold;">&nbsp;</th>
+					<td>{$faktura['dodavatel_psc']}, {$faktura['dodavatel_obec']}</td>
+				</tr>
+				<tr>
+					<th style="font-weight: bold; text-align: left;">IČ:</th>
+					<td>{$faktura['dodavatel_ico']}</td>
+				</tr>
+				<tr>
+					<th style="font-weight: bold; text-align: left;">DIČ:</th>
+					<td>{$faktura['dodavatel_dic']}</td>
+				</tr>
+				<tr>
+					<th style="font-weight: bold; text-align: left;">Číslo účtu:</th>
+					<td>{$faktura['dodavatel_cislo_uctu']}</td>
+				</tr>
+				<tr n:ifset="$faktura['dodavatel_iban']">
+					<th style="font-weight: bold; text-align: left;">IBAN:</th>
+					<td>{$faktura['dodavatel_iban']}</td>
+				</tr>
+			</table>
+		</td>
+		<td style="vertical-align: top;">
+			<span style="font-weight: bold; text-transform: uppercase;">Odběratel:</span>
+			<table style="margin-bottom: 15px;">
+				<tr>
+					<th style="font-weight: bold;">&nbsp;</th>
+					<td style="font-weight: bold;">{$faktura['odberatel_nazev']}</td>
+				</tr>
+				<tr>
+					<th style="font-weight: bold;">&nbsp;</th>
+					<td>{$faktura['odberatel_ulice']}</td>
+				</tr>
+				<tr>
+					<th style="font-weight: bold;">&nbsp;</th>
+					<td>{$faktura['odberatel_psc']}, {$faktura['odberatel_obec']}</td>
+				</tr>
+				<tr>
+					<td style="font-weight: bold;">IČ:</td>
+					<td>{$faktura['odberatel_ico']}</td>
+				</tr>
+				<tr n:ifset="$faktura['odberatel_dic']">
+					<td style="font-weight: bold;">DIČ:</td>
+					<td>{$faktura['odberatel_dic']}</td>
+				</tr>
+				<tr n:ifset="$faktura['odberatel_cislo_uctu']">
+					<td style="font-weight: bold;">Číslo účtu:</td>
+					<td>{$faktura['odberatel_cislo_uctu']}</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+
+<table style="vertical-align: top; background-color: #D9D9D9; width: 100%; font-family: DejaVuSans; color: black; font-size: 10px;  text-align: left;">
+	<tr>
+		<td>
+			<table width="220px" style="vertical-align: top;">
+				<tr>
+					<th align="left">Datum vystavení:</th>
+					<td align="left">{$faktura['datum_vystaveni']|date:'d.m.Y'}</td>
+				</tr>
+				<tr>
+					<th align="left">Datum splatnosti:</th>
+					<td align="left">{$faktura['datum_splatnosti']|date:'d.m.Y'}</td>
+				</tr>
+				<tr>
+					<th align="left">Datum uskutečnění zdanitelného plnění:</th>
+					<td align="left">{$faktura['datum_vystaveni']|date:'d.m.Y'}</td>
+				</tr>
+			</table>
+		</td>
+		<td>
+			<table width="200px">
+				<tr>
+					<th align="left">Variabilní symbol:</th>
+					<td align="left">{$faktura['vs']}</td>
+				</tr>
+				<tr n:ifset="$faktura['ss']">
+					<th align="left">Specifický symbol:</th>
+					<td align="left">{$faktura['ss']}</td>
+				</tr>
+				<tr n:ifset="$faktura['ks']">
+					<th align="left">Konstantní symbol:</th>
+					<td align="left">{$faktura['ks']}</td>
+				</tr>
+			</table>
+		</td>
+		<td>
+			<table width="200px">
+				<tr>
+					<th align="left">Forma úhrady:</th>
+					<td align="left">{$faktura['forma_uhrady']}</td>
+				</tr>
+				<tr n:ifset="$faktura['cislo_objednavky']">
+					<th align="left">Číslo objednávky:</th>
+					<td align="left">{$faktura['cislo_objednavky']}</td>
+				</tr>
+				<tr n:ifset="$faktura['dodaci_list']">
+					<th align="left">Dodací list:</th>
+					<td align="left">{$faktura['dodaci_list']}</td>
+				</tr>
+			</table>			
+		</td>
+	</tr>
+</table>

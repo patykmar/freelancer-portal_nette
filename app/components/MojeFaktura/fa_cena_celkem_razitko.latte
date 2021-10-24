@@ -1,0 +1,43 @@
+<table style="padding-top: 20px; page-break-inside: avoid;">
+	<tr>
+		<td>
+		<table>
+			<tr>
+				<th style="text-align: right">Celkem k zaplacení:</th>
+				<td style="text-align: right">{$faktura['celkova_cena_bez_dph_bez_slevy']|number:2:',':' '} Kč</td>
+			</tr>
+			<tr>
+				<th style="text-align: right">Sleva celkem:</th>
+				<td style="text-align: right">{$faktura['celkova_cena_bez_dph_bez_slevy']-$faktura['celkova_cena_bez_dph']|number:2:',':' '} Kč</td>
+			</tr>
+			<tr>
+				<th style="text-align: right">Celkem k zaplacení po slevě:</th>
+				<td style="text-align: right">{$faktura['celkova_cena_bez_dph']|number:2:',':' '} Kč</td>
+			</tr>
+		</table>
+		</td>
+	</tr>
+	<tr>
+		<td>
+		<table style="background-color: #D9D9D9; font-size: 14pt; margin-bottom: 15px; margin-left: 352px">
+			<tr>
+				<td>Celkem k úhradě:</td>
+				<td style="text-align: right; font-weight: bold;">{$faktura['celkova_cena_bez_dph']|number:2:',':' '} Kč</td>
+			</tr>
+		</table>
+		</td>
+	</tr>
+	<tr>
+		<td>
+	<table>
+		<tr>
+			<td style="text-align: left; width: 440px; font-size: 14pt; color: #999; vertical-align: top">Nejsme plátci DPH</td>
+			<td>
+				<div style="font-weight: bold; font-size: 8pt; text-align: center">Vystavil, razítko, podpis:</div>
+				<img src="{$basePath}/images/razitko_scan.png" alt="Razitko s podpisem" width="150px" />
+			</td>
+		</tr>
+	</table>
+		</td>
+	</tr>
+</table>
