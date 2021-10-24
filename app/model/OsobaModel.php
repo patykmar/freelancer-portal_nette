@@ -10,18 +10,19 @@ use DibiRow;
  *
  * @author Martin Patyk
  */
-final class OsobaModel extends BaseModel
+final class OsobaModel extends BaseNDbModel
 {
     /** @var string nazev tabulky */
     protected $name = 'osoba';
 
     /**
      * Vrati v paru id a jmena pouze specialistu a systemovych uzivatelu
-     * @return DibiRow Description
+     * @return array
      */
-    public static function fetchPairsSpecialistSystem()
+    public function fetchPairsSpecialistSystem()
     {
-        return self::fetchPairs();
+//        return self::fetchPairs();
+        return $this->fetchAll()->fetchPairs();
     }
 
     /**
@@ -45,13 +46,19 @@ final class OsobaModel extends BaseModel
     /**
      * Metoda vraci vsechny osoby k pouziti do formulare.
      */
-    public static function fetchAllPairs()
+    public function fetchAllPairs()
     {
-        return dibi::select('id')
-            ->select('CONCAT([jmeno]," ",[prijmeni])')->as('nazev')
-            ->from('%n', 'osoba')
-            ->orderBy('prijmeni')
-            ->fetchPairs();
+        $sql = "SELECT id, jmeno || '' || prijmeni AS nazev ";
+        $sql .= "FROM osoba ";
+        $sql .= "ORDER BY prijmeni";
+
+        return $this->database->query($sql)->fetchPairs();
+
+//        return dibi::select('id')
+//            ->select('CONCAT([jmeno]," ",[prijmeni])')->as('nazev')
+//            ->from('%n', 'osoba')
+//            ->orderBy('prijmeni')
+//            ->fetchPairs();
     }
 
     /**
