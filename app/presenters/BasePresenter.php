@@ -25,7 +25,7 @@ use WebLoader\Nette\JavaScriptLoader;
 abstract class BasePresenter extends Presenter
 {
     /** @var string Obsahuje stejnou cestu jako basePath v sablone */
-    protected $basePath;
+    private $basePath;
 
     /** @var FileCollection Description */
     protected $cssFiles;
@@ -54,7 +54,7 @@ abstract class BasePresenter extends Presenter
             $this->getSession()->start();
         }
         //	nastavim basePath
-        $this->basePath = rtrim($this->context->httpRequest->url->basePath, '/');
+        $this->basePath = $this->context->getParameters()['wwwDir'];
         DateInput::register();
     }
 
@@ -124,10 +124,7 @@ abstract class BasePresenter extends Presenter
             $this->jsFiles,
             $this->context->getParameters()['wwwDir'] . '/webtemp'
         );
-//		$compiler->addFilter(function ($code) {
-//		  return \JSMin::minify($code);
-//		  });
-        return new JavaScriptLoader($compiler, $this->template->basePath . '/webtemp');
+        return new JavaScriptLoader($compiler, $this->template->basePath  . '/webtemp');
     }
 
     /**
@@ -173,4 +170,14 @@ abstract class BasePresenter extends Presenter
         }
         return $ci_log;
     }
+
+    /**
+     * @return string
+     */
+    public function getBasePath()
+    {
+        return $this->basePath;
+    }
+
+
 }
