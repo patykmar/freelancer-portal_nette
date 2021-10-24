@@ -24,25 +24,9 @@ RUN if [ $WITH_XDEBUG = "true" ] ; then \
     echo "xdebug.remote_port=9001" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
 fi;
 
-#RUN pecl install xdebug-2.5.5
-#RUN docker-php-ext-enable xdebug
-#RUN echo "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20131226/xdebug.so" > /usr/local/etc/php/conf.d/xdebug.ini
-#RUN echo "xdebug.remote_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini
-#COPY docker/php-apache/docker-xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
-
 # use your users $UID and $G`ID below
-RUN group`add apache-www-volume -g 1000
+RUN groupadd apache-www-volume -g 1000
 RUN useradd apache-www-volume -u 1000 -g 1000
-RUN mkdir /var/www/html/temp/AdminModule/templates/Tarif
-RUN mkdir /var/www/html/temp/AdminModule/templates/TypIncident
-RUN mkdir /var/www/html/temp/AdminModule/templates/IncidentStav
-RUN mkdir /var/www/html/temp/AdminModule/templates/ZpusobUzavreni
-RUN mkdir /var/www/html/temp/AdminModule/templates/Ukon
-RUN mkdir /var/www/html/temp/AdminModule/templates/Ovlivneni
-
-# Load data to SQLite database
-RUN sqlite3 /var/www/html/temp/database.db < /var/www/html/docker/sqlite/portal_sqlite.sql
-RUN sqlite3 /var/www/html/temp/database.db < /var/www/html/docker/sqlite/faktury_import.sql
 
 #COPY . /var/www/
 RUN chown -R www-data:www-data /var/www
