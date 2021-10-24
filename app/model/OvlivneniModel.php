@@ -2,7 +2,6 @@
 
 namespace App\Model;
 
-use dibi;
 use DibiException;
 
 /**
@@ -10,18 +9,17 @@ use DibiException;
  *
  * @author Martin Patyk
  */
-final class OvlivneniModel extends BaseModel
+final class OvlivneniModel extends BaseNDbModel
 {
     /** @var string nazev tabulky */
     protected $name = 'ovlivneni';
 
     /**
      * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
-     * @return string
-     * @throws DibiException
+     * @return array
      */
-    public static function fetchPairs()
+    public function fetchPairs()
     {
-        return dibi::fetchPairs('SELECT [id], [nazev] FROM [ovlivneni] ORDER BY [nazev]');
+        return $this->fetchAll()->fetchPairs('id', 'nazev');
     }
 }

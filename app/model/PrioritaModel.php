@@ -10,18 +10,17 @@ use DibiException;
  *
  * @author Martin Patyk
  */
-final class PrioritaModel extends BaseModel
+final class PrioritaModel extends BaseNDbModel
 {
     /** @var string nazev tabulky */
     protected $name = 'priorita';
 
     /**
      * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
-     * @return string
-     * @throws DibiException
+     * @return array
      */
-    public static function fetchPairs()
+    public function fetchPairs()
     {
-        return dibi::fetchPairs('SELECT [id], [nazev] FROM [priorita]');
+        return $this->fetchAll()->fetchPairs("id", "nazev");
     }
 }
