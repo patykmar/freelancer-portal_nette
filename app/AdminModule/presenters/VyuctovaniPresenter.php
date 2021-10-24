@@ -8,32 +8,36 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Grids\Admin\VyuctovaniGrid;
 use App\Model\FakturaModel;
 use App\Model\FirmaModel;
 use App\Model\IncidentModel;
 use DibiException;
-use Gridy\Admin\VyuctovaniGrid;
 use App\Form\Admin\Add\FkBaseForm as AddFkBaseForm;
 use App\Form\Admin\Edit\FkBaseForm as EditFkBaseForm;
 use Nette\Application\AbortException;
+use Nette\Database\Context;
 use Nette\DateTime;
 use Nette\Diagnostics\Debugger;
 use Nette\InvalidArgumentException;
 
 class VyuctovaniPresenter extends AdminbasePresenter
 {
-
     /** @var FakturaModel */
-    private $model;
+    private $fakturaModel;
 
     /** @var IncidentModel Description */
     private $modelIncident;
 
-    public function __construct()
+    /** @var Context */
+    private $vyuctovaniContext;
+
+    public function __construct(FakturaModel $fakturaModel, IncidentModel $modelIncident, Context $vyuctovaniContext)
     {
         parent::__construct();
-        $this->model = new FakturaModel;
-        $this->modelIncident = new IncidentModel;
+        $this->fakturaModel = $fakturaModel;
+        $this->modelIncident = $modelIncident;
+        $this->vyuctovaniContext = $vyuctovaniContext;
     }
 
     /**
@@ -42,8 +46,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
      */
     protected function createComponentGrid()
     {
-        return new VyuctovaniGrid($this->context->database->context
-            ->table('incident'));
+        return new VyuctovaniGrid($this->vyuctovaniContext->table('incident'));
     }
 
     /**
@@ -122,7 +125,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
             $novaFaktura->offsetSet('id_odberatel', $id);
 
             //	vygeneruj novou fakturu
-            $this->model->insertFromTickets($novaFaktura);
+            $this->fakturaModel->insertFromTickets($novaFaktura);
             #//	presmeruji aplikaci, aby vygenerovala PDF soubor
             #$this->redirect('Faktura:GeneratePdf', $this->model->getLastId());
             $this->redirect('Faktura:');
@@ -153,7 +156,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->model->insert($v);
+            $this->fakturaModel->insert($v);
         } catch (DibiException $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -173,7 +176,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->model->fetch($id);
+            $v = $this->fakturaModel->fetch($id);
             //	odeberu idecko z pole
             $v->offsetUnset('id');
             //	upravene hodnoty odeslu do formulare
@@ -198,7 +201,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->model->update($v['new'], $v['id']);
+            $this->fakturaModel->update($v['new'], $v['id']);
         } catch (DibiException $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -216,8 +219,8 @@ class VyuctovaniPresenter extends AdminbasePresenter
     public function actionDrop($id)
     {
         try {
-            $this->model->fetch($id);
-            $this->model->remove($id);
+            $this->fakturaModel->fetch($id);
+            $this->fakturaModel->remove($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('VyuctovaniPresenter:default'); //	change it !!!
         } catch (DibiException $exc) {

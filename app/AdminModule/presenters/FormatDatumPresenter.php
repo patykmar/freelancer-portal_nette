@@ -8,29 +8,30 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Grids\Admin\FormatDatumGrid;
 use DibiException;
 use Exception;
-use Gridy\Admin\FormatDatumGrid;
 use App\Form\Admin\Add\FormatDatumForm as AddFormatDatumForm;
 use App\Form\Admin\Edit\FormatDatumForm as EditFormatDatumForm;
 use App\Model\FormatDatumModel;
 use Nette\Application\AbortException as AbortExceptionAlias;
-use Nette\DI\Container;
+use Nette\Database\Context;
 use Nette\Diagnostics\Debugger;
 use Nette\InvalidArgumentException;
 
 class FormatDatumPresenter extends AdminbasePresenter
 {
     /** @var FormatDatumModel */
-    private $model;
+    private $formatDatumModel;
 
-    /**
-     * @param Container $context
-     */
-    public function __construct(Container $context)
+    /** @var Context */
+    private $formatDatumContext;
+
+    public function __construct(FormatDatumModel $formatDatumModel, Context $formatDatumContext)
     {
-        parent::__construct($context);
-        $this->model = new FormatDatumModel();
+        parent::__construct();
+        $this->formatDatumModel = $formatDatumModel;
+        $this->formatDatumContext = $formatDatumContext;
     }
 
     /**
@@ -38,7 +39,7 @@ class FormatDatumPresenter extends AdminbasePresenter
      */
     protected function createComponentGrid()
     {
-        return new FormatDatumGrid($this->context->database->context->table('format_datum'));
+        return new FormatDatumGrid($this->formatDatumContext->table('format_datum'));
     }
 
     public function renderDefault()
@@ -64,8 +65,8 @@ class FormatDatumPresenter extends AdminbasePresenter
     public function add(AddFormatDatumForm $form)
     {
         try {
-            $v = $form->getValues();
-            $this->model->insert($v);
+            $v = $form->getValuFormatDatumes();
+            $this->formatDatumModel->insert($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -84,7 +85,7 @@ class FormatDatumPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->model->fetch($id);
+            $v = $this->formatDatumModel->fetch($id);
 
             //	odeberu idecko z pole
             $v->offsetUnset('id');
@@ -107,7 +108,7 @@ class FormatDatumPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->model->update($v['new'], $v['id']);
+            $this->formatDatumModel->update($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -125,8 +126,8 @@ class FormatDatumPresenter extends AdminbasePresenter
     {
         try {
             try {
-                $this->model->fetch($id);
-                $this->model->remove($id);
+                $this->formatDatumModel->fetch($id);
+                $this->formatDatumModel->remove($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
                 $this->redirect('FormatDatum:default');    //	change it !!!
             } catch (InvalidArgumentException $exc) {

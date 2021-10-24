@@ -8,12 +8,13 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Grids\Admin\SlaGrid;
 use App\Model\SlaModel;
 use Exception;
-use Gridy\Admin\SlaGrid;
 use App\Form\Admin\Edit;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
+use Nette\Database\Context;
 use Nette\Diagnostics\Debugger;
 use Nette\InvalidArgumentException;
 
@@ -21,12 +22,16 @@ use Nette\InvalidArgumentException;
 class SlaPresenter extends AdminbasePresenter
 {
     /** @var SlaModel */
-    private $model;
+    private $slaModel;
 
-    public function __construct()
+    /** @var Context */
+    private $slaContext;
+
+    public function __construct(SlaModel $slaModel, Context $slaContext)
     {
         parent::__construct();
-        $this->model = new SlaModel();
+        $this->slaModel = $slaModel;
+        $this->slaContext = $slaContext;
     }
 
     /**
@@ -36,9 +41,9 @@ class SlaPresenter extends AdminbasePresenter
     {
         $id = $this->presenter->getParameter('id', null);
         if (isset($id)) {
-            return new SlaGrid($this->context->database->context->table('sla')->where(array('tarif' => $id)));
+            return new SlaGrid($this->slaContext->table('sla')->where(array('tarif' => $id)));
         } else {
-            return new SlaGrid($this->context->database->context->table('sla'));
+            return new SlaGrid($this->slaContext->table('sla'));
         }
     }
 
@@ -56,7 +61,7 @@ class SlaPresenter extends AdminbasePresenter
     {
         try {
             //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->model->fetch($id);
+            $v = $this->slaModel->fetch($id);
             //	odeberu idecko z pole a jine nepotrebne veci
             $v->offsetUnset('id');
             //	upravene hodnoty odeslu do formulare
@@ -81,7 +86,7 @@ class SlaPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->model->update($v['new'], $v['id']);
+            $this->slaModel->update($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');

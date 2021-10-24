@@ -8,10 +8,10 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Grids\FkGrid;
 use App\Model\IncidentStavModel;
 use DibiException;
 use Exception;
-use Gridy\FkGrid;
 use App\Form\Admin\Add\FkBaseForm as AddFkBaseForm;
 use App\Form\Admin\Edit\FkBaseForm as EditFkBaseForm;
 use Nette\Application\AbortException;

@@ -8,19 +8,19 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Grids\Admin\OsobaGrid;
+use App\Model\UserManager;
 use DibiException;
 use DibiRow;
 use Exception;
-use Gridy\Admin\OsobaGrid;
-use Model\UserManager;
 use App\Form\Admin\Add\OsobaForm as AddOsobaForm;
 use App\Form\Admin\Edit\OsobaForm as EditOsobaForm;
 use App\Model\OsobaModel;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\ArrayHash;
+use Nette\Database\Context;
 use Nette\DateTime;
-use Nette\DI\Container;
 use Nette\Diagnostics\Debugger;
 use Nette\InvalidArgumentException;
 use SendMail\SendMailControler;
@@ -28,12 +28,16 @@ use SendMail\SendMailControler;
 class OsobaPresenter extends AdminbasePresenter
 {
     /** @var OsobaModel */
-    private $model;
+    private $osobaModel;
 
-    public function __construct(Container $context)
+    /** @var Context */
+    private $osobaContext;
+
+    public function __construct(OsobaModel $osobaModel, Context $osobaContext)
     {
-        parent::__construct($context);
-        $this->model = new OsobaModel;
+        parent::__construct();
+        $this->osobaModel = $osobaModel;
+        $this->osobaContext = $osobaContext;
     }
 
     /**
@@ -43,7 +47,7 @@ class OsobaPresenter extends AdminbasePresenter
     {
 //        dump($this->context->database->context);
 //        exit;
-        return new OsobaGrid($this->context->database->context->table('osoba'));
+        return new OsobaGrid($this->osobaContext->table('osoba'));
     }
 
     public function renderDefault()
@@ -66,6 +70,9 @@ class OsobaPresenter extends AdminbasePresenter
         return $form;
     }
 
+    /**
+     * @throws AbortException
+     */
     public function add(AddOsobaForm $form)
     {
         try {
@@ -82,7 +89,7 @@ class OsobaPresenter extends AdminbasePresenter
             $mail = new SendMailControler;
             $mail->novaOsoba($v);
             $v->offsetSet('password', UserManager::hashPassword($v['password']));
-            $this->model->insert($v);
+            $this->osobaModel->insert($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -102,7 +109,7 @@ class OsobaPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->model->fetch($id);
+            $v = $this->osobaModel->fetch($id);
 
             //	odeberu idecko z pole a heslo
             $v->offsetUnset('id');
@@ -130,7 +137,7 @@ class OsobaPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->model->update($v['new'], $v['id']);
+            $this->osobaModel->update($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -148,8 +155,8 @@ class OsobaPresenter extends AdminbasePresenter
     {
         try {
             try {
-                $this->model->fetch($id);
-                $this->model->remove($id);
+                $this->osobaModel->fetch($id);
+                $this->osobaModel->remove($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
                 $this->redirect('Osoba:default'); //	change it !!!
             } catch (InvalidArgumentException $exc) {
@@ -171,7 +178,7 @@ class OsobaPresenter extends AdminbasePresenter
     {
         try {
             /** @var DibiRow|FALSE Informace o uzivateli nactene z databaze */
-            $item = $this->model->fetch($id);
+            $item = $this->osobaModel->fetch($id);
 
             //	necham si vygenerovat nove heslo
             $item->offsetSet('password', UserManager::generateNewPassword());
@@ -186,7 +193,7 @@ class OsobaPresenter extends AdminbasePresenter
             $item->offsetSet('password', UserManager::hashPassword($item['password']));
 
             //	save to db
-            $this->model->update(ArrayHash::from($item), $id);
+            $this->osobaModel->update(ArrayHash::from($item), $id);
 
             $this->flashMessage('Uzivateli ' . $item['jmeno'] . ' ' . $item['prijmeni'] . ' bylo vygenerovano nove heslo');
             $this->redirect('default');

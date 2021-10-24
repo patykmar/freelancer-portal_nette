@@ -8,25 +8,30 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Grids\Admin\FirmaGrid;
 use DibiException;
 use Exception;
 use App\Form\Admin\Add;
 use App\Form\Admin\Edit;
 use App\Model\FirmaModel;
 use Nette\Application\AbortException as AbortExceptionAlias;
+use Nette\Database\Context;
 use Nette\Diagnostics\Debugger;
 use Nette\InvalidArgumentException;
 
 class FirmaPresenter extends AdminbasePresenter
 {
-
     /** @var FirmaModel */
-    private $model;
+    private $firmaModel;
 
-    public function __construct(\Nette\DI\Container $context)
+    /** @var Context */
+    private $firmaContext;
+
+    public function __construct(FirmaModel $firmaModel, Context $firmaContext)
     {
-        parent::__construct($context);
-        $this->model = new FirmaModel;
+        parent::__construct();
+        $this->firmaModel = $firmaModel;
+        $this->firmaContext = $firmaContext;
     }
 
     /**
@@ -34,7 +39,7 @@ class FirmaPresenter extends AdminbasePresenter
      */
     protected function createComponentGrid()
     {
-        return new \Gridy\Admin\FirmaGrid($this->context->database->context->table('firma'));
+        return new FirmaGrid($this->firmaContext->table('firma'));
     }
 
     public function renderDefault()
@@ -63,7 +68,7 @@ class FirmaPresenter extends AdminbasePresenter
             $v = $form->getValues();
             $v->offsetSet('datum_vytvoreni', new \Nette\DateTime);
             $v->offsetSet('datum_upravy', new \Nette\DateTime);
-            $this->model->insert($v);
+            $this->firmaModel->insert($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -81,7 +86,7 @@ class FirmaPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->model->fetch($id);
+            $v = $this->firmaModel->fetch($id);
 
             //	odeberu idecko z pole
             $v->offsetUnset('id');
@@ -106,7 +111,7 @@ class FirmaPresenter extends AdminbasePresenter
         try {
             $v = $form->getValues();
             $v['new']->offsetSet('datum_upravy', new \Nette\DateTime);
-            $this->model->update($v['new'], $v['id']);
+            $this->firmaModel->update($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -124,8 +129,8 @@ class FirmaPresenter extends AdminbasePresenter
     {
         try {
             try {
-                $this->model->fetch($id);
-                $this->model->remove($id);
+                $this->firmaModel->fetch($id);
+                $this->firmaModel->remove($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
                 $this->redirect('Firma:default'); // change it !!!
             } catch (InvalidArgumentException $exc) {

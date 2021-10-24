@@ -8,32 +8,36 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Grids\Admin\OdCiGrid;
 use App\Model\OdCiModel;
 use DibiException;
-use Gridy\Admin\OdCiGrid;
 use App\Form\Admin\Add\OdCiForm as AddOdCiForm;
 use App\Form\Admin\Edit\OdCiForm as EditOdCiForm;
 use Nette\Application\AbortException;
+use Nette\Database\Context;
 use Nette\Diagnostics\Debugger;
 use Nette\InvalidArgumentException;
 
 class WebAlertsCiPresenter extends AdminbasePresenter
 {
-
     /** @var OdCiModel */
-    private $model;
+    private $odCiModel;
 
-    public function __construct()
+    /** @var Context */
+    private $odCiContext;
+
+    public function __construct(OdCiModel $odCiModel, Context $odCiContext)
     {
         parent::__construct();
-        $this->model = new OdCiModel;
+        $this->odCiModel = $odCiModel;
+        $this->odCiContext = $odCiContext;
     }
 
     /*************************************** PART DEFINE GRIDS **************************************/
 
     protected function createComponentGrid()
     {
-        return new OdCiGrid($this->context->database->context->table('od_ci'));
+        return new OdCiGrid($this->odCiContext->table('od_ci'));
     }
 
     public function renderDefault()
@@ -62,7 +66,7 @@ class WebAlertsCiPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->model->insert($v);
+            $this->odCiModel->insert($v);
         } catch (DibiException $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -82,7 +86,7 @@ class WebAlertsCiPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->model->fetch($id);
+            $v = $this->odCiModel->fetch($id);
 
             //	odeberu idecko z pole
             $v->offsetUnset('id');
@@ -109,7 +113,7 @@ class WebAlertsCiPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->model->update($v['new'], $v['id']);
+            $this->odCiModel->update($v['new'], $v['id']);
         } catch (DibiException $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -127,8 +131,8 @@ class WebAlertsCiPresenter extends AdminbasePresenter
     public function actionDrop($id)
     {
         try {
-            $this->model->fetch($id);
-            $this->model->remove($id);
+            $this->odCiModel->fetch($id);
+            $this->odCiModel->remove($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('WebAlertsCi:default');    //	change it !!!
         } catch (InvalidArgumentException $exc) {

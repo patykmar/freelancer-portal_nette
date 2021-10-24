@@ -9,13 +9,15 @@
 namespace App\AdminModule\Presenters;
 
 use App\Grids\Admin\IncidentGrid;
-use App\Grids\Admin\TiketChildTaskGrid;
+use App\Grids\TiketChildTaskGrid;
+use App\Model\CiModel;
 use App\Model\IncidentLogModel;
 use App\Model\IncidentModel;
 use App\Model\OsobaModel;
 use App\Model\OvlivneniModel;
 use App\Model\PrioritaModel;
 use App\Model\TypIncidentModel;
+use App\Model\UkonModel;
 use DibiException;
 use App\Form\Admin\Add;
 use App\Form\Admin\Edit;
@@ -49,6 +51,12 @@ class TicketsPresenter extends AdminbasePresenter
     /** @var OvlivneniModel */
     private $ovlivneniModel;
 
+    /** @var CiModel */
+    private $ciModel;
+
+    /** @var UkonModel */
+    private $ukonModel;
+
     /** @var Context */
     private $netteModel;
 
@@ -59,7 +67,9 @@ class TicketsPresenter extends AdminbasePresenter
         OsobaModel       $osobaModel,
         TypIncidentModel $typIncidentModel,
         PrioritaModel    $prioritaModel,
-        OvlivneniModel   $ovlivneniModel
+        OvlivneniModel   $ovlivneniModel,
+        CiModel          $ciModel,
+        UkonModel        $ukonModel
     )
     {
         parent::__construct();
@@ -70,6 +80,8 @@ class TicketsPresenter extends AdminbasePresenter
         $this->netteModel = $context;
         $this->prioritaModel = $prioritaModel;
         $this->ovlivneniModel = $ovlivneniModel;
+        $this->ciModel = $ciModel;
+        $this->ukonModel = $ukonModel;
     }
 
     /*************************************** PART CREATE COMPONENTS **************************************/
@@ -91,10 +103,12 @@ class TicketsPresenter extends AdminbasePresenter
     protected function createComponentAdd()
     {
         $form = new Add\IncidentForm;
-        $form['osoba_vytvoril']->addItems($this->osobaModel->fetchAllPairs());
-        $form['typ_incident']->addItems($this->typIncidentModel->fetchPairs());
-        $form['priorita']->addItems($this->prioritaModel->fetchPairs());
-        $form['ovlivneni']->addItems($this->ovlivneniModel->fetchPairs());
+        $form['osoba_vytvoril']->setItems($this->osobaModel->fetchAllPairs());
+        $form['typ_incident']->setItems($this->typIncidentModel->fetchPairs());
+        $form['priorita']->setItems($this->prioritaModel->fetchPairs());
+        $form['ovlivneni']->setItems($this->ovlivneniModel->fetchPairs());
+        $form['ci']->setItems($this->ciModel->fetchPairs());
+        $form['ukon']->setItems($this->ukonModel->fetchPairs());
         $form->onSuccess[] = callback($this, 'add');
         return $form;
     }

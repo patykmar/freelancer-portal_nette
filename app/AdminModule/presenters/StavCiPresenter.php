@@ -8,25 +8,30 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Grids\FkGrid;
 use App\Model\StavCiModel;
 use DibiException;
 use Exception;
-use Gridy\FkGrid;
 use App\Form\Admin\Add\FkBaseForm as AddFkBaseForm;
 use App\Form\Admin\Edit\FkBaseForm as EditFkBaseForm;
 use Nette\Application\AbortException;
+use Nette\Database\Context;
 use Nette\Diagnostics\Debugger;
 use Nette\InvalidArgumentException;
 
 class StavCiPresenter extends AdminbasePresenter
 {
     /** @var StavCiModel */
-    private $model;
+    private $stavCiModel;
 
-    public function __construct()
+    /** @var Context */
+    private $stavCiContext;
+
+    public function __construct(StavCiModel $stavCiModel, Context $stavCiContext)
     {
         parent::__construct();
-        $this->model = new StavCiModel;
+        $this->stavCiModel = $stavCiModel;
+        $this->stavCiContext = $stavCiContext;
     }
 
     /**
@@ -34,7 +39,7 @@ class StavCiPresenter extends AdminbasePresenter
      */
     protected function createComponentGrid()
     {
-        return new FkGrid($this->context->database->context->table('stav_ci'));
+        return new FkGrid($this->stavCiContext->table('stav_ci'));
     }
 
     public function renderDefault()
@@ -64,7 +69,7 @@ class StavCiPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->model->insert($v);
+            $this->stavCiModel->insert($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -84,7 +89,7 @@ class StavCiPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->model->fetch($id);
+            $v = $this->stavCiModel->fetch($id);
 
             //	odeberu idecko z pole
             $v->offsetUnset('id');
@@ -111,7 +116,7 @@ class StavCiPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->model->update($v['new'], $v['id']);
+            $this->stavCiModel->update($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -129,8 +134,8 @@ class StavCiPresenter extends AdminbasePresenter
     public function actionDrop($id)
     {
         try {
-            $this->model->fetch($id);
-            $this->model->remove($id);
+            $this->stavCiModel->fetch($id);
+            $this->stavCiModel->remove($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('StavCi:default');    //	change it !!!
         } catch (InvalidArgumentException $exc) {

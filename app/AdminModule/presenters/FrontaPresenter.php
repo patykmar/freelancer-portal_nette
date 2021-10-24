@@ -8,27 +8,30 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Grids\FkGrid;
 use DibiException;
 use Exception;
-use Gridy\FkGrid;
 use App\Form\Admin\Add\FkBaseForm as AddFkBaseForm;
 use App\Form\Admin\Edit\FkBaseForm as EditFkBaseForm;
 use App\Model\FrontaModel;
 use Nette\Application\AbortException as AbortExceptionAlias;
-use Nette\DI\Container;
+use Nette\Database\Context;
 use Nette\Diagnostics\Debugger;
 use Nette\InvalidArgumentException;
 
 class FrontaPresenter extends AdminbasePresenter
 {
-
     /** @var FrontaModel */
-    private $model;
+    private $frontaModel;
 
-    public function __construct(Container $context)
+    /** @var Context */
+    private $frontaContext;
+
+    public function __construct(FrontaModel $frontaModel, Context $frontaContext)
     {
-        parent::__construct($context);
-        $this->model = new FrontaModel;
+        parent::__construct();
+        $this->frontaModel = $frontaModel;
+        $this->frontaContext = $frontaContext;
     }
 
     /**
@@ -36,7 +39,7 @@ class FrontaPresenter extends AdminbasePresenter
      */
     protected function createComponentGrid()
     {
-        return new FkGrid($this->context->database->context->table('fronta'));
+        return new FkGrid($this->frontaContext->table('fronta'));
     }
 
     public function renderDefault()
@@ -63,7 +66,7 @@ class FrontaPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->model->insert($v);
+            $this->frontaModel->insert($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -82,7 +85,7 @@ class FrontaPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->model->fetch($id);
+            $v = $this->frontaModel->fetch($id);
 
             //	odeberu idecko z pole
             $v->offsetUnset('id');
@@ -106,7 +109,7 @@ class FrontaPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->model->update($v['new'], $v['id']);
+            $this->frontaModel->update($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -123,8 +126,8 @@ class FrontaPresenter extends AdminbasePresenter
     {
         try {
             try {
-                $this->model->fetch($id);
-                $this->model->remove($id);
+                $this->frontaModel->fetch($id);
+                $this->frontaModel->remove($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
                 $this->redirect('Fronta:default');    //	change it !!!
             } catch (InvalidArgumentException $exc) {

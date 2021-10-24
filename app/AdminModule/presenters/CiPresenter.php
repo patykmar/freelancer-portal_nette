@@ -8,34 +8,36 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Grids\Admin\CiGrid;
 use App\Model\CiLogModel;
 use App\Model\CiModel;
 use DibiException;
 use Exception;
-use Gridy\Admin\CiGrid;
-use Gridy\Admin\PotomciCiGrid;
 use App\Form\Admin\Add\CiForm;
 use App\Form\Admin\Edit;
 use Nette\Application\AbortException as AbortExceptionAlias;
 use Nette\Application\BadRequestException;
-use Nette\DI\Container;
+use Nette\Database\Context;
 use Nette\Diagnostics\Debugger;
 use Nette\InvalidArgumentException;
 
 class CiPresenter extends AdminbasePresenter
 {
-
     /** @var CiModel */
-    private $model;
+    private $ciModel;
 
     /** @var CiLogModel */
-    private $modelCiLog;
+    private $ciLogModel;
 
-    public function __construct(Container $context)
+    /** @var Context */
+    private $ciContext;
+
+    public function __construct(CiModel $ciModel, CiLogModel $modelCiLog, Context $ciContext)
     {
-        parent::__construct($context);
-        $this->model = new CiModel();
-        $this->modelCiLog = new CiLogModel;
+        parent::__construct();
+        $this->ciModel = $ciModel;
+        $this->ciLogModel = $modelCiLog;
+        $this->ciContext = $ciContext;
     }
 
     /**
@@ -43,7 +45,7 @@ class CiPresenter extends AdminbasePresenter
      */
     protected function createComponentGrid()
     {
-        return new CiGrid($this->context->database->context->table('ci')->where(array('zobrazit' => 1)));
+        return new CiGrid($this->ciContext->table('ci')->where(array('zobrazit' => 1)));
     }
 
     public function renderDefault()
@@ -66,7 +68,7 @@ class CiPresenter extends AdminbasePresenter
     {
         try {
             $this->setView('../_add');
-            $this->model->fetch($id);
+            $this->ciModel->fetch($id);
 
             // u potomka neni potreba specifikovat nektere cizi klice
             $this['add']->offsetUnset('fronta_tier_1');
@@ -102,7 +104,7 @@ class CiPresenter extends AdminbasePresenter
             $v->offsetSet('log', $ci_log);
             $v->offsetSet('osoba_vytvoril', $this->userId);
             $v->offsetSet('datum_vytvoreni', new \Nette\DateTime);
-            $this->model->insert($v);
+            $this->ciModel->insert($v);
         } catch (InvalidArgumentException $exc) {
             $form->addError('Nový záznam nebyl přidán');
             $this->flashMessage($exc->getMessage());
@@ -130,10 +132,10 @@ class CiPresenter extends AdminbasePresenter
         try {
             #$this->setView('../_edit');
             //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->model->fetch($id);
+            $v = $this->ciModel->fetch($id);
             $this->template->id = $id;
             //	do sablony poslu log
-            $this->template->ciLog = $this->modelCiLog->fetchAllByCi($id);
+            $this->template->ciLog = $this->ciLogModel->fetchAllByCi($id);
             //	odeberu idecko z pole
             $v->offsetUnset('id');
             //	upravene hodnoty odeslu do formulare
@@ -162,7 +164,7 @@ class CiPresenter extends AdminbasePresenter
 //            $dbData = $this->model->fetch($v['id']);
 //            dump($dbData);
 //            exit;
-            $this->model->update($v['new'], $v['id']);
+            $this->ciModel->update($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -180,8 +182,8 @@ class CiPresenter extends AdminbasePresenter
     {
         try {
             try {
-                $this->model->fetch($id);
-                $this->model->remove($id);
+                $this->ciModel->fetch($id);
+                $this->ciModel->remove($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
                 $this->redirect('Ci:default'); //	change it !!!
             } catch (InvalidArgumentException $exc) {

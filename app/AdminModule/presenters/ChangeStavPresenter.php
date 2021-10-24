@@ -10,26 +10,32 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Grids\FkGrid;
 use Exception;
-use Gridy\FkGrid;
 use App\Form\Admin\Add;
 use App\Form\Admin\Edit;
 use App\Model\ChangeStavModel;
 use Nette\Application\AbortException as AbortExceptionAlias;
-use Nette\DI\Container;
+use Nette\Database\Context;
 use Nette\Diagnostics\Debugger;
 
 
 class ChangeStavPresenter extends AdminbasePresenter
 {
-
     /** @var ChangeStavModel */
-    private $model;
+    private $changeStavModel;
 
-    public function __construct(Container $context)
+    /** @var Context */
+    private $changeStavContext;
+
+    public function __construct(
+        ChangeStavModel $changeStavModel,
+        Context $changeStavContext
+    )
     {
-        parent::__construct($context);
-        $this->model = new ChangeStavModel;
+        parent::__construct();
+        $this->changeStavModel = $changeStavModel;
+        $this->changeStavContext = $changeStavContext;
     }
 
     /**
@@ -37,7 +43,7 @@ class ChangeStavPresenter extends AdminbasePresenter
      */
     protected function createComponentGrid()
     {
-        return new FkGrid($this->context->database->context->table('change_stav'));
+        return new FkGrid($this->changeStavContext->table('change_stav'));
     }
 
     public function renderDefault()
@@ -64,7 +70,7 @@ class ChangeStavPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->model->insert($v);
+            $this->changeStavModel->insert($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -82,7 +88,7 @@ class ChangeStavPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->model->fetch($id);
+            $v = $this->changeStavModel->fetch($id);
             //	odeberu idecko z pole
             $v->offsetUnset('id');
             //	upravene hodnoty odeslu do formulare
@@ -104,7 +110,7 @@ class ChangeStavPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->model->update($v['new'], $v['id']);
+            $this->changeStavModel->update($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -122,8 +128,8 @@ class ChangeStavPresenter extends AdminbasePresenter
     {
         try {
             try {
-                $this->model->fetch($id);
-                $this->model->remove($id);
+                $this->changeStavModel->fetch($id);
+                $this->changeStavModel->remove($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
                 $this->redirect('ChangeStav:default');    //	change it !!!
             } catch (\Nette\InvalidArgumentException $exc) {
