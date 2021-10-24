@@ -31,9 +31,9 @@ class IncidentForm extends UIForm
             ->addRule(Form::FILLED);
         $this->addSelect('ovlivneni', 'Ovlivnění:')
             ->setPrompt(' - - - ');
-        $this->addSelect('ci', 'Produkt:', CiModel::fetchPairs())
+        $this->addSelect('ci', 'Produkt:')
             ->addRule(Form::FILLED);
-        $this->addSelect('ukon', 'Služba:', UkonModel::fetchPairs())
+        $this->addSelect('ukon', 'Služba:')
             ->setPrompt(' - - - ');
         $this->addText('maly_popis', 'Malý popis:', null, 100)
             ->addRule(Form::FILLED);
