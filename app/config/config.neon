@@ -30,4 +30,5 @@ services:
 	- App\Model\IncidentLogModel
 	- App\Model\UkonModel
 	- App\Model\OvlivneniModel
+	- App\Model\OsobaModel
 	router: App\RouterFactory::createRouter
