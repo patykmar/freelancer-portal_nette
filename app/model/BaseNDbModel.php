@@ -21,7 +21,7 @@ abstract class BaseNDbModel extends Nette\Object
     protected $tableName;
 
     /** @var Context */
-    private $database;
+    protected $database;
 
     public function __construct(Context $database)
     {
