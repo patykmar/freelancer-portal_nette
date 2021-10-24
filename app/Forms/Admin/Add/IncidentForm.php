@@ -23,13 +23,13 @@ class IncidentForm extends UIForm
     public function __construct(IContainer $parent = NULL, $name = NULL)
     {
         parent::__construct($parent, $name);
-        $this->addSelect('osoba_vytvoril', 'Vytvořil:', OsobaModel::fetchAllPairs())
+        $this->addSelect('osoba_vytvoril', 'Vytvořil:')
             ->addRule(Form::FILLED);
-        $this->addSelect('typ_incident', 'Typ tiketu:', TypIncidentModel::fetchPairs())
+        $this->addSelect('typ_incident', 'Typ tiketu:')
             ->addRule(Form::FILLED);
-        $this->addSelect('priorita', 'Priorita:', PrioritaModel::fetchPairs())
+        $this->addSelect('priorita', 'Priorita:')
             ->addRule(Form::FILLED);
-        $this->addSelect('ovlivneni', 'Ovlivnění:', OvlivneniModel::fetchPairs())
+        $this->addSelect('ovlivneni', 'Ovlivnění:')
             ->setPrompt(' - - - ');
         $this->addSelect('ci', 'Produkt:', CiModel::fetchPairs())
             ->addRule(Form::FILLED);
