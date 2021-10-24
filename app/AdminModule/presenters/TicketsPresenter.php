@@ -12,6 +12,10 @@ use App\Grids\Admin\IncidentGrid;
 use App\Grids\Admin\TiketChildTaskGrid;
 use App\Model\IncidentLogModel;
 use App\Model\IncidentModel;
+use App\Model\OsobaModel;
+use App\Model\OvlivneniModel;
+use App\Model\PrioritaModel;
+use App\Model\TypIncidentModel;
 use DibiException;
 use App\Form\Admin\Add;
 use App\Form\Admin\Edit;
@@ -33,20 +37,43 @@ class TicketsPresenter extends AdminbasePresenter
     /** @var IncidentLogModel */
     private $modelIncWl;
 
+    /** @var OsobaModel */
+    private $osobaModel;
+
+    /** @var TypIncidentModel */
+    private $typIncidentModel;
+
+    /** @var PrioritaModel */
+    private $prioritaModel;
+
+    /** @var OvlivneniModel */
+    private $ovlivneniModel;
+
     /** @var Context */
     private $netteModel;
 
-    public function __construct(Context $context, IncidentModel $model, IncidentLogModel $incidentLogModel)
+    public function __construct(
+        Context          $context,
+        IncidentModel    $model,
+        IncidentLogModel $incidentLogModel,
+        OsobaModel       $osobaModel,
+        TypIncidentModel $typIncidentModel,
+        PrioritaModel    $prioritaModel,
+        OvlivneniModel   $ovlivneniModel
+    )
     {
         parent::__construct();
         $this->model = $model;
         $this->modelIncWl = $incidentLogModel;
+        $this->osobaModel = $osobaModel;
+        $this->typIncidentModel = $typIncidentModel;
         $this->netteModel = $context;
+        $this->prioritaModel = $prioritaModel;
+        $this->ovlivneniModel = $ovlivneniModel;
     }
 
     /*************************************** PART CREATE COMPONENTS **************************************/
 
-    //	default grid
     protected function createComponentGrid()
     {
         return new IncidentGrid($this->netteModel);
@@ -64,13 +91,17 @@ class TicketsPresenter extends AdminbasePresenter
     protected function createComponentAdd()
     {
         $form = new Add\IncidentForm;
+        $form['osoba_vytvoril']->addItems($this->osobaModel->fetchAllPairs());
+        $form['typ_incident']->addItems($this->typIncidentModel->fetchPairs());
+        $form['priorita']->addItems($this->prioritaModel->fetchPairs());
+        $form['ovlivneni']->addItems($this->ovlivneniModel->fetchPairs());
         $form->onSuccess[] = callback($this, 'add');
         return $form;
     }
 
     public function actionAdd()
     {
-        $this->cssFiles->addFile('incForm.css');
+//        $this->cssFiles->addFile('incForm.css');
         $this->setView('../_add');
 
         //	nastavim vychozi hodnoty pro furmular
@@ -204,7 +235,7 @@ class TicketsPresenter extends AdminbasePresenter
     }
 
     /**
-     * @throws \Nette\Application\AbortException
+     * @throws AbortException
      */
     public function edit(Edit\IncidentForm $form)
     {
