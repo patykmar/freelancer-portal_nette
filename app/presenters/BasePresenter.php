@@ -33,15 +33,15 @@ abstract class BasePresenter extends Presenter
     /** @var FileCollection */
     protected $jsFiles;
 
-    /** @inject @var Nette\DI\Container */
-    public $context;
+    protected $context;
 
     protected function startup()
     {
-        //	WebLoader nastavim cesty k css souborum
+        $this->context = $this->getContext();
+        //WebLoader nastavim cesty k css souborum
         $this->cssFiles = new FileCollection($this->context->getParameters()['wwwDir'] . '/css');
 
-        //	WebLoader nastavim cesty k css souborum
+        //WebLoader nastavim cesty k css souborum
         $this->jsFiles = new FileCollection($this->context->getParameters()['wwwDir'] . '/js');
         parent::startup();
     }
@@ -53,7 +53,7 @@ abstract class BasePresenter extends Presenter
         if ($this->getSession()->isStarted()) {
             $this->getSession()->start();
         }
-        //	nastavim basePath
+        //   nastavim basePath
         $this->basePath = $this->context->getParameters()['wwwDir'];
         DateInput::register();
     }
@@ -72,7 +72,7 @@ abstract class BasePresenter extends Presenter
         $texy->allowed['heading'] = FALSE;
         $texy->allowed['paragraph'] = FALSE;
 
-        // registrace filtru
+        //registrace filtru
         $template = parent::createTemplate($class); //parent::createTemplate($class);
         $template->registerHelper('texyWl', callback($texy, 'process'));
         $template->registerHelper('texy', callback($texy, 'process'));
@@ -124,7 +124,7 @@ abstract class BasePresenter extends Presenter
             $this->jsFiles,
             $this->context->getParameters()['wwwDir'] . '/webtemp'
         );
-        return new JavaScriptLoader($compiler, $this->template->basePath  . '/webtemp');
+        return new JavaScriptLoader($compiler, $this->template->basePath . '/webtemp');
     }
 
     /**
@@ -147,20 +147,20 @@ abstract class BasePresenter extends Presenter
      */
     protected function createLog($components)
     {
-        //	pripravim si obsah logu pro ulozeni do databaze
+        //pripravim si obsah logu pro ulozeni do databaze
         $ci_log = '';
 
         foreach ($components as $value) {
-            //	pokud je komponenta tlacitko nebo ochranny token tak to vyrad
+            //pokud je komponenta tlacitko nebo ochranny token tak to vyrad
             if ($value instanceof SubmitButton || $value instanceof CsrfProtection) {
                 continue;
             }
-            //	pokud je hodnota SelectBox musim nacist hodnoty
+            //pokud je hodnota SelectBox musim nacist hodnoty
             if ($value instanceof SelectBox) {
-                //	identifikator vybraneho objektu
+                //identifikator vybraneho objektu
                 $i = $value->value;
 
-                //	pokud neni null
+                //pokud neni null
                 if (!is_null($i)) {
                     $ci_log .= '**' . $value->caption . '**: ' . $value->items[$i] . ' <br />';
                 }

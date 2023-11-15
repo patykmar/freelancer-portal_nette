@@ -66,8 +66,8 @@ class UserManager extends Object implements IAuthenticator
 
     /**
      * Adds new user.
-     * @param string
-     * @param string
+     * @param string $username
+     * @param string $password
      * @return void
      */
     public function add($username, $password)

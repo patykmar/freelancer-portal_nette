@@ -4,7 +4,7 @@ namespace App\Model;
 
 use dibi;
 use DibiException;
-use Nette\ArrayHash;
+use Nette\Utils\ArrayHash;
 
 /**
  * Description of SlaModel

@@ -10,11 +10,12 @@ Developed on Nette framework ~2014. In 2021 has been done code review where was:
    - is still using old php version
    - running on unmaintained nette framework
    - main aim of publishing this source code was backup to GitHub and learn how to dockerized old project
+ - Application has been refactored in 2023/11 to run under PHP 7.1 and Nette 2.3 
 
 ## Versions of components
-|Nette|PHP|
-|-----|---|
-|2.1.x|5.6|
+| Nette  | PHP |
+|--------|-----|
+| 2.3.11 | 7.1 |
 
 ## Create missing folders
 
@@ -24,25 +25,25 @@ mkdir app/log
 mkdir app/temp
 mkdir app/temp/cache
 mkdir www/webtemp
-mkdir app/templates/ChangeStav
-mkdir app/templates/FormatDatum
-mkdir app/templates/Firma
-mkdir app/templates/Fronta
-mkdir app/templates/FrontaOsoba
-mkdir app/templates/IncidentStav
-mkdir app/templates/Osoba
-mkdir app/templates/Ovlivneni
-mkdir app/templates/Priorita
-mkdir app/templates/StavCi
-mkdir app/templates/Tarif
-mkdir app/templates/TypChange
-mkdir app/templates/TypIncident
-mkdir app/templates/TypOsoby
-mkdir app/templates/TimeZone
-mkdir app/templates/Ukon
-mkdir app/templates/WebAlertsCi
-mkdir app/templates/Zeme
-mkdir app/templates/ZpusobUzavreni
+mkdir app/AdminModule/templates/ChangeStav
+mkdir app/AdminModule/templates/FormatDatum
+mkdir app/AdminModule/templates/Firma
+mkdir app/AdminModule/templates/Fronta
+mkdir app/AdminModule/templates/FrontaOsoba
+mkdir app/AdminModule/templates/IncidentStav
+mkdir app/AdminModule/templates/Osoba
+mkdir app/AdminModule/templates/Ovlivneni
+mkdir app/AdminModule/templates/Priorita
+mkdir app/AdminModule/templates/StavCi
+mkdir app/AdminModule/templates/Tarif
+mkdir app/AdminModule/templates/TypChange
+mkdir app/AdminModule/templates/TypIncident
+mkdir app/AdminModule/templates/TypOsoby
+mkdir app/AdminModule/templates/TimeZone
+mkdir app/AdminModule/templates/Ukon
+mkdir app/AdminModule/templates/WebAlertsCi
+mkdir app/AdminModule/templates/Zeme
+mkdir app/AdminModule/templates/ZpusobUzavreni
 ```
 
 ## Database

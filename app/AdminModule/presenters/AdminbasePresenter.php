@@ -40,7 +40,7 @@ abstract class AdminbasePresenter extends BasePresenter
         $this->userId = $this->getUser()->getId();
         $this->identity = $this->getUser()->getIdentity();
 
-        //	pokud nejsi admin, nemas tu co pohledavat
+        //pokud nejsi admin, nemas tu co pohledavat
         if (!$this->identity->data['je_admin']) {
             $this->redirect(':Klient:Homepage:');
         }
@@ -55,7 +55,7 @@ abstract class AdminbasePresenter extends BasePresenter
     {
         $nav = new Navigation($this, $name);
         $nav->setupHomepage('Administrace', $this->link(':Admin:Homepage:'));
-        $nav->add('Klient', $this->link(':Klient:Homepage:'));
+//        $nav->add('Klient', $this->link(':Klient:Homepage:'));
 
         $inc = $nav->add('Tikety', $this->link('Tickets:'));
         $inc->add('Typ Incident', $this->link('TypIncident:'));
