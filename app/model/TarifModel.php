@@ -4,8 +4,8 @@ namespace App\Model;
 
 use dibi;
 use DibiException;
-use Nette\ArrayHash;
-use Nette\Diagnostics\Debugger;
+use Nette\Utils\ArrayHash;
+use Tracy\Debugger;
 use Nette\InvalidArgumentException;
 
 /**

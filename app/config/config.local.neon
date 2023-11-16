@@ -1,7 +1,6 @@
-nette:
-    database:
-        dsn: 'sqlite:/var/www/html/temp/database.db'
-        user:
-        password:
-        options:
-            lazy: yes
+database:
+    dsn: 'sqlite:/var/www/html/temp/database.db'
+    user:
+    password:
+    options:
+        lazy: yes

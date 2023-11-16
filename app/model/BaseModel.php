@@ -14,8 +14,8 @@ use DibiFluent;
 use DibiException;
 use DibiDataSource;
 use DibiRow;
-use Nette\ArrayHash;
 use Nette\Object;
+use Nette\Utils\ArrayHash;
 
 /**
  * Description of BaseModel
@@ -24,7 +24,7 @@ use Nette\Object;
  */
 abstract class BaseModel extends Object
 {
-    /*	 * ******************* Model behaviour ******************** */
+    /* * ******************* Model behaviour ******************** */
 
     /** @var string table name */
     protected $name;
@@ -34,20 +34,22 @@ abstract class BaseModel extends Object
 
     /**
      * Return all rows from database table
-     * @param array
-     * @return array of DibiRow
+     * @param array $order
+     * @return DibiRow[]
      * @throws DibiException
      */
-    public function fetchAll(array $order = array())
+    public function fetchAll(array $order = array()): array
     {
-        return dibi::fetchAll('SELECT * FROM %n', $this->name, '%ex', (!empty($order) ? array('ORDER BY %by', $order) : NULL));
+        return dibi::fetchAll('SELECT * FROM %n', $this->name,
+            '%ex',
+            (!empty($order) ? array('ORDER BY %by', $order) : null));
     }
 
     /**
      * Prepare query to db, rest of query can by modify in presenter.
      * @return DibiFluent
      */
-    public function fetchFactory()
+    public function fetchFactory(): DibiFluent
     {
         return dibi::select('%n.[id]', $this->name)
             ->from('%n', $this->name);

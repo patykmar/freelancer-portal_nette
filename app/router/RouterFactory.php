@@ -2,8 +2,8 @@
 
 namespace App;
 
-use	Nette\Application\Routers\RouteList;
-use	Nette\Application\Routers\Route;
+use Nette\Application\Routers\RouteList;
+use Nette\Application\Routers\Route;
 use Nette\Application\IRouter;
 
 
@@ -13,11 +13,11 @@ use Nette\Application\IRouter;
 class RouterFactory
 {
 
-	/**
-	 * @return RouteList
+    /**
+     * @return RouteList
      */
-	public static function createRouter()
-	{
+    public static function createRouter(): RouteList
+    {
         $router = new RouteList;
 
 //        Route::$defaultFlags = IRouter::SECURED;
@@ -27,8 +27,8 @@ class RouterFactory
         $router[] = $adminRouter = new RouteList('Admin');
         $adminRouter[] = new Route('admin/<presenter>/<action>[/<id>]', 'Homepage:default');
 
-        $router[] = $clientRouter = new RouteList('Klient');
-        $clientRouter[] = new Route('klient/<presenter>/<action>[/<id>]', 'Homepage:default');
+//        $router[] = $clientRouter = new RouteList('Klient');
+//        $clientRouter[] = new Route('klient/<presenter>/<action>[/<id>]', 'Homepage:default');
 
         $router[] = $frontRouter = new RouteList('Cron');
         $frontRouter[] = new Route('cron/<presenter>/<action>[/<id>]', 'Homepage:default');
@@ -37,6 +37,6 @@ class RouterFactory
         $frontRouter[] = new Route('<presenter>/<action>[/<id>]', 'Homepage:default');
 
         return $router;
-	}
+    }
 
 }

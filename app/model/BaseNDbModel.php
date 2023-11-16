@@ -8,14 +8,14 @@
 
 namespace App\Model;
 
-use Nette;
+use Nette\Object;
 use Nette\Database\Context;
 use Nette\Database\SqlLiteral;
 use Nette\Database\Table\ActiveRow;
 use Nette\Database\Table\IRow;
 use Nette\Database\Table\Selection;
 
-abstract class BaseNDbModel extends Nette\Object
+abstract class BaseNDbModel extends Object
 {
     /** @var string */
     protected $tableName;

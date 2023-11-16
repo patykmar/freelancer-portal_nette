@@ -5,9 +5,8 @@ namespace App\Model;
 use dibi;
 use DibiException;
 use DibiRow;
-use Nette\ArrayHash;
-use Nette\DateTime;
-use Nette\Diagnostics\Debugger;
+use Nette\Utils\ArrayHash;
+use Nette\Utils\DateTime;
 use Nette\InvalidArgumentException;
 use Nette\Utils\Strings;
 
@@ -22,7 +21,7 @@ final class IncidentModel extends BaseModel
     protected $name = 'incident';
 
     ###
-    ###	Nacitani dat
+    ### Nacitani dat
     ###
 
     /**
@@ -153,7 +152,7 @@ final class IncidentModel extends BaseModel
             ->leftJoin('typ_incident')->on('incident.typ_incident = typ_incident.id')
             ->leftJoin('priorita')->on('incident.priorita = priorita.id')
             ->leftJoin('incident_stav')->on('incident.incident_stav = incident_stav.id')
-#				  ->leftJoin('fronta')->on('incident.fronta = fronta.id')
+#              ->leftJoin('fronta')->on('incident.fronta = fronta.id')
             ->leftJoin('ci')->on('incident.ci = ci.id')
             ->leftJoin('firma')->on('ci.firma = firma.id')
             ->leftJoin('fronta_osoba')->on('[incident].[fronta_osoba] = [fronta_osoba].[id]')
@@ -168,7 +167,7 @@ final class IncidentModel extends BaseModel
      * Funkce nacte tiket, u ktereho je mozne zaslat feedback. Funkce slouzi pro
      * overeni. Pokud neco najde v databazi tak vrati radek z databaze dle ID.
      * @param int $id Description
-     * @throws \Nette\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function fetchForFeedBack($id)
     {
@@ -258,7 +257,7 @@ final class IncidentModel extends BaseModel
     }
 
     ###
-    ###	VKLADANI
+    ###   VKLADANI
     ###
 
     /**
@@ -270,7 +269,7 @@ final class IncidentModel extends BaseModel
     {
         dibi::begin();
         try {
-            //	na zaklade vybrane priority a tarifu nastavenem na CI si vypocitam casy na reakci a dokonceni tiketu
+            //   na zaklade vybrane priority a tarifu nastavenem na CI si vypocitam casy na reakci a dokonceni tiketu
             $cas = dibi::select("ADDDATE(ADDDATE(now(), INTERVAL + CONCAT(sla.reakce_mesic,' ',sla.reakce_hod,':',sla.reakce_min) MONTH), INTERVAL + sla.reakce_den DAY_MINUTE)")->as('[reakce]')
                 ->select("ADDDATE(ADDDATE(now(), INTERVAL + CONCAT(sla.hotovo_mesic,' ',sla.hotovo_hod,':',sla.hotovo_min) MONTH), INTERVAL + sla.hotovo_den DAY_MINUTE)")->as('[hotovo]')
                 ->from('%n', 'ci')
@@ -283,22 +282,22 @@ final class IncidentModel extends BaseModel
             $newItem->offsetSet('datum_reakce', $cas['reakce']);
             $newItem->offsetSet('datum_ukonceni', $cas['hotovo']);
 
-            //	nove tikety jsou odeslany automaticky na SD
+            //   nove tikety jsou odeslany automaticky na SD
             $newItem->offsetSet('fronta_osoba', 2);
 
-            //	zapisu do datbaze
+            //   zapisu do datbaze
             dibi::query('INSERT INTO %n', $this->name, ' %v', $newItem);
 
-            //	nactu si id od prave zapsaneho incidentu a vytvorim text pro WL
+            //   nactu si id od prave zapsaneho incidentu a vytvorim text pro WL
             $lastId = $this->getLastId();
 
-            //	naplnim docasne pole ktere pouziju pro vlozeni do tabulky WL
+            //   naplnim docasne pole ktere pouziju pro vlozeni do tabulky WL
             $WlArr = new ArrayHash;
             $WlArr->offsetSet('incident', $lastId);
             $WlArr->offsetSet('datum_vytvoreni', new DateTime);
             $WlArr->offsetSet('osoba', $newItem['osoba_vytvoril']);
 
-            //	nactu si nazvy k vlozenym hodnotam, aby byly citelne pro cloveka
+            //   nactu si nazvy k vlozenym hodnotam, aby byly citelne pro cloveka
             $dbFetch = dibi::select('[incident_stav].[nazev]')->as('[incident_stav]')
                 ->select('[priorita].[nazev]')->as('[priorita]')
                 ->select('[fronta].[nazev]')->as('[fronta]')
@@ -310,7 +309,7 @@ final class IncidentModel extends BaseModel
                 ->where('[incident].[id] = %i', $lastId)
                 ->fetch();
 
-            //	vytvorim si text, ktery se zapise do WL, char(10) - novy radek
+            //   vytvorim si text, ktery se zapise do WL, char(10) - novy radek
             $obsah = '**Tiket vytvořen**' . chr(10);
             $obsah .= ' **Typ incidentu**: ' . $dbFetch['incident_stav'] . chr(10);
             $obsah .= ' **Priorita**: ' . $dbFetch['priorita'] . chr(10);
@@ -320,9 +319,9 @@ final class IncidentModel extends BaseModel
             $obsah .= $newItem['obsah'];
 
             $WlArr->offsetSet('obsah', $obsah);
-            //	uvolnim pamet s docasnymi promennymi
+            //   uvolnim pamet s docasnymi promennymi
             unset($obsah, $dbFetch);
-            //	zapisi do WL informace o novem tiketu
+            //   zapisi do WL informace o novem tiketu
             $wlModel = new IncidentLogModel();
             $wlModel->insert($WlArr);
             dibi::commit();
@@ -335,7 +334,7 @@ final class IncidentModel extends BaseModel
     }
 
     ###
-    ###	EDITOVANI
+    ###   EDITOVANI
     ###
 
     /**
@@ -351,7 +350,7 @@ final class IncidentModel extends BaseModel
     {
         // nejprve si nactu stare hodnoty radku z databaze pro potreby porovnani
         $dbData = $this->fetchWith3thPartyTable($id);
-        //	Docasna promenna do ktere se budou ukladat radky work logu
+        //   Docasna promenna do ktere se budou ukladat radky work logu
         $wl = array();
         try {
             /*
@@ -359,7 +358,7 @@ final class IncidentModel extends BaseModel
              * je nastaven na [probiha realizace] nastavim osobu prirazen na aktualne
              * prihlaseneho uzivatele.
              */
-            /* 			if (isset($arr['incident_stav']) && $dbData['incident_stav'] != 3 && $arr['incident_stav'] = 3):
+            /*          if (isset($arr['incident_stav']) && $dbData['incident_stav'] != 3 && $arr['incident_stav'] = 3):
               #$arr->offsetUnset('priorita');
               #$arr->offsetUnset('obsah');
               $arr->offsetSet('osoba_prirazen', $arr['identity']);
@@ -390,10 +389,10 @@ final class IncidentModel extends BaseModel
              * promenna, ktera je z pohledu auditu zajimava. Nektere polozky ve
              * vystupu z formularetam vybec nemuseji byt.
              */
-            //	docasna promenna, pokud se nastavi na TRUE prepocita se cas reakce a dokonceni tiketu
+            //   docasna promenna, pokud se nastavi na TRUE prepocita se cas reakce a dokonceni tiketu
             $novyCas = FALSE;
             //
-            //	TYP_INCIDENTU
+            //   TYP_INCIDENTU
             //
             if (isset($arr['typ_incident']) && $arr['typ_incident'] !== $dbData['typ_incident']) {
                 $tmp = TypIncidentModel::fetchPairs();
@@ -408,13 +407,13 @@ final class IncidentModel extends BaseModel
                 } else {
                     $wl[] = '**Typ incidentu:** ' . $new;
                 }
-                //	prepocitej cas
+                //   prepocitej cas
                 $novyCas = TRUE;
-                //	uvolnim z pameti docasne promenne
+                //   uvolnim z pameti docasne promenne
                 unset($tmp, $old, $new);
             }
             //
-            //	PRIORITA
+            //   PRIORITA
             //
             if (isset($arr['priorita']) && $arr['priorita'] !== $dbData['priorita']) {
                 $tmp = PrioritaModel::fetchPairs();
@@ -429,13 +428,13 @@ final class IncidentModel extends BaseModel
                 } else {
                     $wl[] = '**Priorita:** ' . $new;
                 }
-                //	prepocitej cas
+                //   prepocitej cas
                 $novyCas = TRUE;
-                //	uvolnim z pameti docasne promenne
+                //   uvolnim z pameti docasne promenne
                 unset($tmp, $old, $new);
             }
             //
-            //	STAV_INCIDENTU
+            //   STAV_INCIDENTU
             //
             if (isset($arr['incident_stav']) && $arr['incident_stav'] !== $dbData['incident_stav']) {
                 $tmp = IncidentStavModel::fetchPairs();
@@ -450,11 +449,11 @@ final class IncidentModel extends BaseModel
                 } else {
                     $wl[] = '**Stav incidentu:** ' . $new;
                 }
-                //	uvolnim z pameti docasne promenne
+                //   uvolnim z pameti docasne promenne
                 unset($tmp, $old, $new);
             }
             //
-            //	Zmena OSOBY a fronty na ktere je tiket PRIRAZEN
+            //   Zmena OSOBY a fronty na ktere je tiket PRIRAZEN
             //
 
             /**
@@ -479,7 +478,7 @@ final class IncidentModel extends BaseModel
              *            fronta_nazev => "TIER 1" (6)
              */
             if (isset($arr['fronta_osoba']) && $arr['fronta_osoba'] !== $dbData['fronta_osoba']):
-                //	asociativni pole s hodnotami obsazene v tabulce
+                //   asociativni pole s hodnotami obsazene v tabulce
                 $tmp = FrontaOsobaModel::fetchAllWithOsobaAndFrontaName();
                 #dump($tmp);
                 #exit;
@@ -496,11 +495,11 @@ final class IncidentModel extends BaseModel
                     $wl[] = '**Přiřazeno:** ' . $new['jmeno'];
                     $wl[] = '**Fronta:** ' . $new['fronta_nazev'];
                 }
-                //	uvolnim z pameti docasne promenne
+                //   uvolnim z pameti docasne promenne
                 unset($tmp, $old, $new, $modelOsoba);
             endif;
 
-            //	pokud je $novyCas = TRUE pak prepocitej casy
+            //   pokud je $novyCas = TRUE pak prepocitej casy
             if ($novyCas) {
                 //pri uprave priority je potreba prepocitat cas do kdy se ma tiket vytvorit
                 $cas = dibi::select('[incident].[datum_ukonceni]')->as('[stary_datum_ukonceni]')
@@ -531,7 +530,7 @@ final class IncidentModel extends BaseModel
                 $wl[] = Strings::trim($arr['wl']);
             }
 
-            //	pokud ma WL alespon jeden zaznam tak zapis do WL hodnoty
+            //   pokud ma WL alespon jeden zaznam tak zapis do WL hodnoty
             if (count($wl) > 0) {
                 /**    @var ArrayHash Description */
                 $item = new ArrayHash();

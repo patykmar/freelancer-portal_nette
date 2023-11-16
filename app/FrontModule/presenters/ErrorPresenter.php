@@ -6,7 +6,7 @@ use App\Presenters\BasePresenter;
 use Exception;
 use Nette;
 use Nette\Application\AbortException;
-use Nette\Diagnostics\Debugger;
+use Tracy\Debugger;
 
 /**
  * Error presenter.
@@ -14,14 +14,14 @@ use Nette\Diagnostics\Debugger;
 class ErrorPresenter extends BasePresenter
 {
     /**
-     * @param Exception
+     * @param Exception $exception
      * @return void
      * @throws AbortException
      */
-    public function renderDefault($exception)
+    public function renderDefault(Exception $exception)
     {
         if ($this->isAjax()) { // AJAX request? Just note this error in payload.
-            $this->payload->error = TRUE;
+            $this->getPayload()->error = true;
             $this->terminate();
         } elseif ($exception instanceof Nette\Application\BadRequestException) {
             $code = $exception->getCode();
