@@ -1,6 +1,6 @@
 database:
-    dsn: 'sqlite:/var/www/html/temp/database.db'
-    user:
-    password:
+    dsn: 'mysql:host=db;dbname=portal'
+    user: 'portal_user'
+    password: 'password'
     options:
         lazy: yes

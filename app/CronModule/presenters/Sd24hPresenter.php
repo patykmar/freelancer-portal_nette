@@ -178,8 +178,8 @@ class Sd24hPresenter extends CronBasePresenter
         //	vypnu absolutni URL
         $this->absoluteUrls = FALSE;
 
-//        dump($model->fetchAll());
-//        dump($model->fetchAssoc('email,id'));
-//        $mail->odesliPozadavekNaZpetnoutVazbu($model->fetchAssoc('email,id'));
+//        dump($Model->fetchAll());
+//        dump($Model->fetchAssoc('email,id'));
+//        $mail->odesliPozadavekNaZpetnoutVazbu($Model->fetchAssoc('email,id'));
     }
 }
