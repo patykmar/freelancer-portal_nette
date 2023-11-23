@@ -14,7 +14,7 @@ RUN a2enmod rewrite
 RUN docker-php-ext-install pdo mysqli pdo_mysql mbstring
 
 RUN if [ $WITH_XDEBUG = "true" ] ; then \
-    pecl install xdebug-2.5.5; \
+    pecl install xdebug-2.9.8; \
     docker-php-ext-enable xdebug; \
     echo "error_reporting = E_ALL" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
     echo "display_startup_errors = On" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
@@ -27,9 +27,6 @@ fi;
 # use your users $UID and $G`ID below
 RUN groupadd apache-www-volume -g 1000
 RUN useradd apache-www-volume -u 1000 -g 1000
-
-#COPY . /var/www/
-RUN chown -R www-data:www-data /var/www
 
 
 CMD ["apache2-foreground"]

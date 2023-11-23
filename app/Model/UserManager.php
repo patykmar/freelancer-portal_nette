@@ -25,7 +25,7 @@ class UserManager extends Object implements IAuthenticator
     const PASSWORD_MAX_LENGTH = 4096;
 
 
-    /** @var Context */
+    /** @var Context $database */
     private $database;
 
 
@@ -37,14 +37,15 @@ class UserManager extends Object implements IAuthenticator
 
     /**
      * Performs an authentication.
+     * @param array $credentials
      * @return Identity
      * @throws AuthenticationException
      */
-    public function authenticate(array $credentials)
+    public function authenticate(array $credentials): Identity
     {
         list($username, $password) = $credentials;
-
         $row = $this->database->table(self::TABLE_NAME)->where(self::COLUMN_NAME, $username)->fetch();
+
 
         if (!$row) {
             throw new AuthenticationException('The username is incorrect.', self::IDENTITY_NOT_FOUND);

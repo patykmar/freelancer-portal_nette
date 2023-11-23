@@ -16,6 +16,7 @@ use App\Form\Admin\Add\FkBaseForm as AddFkBaseForm;
 use App\Form\Admin\Edit\FkBaseForm as EditFkBaseForm;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
+use Nette\Database\IRow;
 use Nette\Diagnostics\Debugger;
 use Nette\InvalidArgumentException;
 
@@ -44,7 +45,7 @@ class IncidentStavPresenter extends AdminbasePresenter
     /**
      * Cast DEFAULT, definice Gridu
      */
-    protected function createComponentGrid()
+    protected function createComponentGrid(): FkGrid
     {
         return new FkGrid($this->netteModel->table($this->tableName));
     }
@@ -55,13 +56,13 @@ class IncidentStavPresenter extends AdminbasePresenter
     }
 
     /*************************************** PART ADD **************************************/
-    
+
     public function renderAdd()
     {
         $this->setView('../_add');
     }
 
-    public function createComponentAdd()
+    public function createComponentAdd(): AddFkBaseForm
     {
         $form = new AddFkBaseForm;
         $form->onSuccess[] = callback($this, 'add');
@@ -90,17 +91,14 @@ class IncidentStavPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function renderEdit($id)
+    public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
-            //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
+            /** @var bool|IRow $v nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji */
             $v = $this->model->fetch($id);
 
-            //	odeberu idecko z pole
-            $v->offsetUnset('id');
-
-            //	upravene hodnoty odeslu do formulare
+            // upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
@@ -108,7 +106,7 @@ class IncidentStavPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit()
+    public function createComponentEdit(): EditFkBaseForm
     {
         $form = new EditFkBaseForm;
         $form->onSuccess[] = callback($this, 'edit');
@@ -144,14 +142,14 @@ class IncidentStavPresenter extends AdminbasePresenter
                 $this->model->fetch($id);
                 $this->model->remove($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
-                $this->redirect('IncidentStav:default');    //	change it !!!
+                $this->redirect('IncidentStav:default');    // change it !!!
             } catch (InvalidArgumentException $exc) {
                 $this->flashMessage($exc->getMessage());
-                $this->redirect('IncidentStav:default');    //	change it !!!
+                $this->redirect('IncidentStav:default');    // change it !!!
             }
         } catch (DibiException $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
-            $this->redirect('IncidentStav:default');    //	change it !!!
+            $this->redirect('IncidentStav:default');    // change it !!!
         }
     }
 }

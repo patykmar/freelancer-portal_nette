@@ -161,7 +161,7 @@ class CiPresenter extends AdminbasePresenter
         try {
             $v = $form->getValues();
 //            dump($v);
-//            $dbData = $this->model->fetch($v['id']);
+//            $dbData = $this->Model->fetch($v['id']);
 //            dump($dbData);
 //            exit;
             $this->ciModel->update($v['new'], $v['id']);

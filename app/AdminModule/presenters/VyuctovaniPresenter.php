@@ -127,7 +127,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
             //	vygeneruj novou fakturu
             $this->fakturaModel->insertFromTickets($novaFaktura);
             #//	presmeruji aplikaci, aby vygenerovala PDF soubor
-            #$this->redirect('Faktura:GeneratePdf', $this->model->getLastId());
+            #$this->redirect('Faktura:GeneratePdf', $this->Model->getLastId());
             $this->redirect('Faktura:');
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());

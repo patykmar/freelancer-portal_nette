@@ -1,5 +1,24 @@
 version: "3.3"
 services:
+  db:
+    image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: portal
+      MYSQL_USER: portal_user
+      MYSQL_PASSWORD: password
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    volumes:
+      - "./docker/db:/docker-entrypoint-initdb.d"
+    networks:
+      - portal-docker
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8088:8080"
+    networks:
+      - portal-docker
   php-apache:
     build:
       context: .
@@ -7,7 +26,8 @@ services:
         - WITH_XDEBUG=true
       dockerfile: ./docker/php-apache/Dockerfile
     ports:
-      - "8000:80"
+      - "8080:80"
+      - "8443:443"
       - "9001:9001"
     volumes:
       - .:/var/www/html
@@ -23,3 +43,8 @@ services:
       - PORTAL_ADMIN_PASSWORD=admin123456
       - PORTAL_USER_USERNAME=user@portal.cz
       - PORTAL_USER_PASSWORD=user123456
+    networks:
+      - portal-docker
+networks:
+  portal-docker:
+    driver: bridge

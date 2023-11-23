@@ -4,6 +4,10 @@ namespace App\Model;
 
 use dibi;
 use DibiException;
+use Nette\Database\Connection;
+use Nette\Database\Context;
+use Nette\Database\IRow;
+use Nette\Database\Row;
 use Nette\Utils\ArrayHash;
 
 /**
@@ -15,6 +19,16 @@ final class SlaModel extends BaseModel
 {
     /** @var string nazev tabulky */
     protected $name = 'sla';
+
+    /** @var Connection $connection */
+    private $connection;
+
+    public function __construct(Context $context, Connection $connection)
+    {
+        parent::__construct($context);
+        $this->connection = $connection;
+    }
+
 
     /**
      * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
@@ -39,14 +53,25 @@ final class SlaModel extends BaseModel
      * Pretizena funkce ktera krome vsech hodnot v tabulce SLA vraci i nazvy
      * tarifu a priority
      * @param int $id Identifikator SLAcka
-     * @throws DibiException
+     * @return bool|IRow|Row
      */
-    public function fetch($id)
+    public function fetch(int $id)
     {
-        return dibi::fetch('SELECT [sla].*, [tarif].[nazev] AS [tarif], [priorita].[nazev] AS [priorita]',
-            'FROM %n', $this->name,
-            'LEFT JOIN ([tarif], [priorita]) ON ([tarif].[id]=[sla].[tarif] AND [priorita].[id]=[sla].[priorita])',
-            'WHERE %n=%i LIMIT 1', $this->name . '.' . $this->primary, $id);
+        return $this->connection
+            ->query(
+                "SELECT s.*, t.nazev as tarif, p.nazev as priorita " .
+                "FROM ?tableName AS s" .
+                "LEFT JOIN (tarif AS t, priorita AS p) ON (t.id = s.tarif AND p.id = s.priorita)" .
+                "WHERE ?tableName.id = ?id",
+                [
+                    "tableName" => $this->name,
+                    "id" => $id
+                ]
+            )->fetch();
+//        return dibi::fetch('SELECT [sla].*, [tarif].[nazev] AS [tarif], [priorita].[nazev] AS [priorita]',
+//            'FROM %n', $this->name,
+//            'LEFT JOIN ([tarif], [priorita]) ON ([tarif].[id]=[sla].[tarif] AND [priorita].[id]=[sla].[priorita])',
+//            'WHERE %n=%i LIMIT 1', $this->name . '.' . $this->primary, $id);
     }
 
 
