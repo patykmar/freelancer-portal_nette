@@ -2,6 +2,7 @@ version: "3.3"
 services:
   db:
     image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_DATABASE: portal
       MYSQL_USER: portal_user

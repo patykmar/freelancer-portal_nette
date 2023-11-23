@@ -44,11 +44,6 @@ class UserManager extends Object implements IAuthenticator
     public function authenticate(array $credentials): Identity
     {
         list($username, $password) = $credentials;
-
-//        dump($this->database);
-//        exit();
-
-//        $row = $this->database->fetch("SELECT * FROM ? WHERE ? = ?", self::TABLE_NAME, self::COLUMN_NAME, $username);
         $row = $this->database->table(self::TABLE_NAME)->where(self::COLUMN_NAME, $username)->fetch();
 
 

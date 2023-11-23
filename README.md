@@ -46,18 +46,6 @@ mkdir app/AdminModule/templates/Zeme
 mkdir app/AdminModule/templates/ZpusobUzavreni
 ```
 
-## Database
-Application has been development with MySQL as a database, but for dockerized and use minimum dependencies of 
-container I've decided to use SQLite. So I've rewritten some database call like change `CONCAT` method to `||` 
-in SQLite dialect. **Not all database calls have been changed!**
-
-### Import sample data
-```shell
-sqlite3 temp/database.db
-sqlite3 temp/database.db < ../docker/sqlite/portal_sqlite.sql
-sqlite3 temp/database.db < ../docker/sqlite/faktury_import.sql
-```
-
 ## Docker
 
 ### Development
@@ -66,6 +54,12 @@ Docker command for developing inside docker container
 ```shell
 docker-compose up
 ```
+
+### Links
+| App      | Link                   |
+|----------|------------------------|
+| Portal   | http://127.0.0.1:8080/ |
+| Adminer  | http://127.0.0.1:8088/ |
 
 ### Build 
 

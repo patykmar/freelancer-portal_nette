@@ -14,6 +14,8 @@ use DibiFluent;
 use DibiException;
 use DibiDataSource;
 use DibiRow;
+use Nette\Database\Context;
+use Nette\Database\IRow;
 use Nette\Object;
 use Nette\Utils\ArrayHash;
 
@@ -31,6 +33,14 @@ abstract class BaseModel extends Object
 
     /** @var string primary key name */
     protected $primary = 'id';
+
+    /** @var Context $explorer */
+    protected $explorer;
+
+    public function __construct(Context $database)
+    {
+        $this->explorer = $database;
+    }
 
     /**
      * Return all rows from database table
@@ -58,19 +68,21 @@ abstract class BaseModel extends Object
     /**
      * @param ArrayHash $newItem
      * @return void
-     * @throws DibiException
      */
     public function insert(ArrayHash $newItem)
     {
-        dibi::query('INSERT INTO %n', $this->name, '%v', $newItem);
+        $this->explorer->table($this->name)->insert($newItem);
     }
 
     /**
-     * @throws DibiException
+     * @param ArrayHash $arr
+     * @param int $id
      */
     public function update(ArrayHash $arr, $id)
     {
-        dibi::query('UPDATE %n ', $this->name, ' SET ', $arr, ' WHERE %n=%i LIMIT 1', $this->primary, $id);
+        $this->explorer->table($this->name)
+            ->where($this->primary, $id)
+            ->update($arr);
     }
 
     /**
@@ -88,13 +100,13 @@ abstract class BaseModel extends Object
 
     /**
      * @param int $id
-     * @return DibiRow|FALSE
+     * @return IRow|bool
      */
-    public function fetch($id)
+    public function fetch(int $id)
     {
-        return dibi::select('*')
-            ->from('%n', $this->name)
-            ->where('%n = %i', $this->primary, $id)
+        return $this->explorer
+            ->table($this->name)
+            ->where($this->primary, $id)
             ->fetch();
     }
 

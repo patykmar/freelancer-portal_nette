@@ -28,8 +28,5 @@ fi;
 RUN groupadd apache-www-volume -g 1000
 RUN useradd apache-www-volume -u 1000 -g 1000
 
-#COPY . /var/www/
-RUN chown -R www-data:www-data /var/www
-
 
 CMD ["apache2-foreground"]

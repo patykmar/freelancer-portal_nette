@@ -47,7 +47,7 @@ final class OsobaModel extends BaseNDbModel
      */
     public function fetchAllPairs()
     {
-        $sql = "SELECT id, jmeno || ' ' || prijmeni AS nazev ";
+        $sql = "SELECT id, CONCAT(jmeno, ' ', prijmeni) AS nazev ";
         $sql .= "FROM osoba ";
         $sql .= "ORDER BY prijmeni";
         return $this->database->query($sql)->fetchPairs();
