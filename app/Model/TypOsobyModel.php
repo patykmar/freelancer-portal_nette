@@ -2,9 +2,6 @@
 
 namespace App\Model;
 
-use dibi;
-use DibiException;
-
 /**
  * Description of TypOsobyModel
  *
@@ -18,11 +15,10 @@ final class TypOsobyModel extends BaseModel
 
     /**
      * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
-     * @return string
-     * @throws DibiException
+     * @return array
      */
-    public static function fetchPairs()
+    public function fetchPairs(): array
     {
-        return dibi::fetchPairs('SELECT [id], [nazev] FROM [typ_osoby] ORDER BY [nazev]');
+        return $this->explorer->table($this->name)->order('nazev')->fetchPairs('id', 'nazev');
     }
 }
