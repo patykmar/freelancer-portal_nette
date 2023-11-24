@@ -2,7 +2,7 @@
 
 namespace App\Model;
 
-use dibi;
+use Nette\Database\Context;
 
 /**
  * Description of UkonModel
@@ -11,17 +11,14 @@ use dibi;
  */
 final class UkonModel extends BaseNDbModel
 {
-    /** @var string nazev tabulky */
-    protected $tableName = 'ukon';
+    use FetchPairsTrait;
 
-    /**
-     * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
-     * @return array id, zazev
-     */
-    public function fetchPairs()
+    public const TABLE_NAME = 'ukon';
+
+    public function __construct(Context $context)
     {
-        return $this->fetchAll()
-            ->order('nazev')
-            ->fetchPairs('id', 'nazev');
+        parent::__construct(self::TABLE_NAME, $context);
     }
+
+
 }

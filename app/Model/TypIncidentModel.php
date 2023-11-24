@@ -2,6 +2,8 @@
 
 namespace App\Model;
 
+use Nette\Database\Context;
+
 /**
  * Description of TypIncidentModel
  *
@@ -9,19 +11,13 @@ namespace App\Model;
  */
 final class TypIncidentModel extends BaseNDbModel
 {
-    /** @var string */
-    protected $tableName = 'typ_incident';
+    use FetchPairsTrait;
 
-    /**
-     * Vrati nazev a primarni klic v paru k pouziti nacteni
-     * cizich klicu ve formulari
-     * @return array id, zazev
-     */
-    public function fetchPairs(): array
+    public const TABLE_NAME = 'typ_incident';
+
+    public function __construct(Context $context)
     {
-        return $this->fetchAll()
-            ->order('nazev DESC')
-            ->fetchPairs('id', 'nazev');
+        parent::__construct(self::TABLE_NAME, $context);
     }
 
     /**
@@ -29,16 +25,16 @@ final class TypIncidentModel extends BaseNDbModel
      * @param bool $rodice Ovlivnuje jestli se nactou potomci nebo rodicovske typy
      * @return array id, zazev
      */
-    public function fetchPairsMain($rodice = TRUE)
+    public function fetchPairsMain($rodice = true): array
     {
         if ($rodice) {
-            return $this->fetchAll()
+            return $this->explorer->table($this->tableName)
                 ->where('typ_incident IS NULL')
-                ->fetchPairs();
+                ->fetchPairs('id', 'nazev');
         } else {
-            return $this->fetchAll()
+            return $this->explorer->table($this->tableName)
                 ->where('typ_incident IS NOT NULL')
-                ->fetchPairs();
+                ->fetchPairs('id', 'nazev');
         }
     }
 }

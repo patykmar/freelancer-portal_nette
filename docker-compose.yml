@@ -38,7 +38,8 @@ services:
       - APACHE_RUN_USER=apache-www-volume
       - APACHE_RUN_GROUP=apache-www-volume
       - PHP_IDE_CONFIG=serverName=nette_freelancer-portal
-      - XDEBUG_CONFIG=remote_host=172.20.0.1 remote_port=9001
+#      - XDEBUG_CONFIG=remote_host=172.20.0.1 remote_port=9001
+      - XDEBUG_MODE = DEBUG
       - PORTAL_ADMIN_USERNAME=admin@portal.cz
       - PORTAL_ADMIN_PASSWORD=admin123456
       - PORTAL_USER_USERNAME=user@portal.cz

@@ -11,17 +11,19 @@ namespace App\AdminModule\Presenters;
 use App\Grids\Admin\IncidentGrid;
 use App\Grids\TiketChildTaskGrid;
 use App\Model\CiModel;
+use App\Model\FrontaOsobaModel;
 use App\Model\IncidentLogModel;
 use App\Model\IncidentModel;
+use App\Model\IncidentStavModel;
 use App\Model\OsobaModel;
 use App\Model\OvlivneniModel;
 use App\Model\PrioritaModel;
 use App\Model\TypIncidentModel;
 use App\Model\UkonModel;
+use App\Model\ZpusobUzavreniModel;
 use DibiException;
 use App\Form\Admin\Add;
 use App\Form\Admin\Edit;
-use App\Model;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Database\Context;
@@ -30,46 +32,37 @@ use Nette\Diagnostics\Debugger;
 use Nette\Forms\Form;
 use Nette\InvalidArgumentException;
 use Nette\Utils\Strings;
+use Portal\WorkLog\WorkLogControl;
 
 class TicketsPresenter extends AdminbasePresenter
 {
-    /** @var IncidentModel */
     private $model;
-
-    /** @var IncidentLogModel */
     private $modelIncWl;
-
-    /** @var OsobaModel */
     private $osobaModel;
-
-    /** @var TypIncidentModel */
     private $typIncidentModel;
-
-    /** @var PrioritaModel */
     private $prioritaModel;
-
-    /** @var OvlivneniModel */
     private $ovlivneniModel;
-
-    /** @var CiModel */
     private $ciModel;
-
-    /** @var UkonModel */
     private $ukonModel;
-
-    /** @var Context */
     private $netteModel;
+    private $zpusobUzavreniModel;
+    private $incidentStavModel;
+    private $frontaOsobaModel;
+//    private $childTaskDB;
 
     public function __construct(
-        Context          $context,
-        IncidentModel    $model,
-        IncidentLogModel $incidentLogModel,
-        OsobaModel       $osobaModel,
-        TypIncidentModel $typIncidentModel,
-        PrioritaModel    $prioritaModel,
-        OvlivneniModel   $ovlivneniModel,
-        CiModel          $ciModel,
-        UkonModel        $ukonModel
+        Context             $context,
+        IncidentModel       $model,
+        IncidentLogModel    $incidentLogModel,
+        OsobaModel          $osobaModel,
+        TypIncidentModel    $typIncidentModel,
+        PrioritaModel       $prioritaModel,
+        OvlivneniModel      $ovlivneniModel,
+        CiModel             $ciModel,
+        UkonModel           $ukonModel,
+        ZpusobUzavreniModel $zpusobUzavreniModel,
+        IncidentStavModel   $incidentStavModel,
+        FrontaOsobaModel    $frontaOsobaModel
     )
     {
         parent::__construct();
@@ -82,6 +75,11 @@ class TicketsPresenter extends AdminbasePresenter
         $this->ovlivneniModel = $ovlivneniModel;
         $this->ciModel = $ciModel;
         $this->ukonModel = $ukonModel;
+        $this->zpusobUzavreniModel = $zpusobUzavreniModel;
+        $this->incidentStavModel = $incidentStavModel;
+        $this->frontaOsobaModel = $frontaOsobaModel;
+
+//        $this->childTaskDB = $context->table('incident');
     }
 
     /*************************************** PART CREATE COMPONENTS **************************************/
@@ -149,6 +147,12 @@ class TicketsPresenter extends AdminbasePresenter
 
     /*************************************** PART EDIT **************************************/
 
+    //for load work load
+    protected function createComponentWl()
+    {
+        return new WorkLogControl($this->netteModel);
+    }
+
     //component for edit new item
     protected function createComponentEditTiket()
     {
@@ -158,54 +162,56 @@ class TicketsPresenter extends AdminbasePresenter
     }
 
     //grid child tickets
-    protected function createComponentChildTaskList()
+    protected function createComponentChildTaskList($parrentId): TiketChildTaskGrid
     {
-        return new TiketChildTaskGrid($this->netteModel->table('incident'));
+        return new TiketChildTaskGrid($this->netteModel->table('incident')
+            ->where('incident = ?', $parrentId));
     }
 
     /**
      * @param int $id cislo tiketu
      * @throws BadRequestException|DibiException
      */
-    public function actionEdit($id)
+    public function actionEdit(int $id)
     {
-        $this->cssFiles->addFile('incForm.css');
+//        $this->cssFiles->addFile('incForm.css');
         try {
 
             $this->template->incId = $id;
             //podminka pro zobrazeni tiketu s potomkama
-            $this->childTaskDB->where('incident = ?', $id);
-            $this['childTaskList']->setIncident($id);
+//            $this->childTaskDB->where('incident = ?', $id);
+
+//            $this['childTaskList']->setIncident($id);
             $this['editTiket']['new']['idTxt']
                 ->setAttribute('readonly', 'readonly');
             $this['editTiket']['new']['firma_nazev']
                 ->setAttribute('readonly', 'readonly');
             $this['editTiket']['new']['ci']
-                ->setItems(Model\CiModel::fetchAllPairsWithCompanyName());
+                ->setItems($this->ciModel->fetchAllPairsWithCompanyName());
             $this['editTiket']['new']['fronta_osoba']
-                ->setItems(Model\FrontaOsobaModel::fetchSpecialistPairsWithQueueName())
+                ->setItems($this->frontaOsobaModel->fetchSpecialistPairsWithQueueName())
                 ->setPrompt(' - - - ');
             $this['editTiket']['new']['ukon']
-                ->setItems(Model\UkonModel::fetchPairs())
+                ->setItems($this->ukonModel->fetchPairs())
                 ->setPrompt(' - - - ');
             $this['editTiket']['new']['ovlivneni']
-                ->setItems(Model\OvlivneniModel::fetchPairs())
+                ->setItems($this->ovlivneniModel->fetchPairs())
                 ->setPrompt(' - - - ');
             $this['editTiket']['new']['zpusob_uzavreni']
-                ->setItems(Model\ZpusobUzavreniModel::fetchPairs())
+                ->setItems($this->zpusobUzavreniModel->fetchPairs())
                 ->setPrompt(' - - - ');
             $this['editTiket']['new']['typ_incident']
-                ->setItems(Model\TypIncidentModel::fetchPairs())
+                ->setItems($this->typIncidentModel->fetchPairs())
                 ->setPrompt(' - - - ')
                 ->addRule(Form::FILLED);
             $this['editTiket']['new']['priorita']
-                ->setItems(Model\PrioritaModel::fetchPairs())
+                ->setItems($this->prioritaModel->fetchPairs())
                 ->addRule(Form::FILLED);
             $this['editTiket']['new']['incident_stav']
-                ->setItems(Model\IncidentStavModel::fetchPairs())
+                ->setItems($this->incidentStavModel->fetchPairs())
                 ->addRule(Form::FILLED);
             $this['editTiket']['new']['osoba_vytvoril']
-                ->setItems(Model\OsobaModel::fetchAllPairsWithCompanyName())
+                ->setItems($this->osobaModel->fetchAllPairsWithCompanyName())
                 ->addRule(Form::FILLED);
             //pokud je nastaven stav na vyresen je potreba vybrat zpusob uzavreni
             $this['editTiket']['new']['zpusob_uzavreni']

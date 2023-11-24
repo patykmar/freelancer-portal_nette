@@ -5,6 +5,8 @@ namespace App\Model;
 use dibi;
 use DibiException;
 use DibiRow;
+use Nette\Database\Connection;
+use Nette\Database\Context;
 use Nette\Utils\ArrayHash;
 use Nette\Utils\DateTime;
 use Nette\InvalidArgumentException;
@@ -15,53 +17,88 @@ use Nette\Utils\Strings;
  *
  * @author Martin Patyk
  */
-final class IncidentModel extends BaseModel
+final class IncidentModel extends BaseNDbModel
 {
-    /** @var string nazev tabulky */
-    protected $tableName = 'incident';
+    public const TABLE_NAME = 'incident';
 
-    ###
-    ### Nacitani dat
-    ###
+    private $connection;
+    private $incidentStavModel;
+    private $incidentLogModel;
+
+    public function __construct(
+        Context           $context,
+        Connection        $connection,
+        IncidentStavModel $incidentStavModel,
+        IncidentLogModel  $incidentLogModel
+    )
+    {
+        parent::__construct(self::TABLE_NAME, $context);
+        $this->connection = $connection;
+        $this->incidentStavModel = $incidentStavModel;
+        $this->incidentLogModel = $incidentLogModel;
+    }
 
     /**
      * Funkce nacita hodnoty do tiketu v textove podobe, aby se mohly informace
      * zobrazit uzivateli.
      * @param int $id cislo teketu
      */
-    public function fetchWith3thPartyTable($id)
+    public function fetchWith3thPartyTable(int $id)
     {
-        $r = dibi::select('CONCAT([typ_incident].[zkratka],[incident].[id])')->as('idTxt')
-            ->select('incident.typ_incident')
-            ->select('priorita')
-            ->select('incident_stav')
-            ->select('fronta_osoba')
-            ->select('incident.obsah')
-            ->select('datum_ukonceni')
-            ->select('datum_reakce')
-            ->select('zpusob_uzavreni')
-            ->select('obsah_uzavreni')
-            ->select('ukon')
-            ->select('ovlivneni')
-            ->select('[incident].[osoba_vytvoril]')
-            ->select('maly_popis')
-            ->select('firma.nazev')->as('firma_nazev')
-            ->select('fronta.nazev')->as('fronta')
-            ->select('incident.ci')
-            ->select('[incident].[datum_vytvoreni]')->as('[datum_vytvoreni]')
-            ->select('CONCAT(osoba.jmeno," ",osoba.prijmeni)')->as('osoba_vytvoril_text')
-            ->select('(SELECT count([id]) FROM  [incident] WHERE incident = %i)', $id)->as('pocetPotomku')
-            ->from('%n', $this->tableName)
-            ->leftJoin('osoba')->on('([incident].[osoba_vytvoril] = [osoba].[id])')
-            ->leftJoin('ci')->on('([incident].[ci] = [ci].[id])')
-            ->leftJoin('firma')->on('([ci].[firma] = [firma].[id])')
-            ->leftJoin('typ_incident')->on('([typ_incident].[id] = [incident].[typ_incident])')
-            ->leftJoin('fronta_osoba')->on('([incident].[fronta_osoba] = [fronta_osoba].[id])')
-            ->leftJoin('fronta')->on('([fronta_osoba].[fronta] = [fronta].[id])')
-            ->where('[incident].[id] = %i', $id)
-            ->fetch();
-        if ($r):
-            return $r;
+        $query =
+            'SELECT CONCAT(typ_incident.zkratka,incident.id) AS idTxt, ' .
+            'incident.typ_incident, priorita, incident_stav, ukon, incident.ci, ' .
+            'fronta_osoba, datum_ukonceni, datum_reakce, zpusob_uzavreni, incident.obsah, ' .
+            'obsah_uzavreni, ovlivneni, incident.osoba_vytvoril, maly_popis, ' .
+            'firma.nazev AS firma_nazev, ' .
+            'fronta.nazev AS fronta, ' .
+            'incident.datum_vytvoreni AS datum_vytvoreni, ' .
+            'CONCAT(osoba.jmeno," ",osoba.prijmeni) AS osoba_vytvoril_text, ' .
+            '(SELECT count(id) FROM  incident WHERE incident = ?) AS pocetPotomku ' .
+            'FROM ' . self::TABLE_NAME . ' ' .
+            'LEFT JOIN osoba ON incident.osoba_vytvoril = osoba.id ' .
+            'LEFT JOIN ci ON incident.ci = ci.id ' .
+            'LEFT JOIN firma ON ci.firma = firma.id ' .
+            'LEFT JOIN typ_incident ON typ_incident.id = incident.typ_incident ' .
+            'LEFT JOIN fronta_osoba ON incident.fronta_osoba = fronta_osoba.id ' .
+            'LEFT JOIN fronta ON fronta_osoba.fronta = fronta.id ' .
+            'WHERE incident.id = ? ';
+
+        $result = $this->connection->query($query, $id, $id)->fetch();
+
+//        $result = $this->explorer->table(self::TABLE_NAME)
+//            ->where("incident.osoba_vytvoril = osoba.id")
+//            ->where("incident.ci = ci.id")
+//            ->where("ci.firma = firma.id")
+//            ->where("incident.fronta_osoba = fronta_osoba.id")
+//            ->where("fronta_osoba.fronta = fronta.id")
+//            ->where("incident.id", $id)
+//            ->select('CONCAT(typ_incident.zkratka,incident.id) AS idTxt')
+//            ->select('incident.typ_incident')
+//            ->select('priorita')
+//            ->select('incident_stav')
+//            ->select('fronta_osoba')
+//            ->select('datum_ukonceni')
+//            ->select('datum_reakce')
+//            ->select('zpusob_uzavreni')
+//            ->select('obsah_uzavreni')
+//            ->select('ukon')
+//            ->select('ovlivneni')
+//            ->select('incident.osoba_vytvoril')
+//            ->select('maly_popis')
+//            ->select('firma.nazev AS firma_nazev')
+//            ->select('fronta.nazev AS fronta')
+//            ->select('incident.ci')
+//            ->select('incident.datum_vytvoreni AS datum_vytvoreni')
+//            ->select('CONCAT(osoba.jmeno," ",osoba.prijmeni) AS osoba_vytvoril_text')
+//            ->select('(SELECT count(id) FROM  incident WHERE incident = %i) AS pocetPotomku')
+//            ->getSql();
+//            ->fetch();
+
+//        dump($result);
+//        exit();
+        if ($result):
+            return $result;
         endif;
         throw new InvalidArgumentException('Tiket cislo ' . $id . ' nebyl nalezen');
     }
@@ -322,8 +359,7 @@ final class IncidentModel extends BaseModel
             //   uvolnim pamet s docasnymi promennymi
             unset($obsah, $dbFetch);
             //   zapisi do WL informace o novem tiketu
-            $wlModel = new IncidentLogModel();
-            $wlModel->insert($WlArr);
+            $this->incidentLogModel->insert($WlArr);
             dibi::commit();
         } catch (DibiException $exc) {
             dibi::rollback();
@@ -437,7 +473,7 @@ final class IncidentModel extends BaseModel
             //   STAV_INCIDENTU
             //
             if (isset($arr['incident_stav']) && $arr['incident_stav'] !== $dbData['incident_stav']) {
-                $tmp = IncidentStavModel::fetchPairs();
+                $tmp = $this->incidentStavModel->fetchPairs();
                 $new = $tmp[$arr['incident_stav']];
                 /*
                  * Je potreba osetrit nulovou hodnotu u stareho zaznamu jinak hrozi
@@ -534,7 +570,6 @@ final class IncidentModel extends BaseModel
             if (count($wl) > 0) {
                 /**    @var ArrayHash Description */
                 $item = new ArrayHash();
-                $wlModel = new IncidentLogModel;
                 $item->offsetSet('incident', $id);
                 $item->offsetSet('datum_vytvoreni', new DateTime);
                 $wlTmp = '';
@@ -543,7 +578,7 @@ final class IncidentModel extends BaseModel
                 }
                 $item->offsetSet('obsah', $wlTmp);
                 $item->offsetSet('osoba', $arr['identity']);
-                $wlModel->insert($item);
+                $this->incidentLogModel->insert($item);
             }
             /*
              * Pred odeslanim hodnot do databaze odeberu polozky, ktere se

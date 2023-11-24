@@ -37,7 +37,7 @@ class SlaPresenter extends AdminbasePresenter
     /**
      * Cast DEFAULT, definice Gridu
      */
-    protected function createComponentGrid()
+    protected function createComponentGrid(): SlaGrid
     {
         $id = $this->presenter->getParameter('id', null);
         if (isset($id)) {
@@ -49,6 +49,7 @@ class SlaPresenter extends AdminbasePresenter
 
     public function renderDefault($id = null)
     {
+        //need to be here, otherwise it can be load default action
     }
 
     /*************************************** PART EDIT **************************************/
@@ -57,14 +58,14 @@ class SlaPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException|BadRequestException
      */
-    public function renderEdit($id)
+    public function renderEdit(int $id)
     {
         try {
-            //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
+            //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
             $v = $this->slaModel->fetch($id);
-            //	odeberu idecko z pole a jine nepotrebne veci
-            $v->offsetUnset('id');
-            //	upravene hodnoty odeslu do formulare
+            //odeberu idecko z pole a jine nepotrebne veci
+//            $v->offsetUnset('id');
+            //upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
@@ -72,7 +73,7 @@ class SlaPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit()
+    public function createComponentEdit(): Edit\SlaForm
     {
         $form = new Edit\SlaForm();
         $form->onSuccess[] = callback($this, 'edit');

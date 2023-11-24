@@ -10,24 +10,27 @@ namespace App\Form\Admin\Edit;
 
 use App\Model\FrontaModel;
 use App\Model\OsobaModel;
-use DibiException;
 use Nette\Application\UI\Form as UIForm;
 use Nette\ComponentModel\IContainer;
 use Nette\Forms\Form;
 
 class FrontaOsobaForm extends UIForm
 {
-
-    /** @var FrontaModel $frontaModel */
     private $frontaModel;
-
-    /** @var OsobaModel $osobaModel */
     private $osobaModel;
 
     /**
-     * @throws DibiException
+     * @param FrontaModel $frontaModel
+     * @param OsobaModel $osobaModel
+     * @param IContainer|null $parent
+     * @param null $name
      */
-    public function __construct(FrontaModel $frontaModel, OsobaModel $osobaModel, IContainer $parent = NULL, $name = NULL)
+    public function __construct(
+        FrontaModel $frontaModel,
+        OsobaModel  $osobaModel,
+        IContainer  $parent = null,
+                    $name = null
+    )
     {
         parent::__construct($parent, $name);
 
@@ -39,7 +42,7 @@ class FrontaOsobaForm extends UIForm
         $new->addSelect('fronta', 'Fronta:', $this->frontaModel->fetchPairs())
             ->addRule(Form::FILLED)
             ->setPrompt(' - - - ');
-        $new->addSelect('osoba', 'Osoba:', OsobaModel::fetchPairsSpecialistSystem())
+        $new->addSelect('osoba', 'Osoba:', $this->osobaModel->fetchPairsSpecialistSystem())
             ->addRule(Form::FILLED)
             ->setPrompt(' - - - ');
         //Obrana před Cross-Site Request Forgery (CSRF)

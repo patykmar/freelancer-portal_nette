@@ -4,6 +4,7 @@ namespace App\Model;
 
 use dibi;
 use DibiException;
+use Nette\Database\Context;
 
 /**
  * Description of CiModel
@@ -14,29 +15,34 @@ final class CiModel extends BaseNDbModel
 {
     use FetchPairsTrait;
 
-    /** @var string nazev tabulky */
-    protected $tableName = 'ci';
+    public const TABLE_NAME = "ci";
+
+    public function __construct(Context $context)
+    {
+        parent::__construct(self::TABLE_NAME, $context);
+    }
+
 
     /**
-     * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
-     * @return array id, zazev
+     * Vrati Map<string, Map<int,string>>, kde klic je nazev firmy a v ni je mapa CiId => CiName
+     * @return array
      */
-    public static function fetchAllPairsWithCompanyName(): array
+    public function fetchAllPairsWithCompanyName(): array
     {
-        $r = dibi::select('[ci].[id]')
-            ->select('[ci].[nazev]')
-            ->select('[firma].[nazev]')->as('nazevFirmy')
-            ->from('%n', 'ci')
-            ->leftJoin('[firma]')->on('([firma].[id] = [ci].[firma])')
-            ->orderBy('[firma].[nazev]')
-            ->fetchAssoc('nazevFirmy,id');
+        $result = $this->explorer->table(self::TABLE_NAME)
+            ->where("firma.id = ci.firma")
+            ->order("firma.nazev")
+            ->select("ci.id")
+            ->select("ci.nazev")
+            ->select("firma.nazev AS nazevFirmy")
+            ->fetchAssoc("nazevFirmy|id");
 
-        foreach ($r as $k => $v) {
+        foreach ($result as $k => $v) {
             foreach ($v as $key => $value) {
-                $r[$k][$key] = $value['nazev'];
+                $result[$k][$key] = $value['nazev'];
             }
         }
-        return $r;
+        return $result;
     }
 
     /**

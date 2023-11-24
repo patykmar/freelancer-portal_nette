@@ -2,8 +2,7 @@
 
 namespace App\Model;
 
-use dibi;
-use DibiException;
+use Nette\Database\Context;
 
 /**
  * Description of PrioritaModel
@@ -12,15 +11,13 @@ use DibiException;
  */
 final class PrioritaModel extends BaseNDbModel
 {
-    /** @var string nazev tabulky */
-    protected $tableName = 'priorita';
+    use FetchPairsTrait;
 
-    /**
-     * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
-     * @return array
-     */
-    public function fetchPairs()
+    public const TABLE_NAME = 'priorita';
+
+    public function __construct(Context $context)
     {
-        return $this->fetchAll()->fetchPairs("id", "nazev");
+        parent::__construct(self::TABLE_NAME, $context);
     }
+
 }

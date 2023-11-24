@@ -5,7 +5,7 @@ ARG WITH_XDEBUG=false
 COPY ["docker/php-apache/000-default.conf", "/etc/apache2/sites-available/000-default.conf"]
 
 RUN apt update && apt upgrade -y
-RUN apt install sqlite3 -y
+#RUN apt install sqlite3 -y
 
 # Removed temporary file of APT
 RUN rm /var/lib/apt/lists/* -R
@@ -22,6 +22,7 @@ RUN if [ $WITH_XDEBUG = "true" ] ; then \
     echo "xdebug.remote_enable=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
     echo "xdebug.remote_autostart=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
     echo "xdebug.remote_port=9001" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+#    echo "xdebug.client_host = "
 fi;
 
 # use your users $UID and $G`ID below

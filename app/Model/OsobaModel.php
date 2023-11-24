@@ -4,6 +4,7 @@ namespace App\Model;
 
 use dibi;
 use DibiRow;
+use Nette\Database\Context;
 
 /**
  * Description of OsobaModel
@@ -12,16 +13,23 @@ use DibiRow;
  */
 final class OsobaModel extends BaseNDbModel
 {
-    /** @var string nazev tabulky */
-    protected $tableName = 'osoba';
+    public const TABLE_NAME = 'osoba';
+
+    public function __construct(Context $context)
+    {
+        parent::__construct(self::TABLE_NAME, $context);
+    }
+
 
     /**
      * Vrati v paru id a jmena pouze specialistu a systemovych uzivatelu
      * @return array
      */
-    public function fetchPairsSpecialistSystem()
+    public function fetchPairsSpecialistSystem(): array
     {
-        return $this->fetchAll()->fetchPairs();
+        return $this->explorer->table($this->tableName)
+            ->where("typ_osoby", [2, 3])
+            ->fetchPairs('id', 'CONCAT([jmeno]," ",[prijmeni]) as nazev');
     }
 
     /**
@@ -54,24 +62,25 @@ final class OsobaModel extends BaseNDbModel
     }
 
     /**
-     * Metoda vraci vsechny osoby k pouziti do formulare. Jmena jsou rarazene
-     * do firmy ve ktere se osoba nachazi.
+     * Vrati Map<string, Map<int,string>>, kde klic je nazev firmy a v ni je mapa CiId => CiName
+     * @return array
      */
-    public static function fetchAllPairsWithCompanyName()
+    public function fetchAllPairsWithCompanyName()
     {
-        $r = dibi::select('[osoba].[id]')
-            ->select('CONCAT([prijmeni]," ",[jmeno])')->as('nazev')
-            ->select('[firma].[nazev]')->as('nazevFirmy')
-            ->from('%n', 'osoba')
-            ->leftJoin('[firma]')->on('([firma].[id] = [osoba].[firma])')
-            ->orderBy('[osoba].[prijmeni]')
-            ->fetchAssoc('nazevFirmy,id');
+        $result = $this->explorer->table(self::TABLE_NAME)
+            ->where("firma.id = osoba.firma")
+            ->order("osoba.prijmeni")
+            ->select("osoba.id")
+            ->select('CONCAT(prijmeni," ",jmeno) AS nazev')
+            ->select("firma.nazev AS nazevFirmy")
+            ->fetchAssoc("nazevFirmy|id");
 
-        foreach ($r as $k => $v) {
+        foreach ($result as $k => $v) {
             foreach ($v as $key => $value) {
-                $r[$k][$key] = $value['nazev'];
+                $result[$k][$key] = $value['nazev'];
             }
         }
-        return $r;
+
+        return $result;
     }
 }

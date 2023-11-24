@@ -10,55 +10,58 @@ namespace App\Model;
 
 use Nette\Object;
 use Nette\Database\Context;
-use Nette\Database\SqlLiteral;
-use Nette\Database\Table\ActiveRow;
 use Nette\Database\Table\IRow;
-use Nette\Database\Table\Selection;
+use Nette\Utils\ArrayHash;
 
 abstract class BaseNDbModel extends Object
 {
-    /** @var string $tableName */
     protected $tableName;
-
-    /** @var Context */
     protected $explorer;
 
-    public function __construct(Context $database)
+    public function __construct(string $tableName, Context $context)
     {
-        $this->explorer = $database;
-    }
-
-    /**
-     * @param string $name
-     */
-    protected function setTableName($name)
-    {
-        $this->tableName = $name;
+        $this->tableName = $tableName;
+        $this->explorer = $context;
     }
 
     /**
      * @param int $id
-     * @return ActiveRow
+     * @return IRow
      */
-    public function fetch($id)
+    public function fetch(int $id): IRow
     {
-        return $this->fetchAll()->get($id);
+        return $this->explorer->table($this->tableName)->get($id);
+    }
+
+    public function fetchAll(): array
+    {
+        return $this->explorer->table($this->tableName)->fetchAll();
     }
 
     /**
-     * @return Selection
+     * @param ArrayHash $values
+     * @return bool|int|IRow
      */
-    public function fetchAll()
+    public function insert(ArrayHash $values)
     {
-        return $this->explorer->table($this->tableName);
+        return $this->explorer->table($this->tableName)->insert($values);
+    }
+
+    public function removeItem(int $id)
+    {
+        $this->explorer->table($this->tableName)
+            ->where("id", $id)
+            ->delete();
     }
 
     /**
-     * @param $values
-     * @return bool|int|SqlLiteral|IRow
+     * @param ArrayHash $arr
+     * @param int $id
      */
-    public function insert($values)
+    public function update(ArrayHash $arr, $id)
     {
-        return $this->fetchAll()->insert($values);
+        $this->explorer->table($this->tableName)
+            ->where("id", $id)
+            ->update($arr);
     }
 }

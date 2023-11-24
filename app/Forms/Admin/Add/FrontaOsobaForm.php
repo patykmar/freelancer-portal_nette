@@ -16,22 +16,24 @@ use Nette\Forms\Form;
 
 class FrontaOsobaForm extends UIForm
 {
-    /** @var FrontaModel $frontaModel */
     private $frontaModel;
+    private $osobaModel;
 
     public function __construct(
         FrontaModel $frontaModel,
+        OsobaModel  $osobaModel,
         IContainer  $parent = null,
                     $name = null
     )
     {
         $this->frontaModel = $frontaModel;
+        $this->osobaModel = $osobaModel;
 
         parent::__construct($parent, $name);
         $this->addSelect('fronta', 'Fronta:', $this->frontaModel->fetchPairs())
             ->addRule(Form::FILLED)
             ->setPrompt(' - - - ');
-        $this->addSelect('osoba', 'Osoba:', OsobaModel::fetchPairsSpecialistSystem())
+        $this->addSelect('osoba', 'Osoba:', $this->osobaModel->fetchPairsSpecialistSystem())
             ->addRule(Form::FILLED)
             ->setPrompt(' - - - ');
         //Obrana před Cross-Site Request Forgery (CSRF)
