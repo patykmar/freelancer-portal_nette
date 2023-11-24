@@ -17,7 +17,7 @@ use Nette\NotImplementedException;
 final class FakturaModel extends BaseModel
 {
     /** @var string nazev tabulky */
-    protected $name = 'faktura';
+    protected $tableName = 'faktura';
 
     /**
      * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
@@ -40,7 +40,7 @@ final class FakturaModel extends BaseModel
             ->select('(SELECT SUM([cena] * [pocet_polozek] * [koeficient_cena]) FROM [faktura_polozka] WHERE [faktura] = %i)', $id)->as('celkova_cena_bez_dph_bez_slevy')
             ->select('(SELECT SUM([cena] * [pocet_polozek] * [koeficient_cena] * (1-(sleva*0.01))) FROM [faktura_polozka] WHERE [faktura] = %i)', $id)->as('celkova_cena_bez_dph')
             ->select('forma_uhrady.nazev')->as('forma_uhrady')
-            ->from('%n', $this->name)
+            ->from('%n', $this->tableName)
             ->leftJoin('[forma_uhrady]')->on('([faktura].[forma_uhrady] = [forma_uhrady].[id])')
             ->where('[faktura].[id] = %i', $id)
             ->fetch();
@@ -131,7 +131,7 @@ final class FakturaModel extends BaseModel
              * Idealni funkce pro Triger
              */
             // vlozim VS k fakture, pouzije se aktualni rok a ID prave vlozene faktury
-            dibi::query('UPDATE %n ', $this->name, ' ',
+            dibi::query('UPDATE %n ', $this->tableName, ' ',
                 'SET vs = CONCAT(YEAR(NOW()),LPAD(faktura.id,6,"0")) ',
                 'WHERE ID = %i', $idFaktura);
             //	docasne pole pro naplneni p
@@ -206,7 +206,7 @@ final class FakturaModel extends BaseModel
                 ->execute();
 
             //	smazu fakturu
-            dibi::delete($this->name)
+            dibi::delete($this->tableName)
                 ->where('id = %i', $id)
                 ->limit(1)
                 ->execute();

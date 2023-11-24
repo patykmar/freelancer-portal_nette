@@ -13,7 +13,7 @@ use DibiException;
 final class IncidentStavModel extends BaseModel
 {
     /** @var string nazev tabulky */
-    protected $name = 'incident_stav';
+    protected $tableName = 'incident_stav';
 
     /**
      * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari

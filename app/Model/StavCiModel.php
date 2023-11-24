@@ -12,16 +12,9 @@ use DibiException;
  */
 final class StavCiModel extends BaseModel
 {
-    /** @var string nazev tabulky */
-    protected $name = 'stav_ci';
+    use FetchPairsTrait;
 
-    /**
-     * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
-     * @return string
-     * @throws DibiException
-     */
-    public static function fetchPairs()
-    {
-        return dibi::fetchPairs('SELECT [id], [nazev] FROM [stav_ci] ORDER BY [nazev]');
-    }
+    /** @var string nazev tabulky */
+    protected $tableName = 'stav_ci';
+
 }

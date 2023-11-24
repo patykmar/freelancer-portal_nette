@@ -17,15 +17,15 @@ use Nette\Database\Table\Selection;
 
 abstract class BaseNDbModel extends Object
 {
-    /** @var string */
+    /** @var string $tableName */
     protected $tableName;
 
     /** @var Context */
-    protected $database;
+    protected $explorer;
 
     public function __construct(Context $database)
     {
-        $this->database = $database;
+        $this->explorer = $database;
     }
 
     /**
@@ -50,7 +50,7 @@ abstract class BaseNDbModel extends Object
      */
     public function fetchAll()
     {
-        return $this->database->table($this->tableName);
+        return $this->explorer->table($this->tableName);
     }
 
     /**

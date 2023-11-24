@@ -13,7 +13,7 @@ use DibiException;
 final class ZemeModel extends BaseModel
 {
     /** @var string nazev tabulky */
-    protected $name = 'zeme';
+    protected $tableName = 'zeme';
 
     /**
      * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari

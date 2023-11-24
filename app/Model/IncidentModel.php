@@ -18,7 +18,7 @@ use Nette\Utils\Strings;
 final class IncidentModel extends BaseModel
 {
     /** @var string nazev tabulky */
-    protected $name = 'incident';
+    protected $tableName = 'incident';
 
     ###
     ### Nacitani dat
@@ -51,7 +51,7 @@ final class IncidentModel extends BaseModel
             ->select('[incident].[datum_vytvoreni]')->as('[datum_vytvoreni]')
             ->select('CONCAT(osoba.jmeno," ",osoba.prijmeni)')->as('osoba_vytvoril_text')
             ->select('(SELECT count([id]) FROM  [incident] WHERE incident = %i)', $id)->as('pocetPotomku')
-            ->from('%n', $this->name)
+            ->from('%n', $this->tableName)
             ->leftJoin('osoba')->on('([incident].[osoba_vytvoril] = [osoba].[id])')
             ->leftJoin('ci')->on('([incident].[ci] = [ci].[id])')
             ->leftJoin('firma')->on('([ci].[firma] = [firma].[id])')
@@ -85,7 +85,7 @@ final class IncidentModel extends BaseModel
             ->select('[ci].[fronta_tier_1]')
             ->select('[ci].[fronta_tier_2]')
             ->select('[ci].[fronta_tier_3]')
-            ->from('%n', $this->name)
+            ->from('%n', $this->tableName)
             ->where('incident_stav = %i', $id)
             ->leftJoin('ci')->on('([incident].[ci] = [ci].[id])')
             ->fetchAll();
@@ -111,7 +111,7 @@ final class IncidentModel extends BaseModel
         return dibi::select('incident.id')->as('tiket')
             ->select('FO1.id')->as('ss')
             ->select('FO2.id')->as('specialista')
-            ->from('%n', $this->name)
+            ->from('%n', $this->tableName)
             ->innerJoin('fronta_osoba')->as('FO1')->on('incident.fronta_osoba = FO1.id')
             ->innerJoin('osoba')->as('OS1')->on('FO1.osoba = OS1.id')
             ->leftJoin('fronta_osoba')->as('FO2')->on('FO1.fronta = FO2.fronta')
@@ -148,7 +148,7 @@ final class IncidentModel extends BaseModel
             ->select('ci.nazev')->as('ci')
             ->select('ci.firma')
             ->select('osoba_vytvoril.firma')
-            ->from('%n', $this->name)
+            ->from('%n', $this->tableName)
             ->leftJoin('typ_incident')->on('incident.typ_incident = typ_incident.id')
             ->leftJoin('priorita')->on('incident.priorita = priorita.id')
             ->leftJoin('incident_stav')->on('incident.incident_stav = incident_stav.id')
@@ -172,7 +172,7 @@ final class IncidentModel extends BaseModel
     public function fetchForFeedBack($id)
     {
         $r = dibi::select('*')
-            ->from('%n', $this->name)
+            ->from('%n', $this->tableName)
             ->where('id = %i', $id)
             ->and('odezva_cekam = %b', TRUE)
             ->and('odezva_odeslan_pozadavek = %b', TRUE)
@@ -286,7 +286,7 @@ final class IncidentModel extends BaseModel
             $newItem->offsetSet('fronta_osoba', 2);
 
             //   zapisu do datbaze
-            dibi::query('INSERT INTO %n', $this->name, ' %v', $newItem);
+            dibi::query('INSERT INTO %n', $this->tableName, ' %v', $newItem);
 
             //   nactu si id od prave zapsaneho incidentu a vytvorim text pro WL
             $lastId = $this->getLastId();
@@ -301,7 +301,7 @@ final class IncidentModel extends BaseModel
             $dbFetch = dibi::select('[incident_stav].[nazev]')->as('[incident_stav]')
                 ->select('[priorita].[nazev]')->as('[priorita]')
                 ->select('[fronta].[nazev]')->as('[fronta]')
-                ->from('%n', $this->name)
+                ->from('%n', $this->tableName)
                 ->leftJoin('[incident_stav]')->on('[incident].[incident_stav] = [incident_stav].[id]')
                 ->leftJoin('[priorita]')->on('[incident].[priorita] = [priorita].[id]')
                 ->leftJoin('[fronta_osoba]')->on('[incident].[fronta_osoba] = [fronta_osoba].[id]')
@@ -506,7 +506,7 @@ final class IncidentModel extends BaseModel
                     ->select('[incident].[datum_reakce]')->as('[stary_datum_reakce]')
                     ->select("ADDDATE(ADDDATE(incident.datum_vytvoreni, INTERVAL + CONCAT(sla.reakce_mesic,' ',sla.reakce_hod,':',sla.reakce_min) MONTH), INTERVAL + sla.reakce_den DAY_MINUTE)")->as('[nove_datum_ukonceni]')
                     ->select("ADDDATE(ADDDATE(incident.datum_vytvoreni, INTERVAL + CONCAT(sla.hotovo_mesic,' ',sla.hotovo_hod,':',sla.hotovo_min) MONTH), INTERVAL + sla.hotovo_den DAY_MINUTE)")->as('[nove_datum_reakce]')
-                    ->from('%n', $this->name)
+                    ->from('%n', $this->tableName)
                     ->leftJoin('ci')->on('[incident].[ci] = [ci].[id]')
                     ->leftJoin('sla')->on('[ci].[tarif] = [sla].[tarif]')
                     ->and('[sla].[typ_incident] = %i', $arr['incident_stav'])

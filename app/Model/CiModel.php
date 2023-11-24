@@ -4,10 +4,6 @@ namespace App\Model;
 
 use dibi;
 use DibiException;
-use Nette\ArrayHash;
-use Nette\DateTime;
-use Nette\Diagnostics\Debugger;
-use Nette\InvalidArgumentException;
 
 /**
  * Description of CiModel
@@ -16,6 +12,8 @@ use Nette\InvalidArgumentException;
  */
 final class CiModel extends BaseNDbModel
 {
+    use FetchPairsTrait;
+
     /** @var string nazev tabulky */
     protected $tableName = 'ci';
 
@@ -23,18 +21,7 @@ final class CiModel extends BaseNDbModel
      * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
      * @return array id, zazev
      */
-    public function fetchPairs()
-    {
-        return $this->fetchAll()
-            ->order('nazev')
-            ->fetchPairs('id', 'nazev');
-    }
-
-    /**
-     * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
-     * @return array id, zazev
-     */
-    public static function fetchAllPairsWithCompanyName()
+    public static function fetchAllPairsWithCompanyName(): array
     {
         $r = dibi::select('[ci].[id]')
             ->select('[ci].[nazev]')
@@ -61,26 +48,26 @@ final class CiModel extends BaseNDbModel
 //    {
 //        dibi::begin();
 //        try {
-//            //	vytahnu si text logu do extra promenne a zrusim jej v poly
+//            //vytahnu si text logu do extra promenne a zrusim jej v poly
 //            $log = $newItem['log'];
 //            $newItem->offsetUnset('log');
 //
-//            //	vlozim do databaze
+//            //vlozim do databaze
 //            dibi::query('INSERT INTO %n', $this->name, '%v', $newItem);
-//            //	nactu si idecko prave pridane polozky
+//            //nactu si idecko prave pridane polozky
 //            $ci_id = dibi::getInsertId();
 //
-//            //	pripravim si pole pro ulozeni logu do databaze
+//            //pripravim si pole pro ulozeni logu do databaze
 //            $ciLog = new ArrayHash;
 //            $ciLog->offsetSet('ci', $ci_id);
 //            $ciLog->offsetSet('datum_vytvoreni', new DateTime);
 //            $ciLog->offsetSet('obsah', $log);
 //
-//            //	vlozim novy zaznam do logu
+//            //vlozim novy zaznam do logu
 //            $ciLogModel = new CiLogModel;
 //            $ciLogModel->insert($ciLog);
 //
-//            //	jestli je vse v poradku uloz do databaze
+//            //jestli je vse v poradku uloz do databaze
 //            dibi::commit();
 //        } catch (DibiException $exc) {
 //            dibi::rollback();
@@ -90,4 +77,3 @@ final class CiModel extends BaseNDbModel
 //        }
 //    }
 }
-

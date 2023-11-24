@@ -12,6 +12,6 @@ final class TypOsobyModel extends BaseModel
     use FetchPairsTrait;
 
     /** @var string nazev tabulky */
-    protected $name = 'typ_osoby';
+    protected $tableName = 'typ_osoby';
 
 }

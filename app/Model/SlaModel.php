@@ -18,7 +18,7 @@ use Nette\Utils\ArrayHash;
 final class SlaModel extends BaseModel
 {
     /** @var string nazev tabulky */
-    protected $name = 'sla';
+    protected $tableName = 'sla';
 
     /** @var Connection $connection */
     private $connection;
@@ -46,7 +46,7 @@ final class SlaModel extends BaseModel
      */
     public function fetchSlaByTarif($id)
     {
-        return dibi::fetch('SELECT [id] FROM %n', $this->name, 'WHERE [tarif] = %i', 'LIMIT 1');
+        return dibi::fetch('SELECT [id] FROM %n', $this->tableName, 'WHERE [tarif] = %i', 'LIMIT 1');
     }
 
     /**
@@ -64,7 +64,7 @@ final class SlaModel extends BaseModel
                 "LEFT JOIN (tarif AS t, priorita AS p) ON (t.id = s.tarif AND p.id = s.priorita)" .
                 "WHERE ?tableName.id = ?id",
                 [
-                    "tableName" => $this->name,
+                    "tableName" => $this->tableName,
                     "id" => $id
                 ]
             )->fetch();
@@ -82,7 +82,7 @@ final class SlaModel extends BaseModel
     public function insert(ArrayHash $newItem)
     {
         foreach ($newItem as $item) {
-            dump(dibi::query('INSERT INTO %n', $this->name, '%v', $item));
+            dump(dibi::query('INSERT INTO %n', $this->tableName, '%v', $item));
         }
     }
 
@@ -97,7 +97,7 @@ final class SlaModel extends BaseModel
         dump(PrioritaModel::fetchPairs());
 
         foreach (PrioritaModel::fetchPairs() as $key => $value) {
-            dibi::test('INSERT INTO %n', $this->name, '%v',
+            dibi::test('INSERT INTO %n', $this->tableName, '%v',
                 array(
                     'reakce_mesic' => 3,
                     'reakce_den' => 0,

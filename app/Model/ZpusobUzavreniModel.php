@@ -13,7 +13,7 @@ use DibiException;
 final class ZpusobUzavreniModel extends BaseModel
 {
     /** @var string nazev tabulky */
-    protected $name = 'zpusob_uzavreni';
+    protected $tableName = 'zpusob_uzavreni';
 
     /**
      * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari

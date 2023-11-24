@@ -15,17 +15,15 @@ use DibiException;
 final class CiLogModel extends BaseModel
 {
     /** @var string nazev tabulky */
-    protected $name = 'ci_log';
-
+    protected $tableName = 'ci_log';
 
     /**
      * Nacte log na zaklade CI identifikatoru
      * @param int $id identifikaotr CIcka
      * @return array of DibiRow
-     * @throws DibiException
      */
-    public function fetchAllByCi($id)
+    public function fetchAllByCi(int $id): array
     {
-        return dibi::fetchAll('SELECT * FROM %n', $this->name, ' WHERE [ci]=%i', $id);
+        return $this->explorer->table($this->tableName)->where('ci', $id)->fetchAll();
     }
 }

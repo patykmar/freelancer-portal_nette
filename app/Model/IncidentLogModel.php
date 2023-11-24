@@ -14,12 +14,12 @@ use Nette\Utils\ArrayHash;
 final class IncidentLogModel extends BaseModel
 {
     /** @var string nazev tabulky */
-    protected $name = 'incident_log';
+    protected $tableName = 'incident_log';
 
     public function fetchAllByIncidentId($id)
     {
         return dibi::select('incident_log.*, osoba.jmeno, osoba.prijmeni')
-            ->from('%n', $this->name)
+            ->from('%n', $this->tableName)
             ->leftJoin('osoba')->on('([incident_log].[osoba] = [osoba].[id])')
             ->where('incident = %i', $id)
             ->orderBy('datum_vytvoreni')->desc()

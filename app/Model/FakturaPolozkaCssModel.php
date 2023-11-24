@@ -12,7 +12,7 @@ use dibi;
 final class FakturaPolozkaCssModel extends BaseModel
 {
     /** @var string nazev tabulky */
-    protected $name = 'faktura_polozka_css';
+    protected $tableName = 'faktura_polozka_css';
 
     /**
      * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari

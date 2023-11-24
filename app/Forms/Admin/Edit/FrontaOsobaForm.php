@@ -17,23 +17,34 @@ use Nette\Forms\Form;
 
 class FrontaOsobaForm extends UIForm
 {
+
+    /** @var FrontaModel $frontaModel */
+    private $frontaModel;
+
+    /** @var OsobaModel $osobaModel */
+    private $osobaModel;
+
     /**
      * @throws DibiException
      */
-    public function __construct(IContainer $parent = NULL, $name = NULL)
+    public function __construct(FrontaModel $frontaModel, OsobaModel $osobaModel, IContainer $parent = NULL, $name = NULL)
     {
         parent::__construct($parent, $name);
+
+        $this->frontaModel = $frontaModel;
+        $this->osobaModel = $osobaModel;
+
         $this->addHidden('id');
         $new = $this->addContainer('new');
-        $new->addSelect('fronta', 'Fronta:', FrontaModel::fetchPairs())
+        $new->addSelect('fronta', 'Fronta:', $this->frontaModel->fetchPairs())
             ->addRule(Form::FILLED)
             ->setPrompt(' - - - ');
         $new->addSelect('osoba', 'Osoba:', OsobaModel::fetchPairsSpecialistSystem())
             ->addRule(Form::FILLED)
             ->setPrompt(' - - - ');
-        //	Obrana před Cross-Site Request Forgery (CSRF)
+        //Obrana před Cross-Site Request Forgery (CSRF)
         $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
-        //	Tlacitko odeslat
+        //Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;
     }

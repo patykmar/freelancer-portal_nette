@@ -12,7 +12,7 @@ use dibi;
 final class FakturaPolozkaModel extends BaseModel
 {
     /** @var string nazev tabulky */
-    protected $name = 'faktura_polozka';
+    protected $tableName = 'faktura_polozka';
 
     public function fetchAllByIdFaktura($id)
     {
@@ -25,7 +25,7 @@ final class FakturaPolozkaModel extends BaseModel
             ->select('[jednotka].[zkratka]')->as('[jednotka]')
             ->select('([faktura_polozka].[cena] * [faktura_polozka].[pocet_polozek] * [faktura_polozka].[koeficient_cena] * (1-(sleva*0.01)))')->as('[cena_celkem]')
             ->select('faktura_polozka_css.nazev')->as('cssclass')
-            ->from('%n', $this->name)
+            ->from('%n', $this->tableName)
             ->leftJoin('[dph]')->on('[faktura_polozka].[dph] = [dph].[id]')
             ->leftJoin('[jednotka]')->on('[faktura_polozka].[jednotka] = [jednotka].[id]')
             ->leftJoin('[faktura_polozka_css]')->on('[faktura_polozka].[cssclass] = [faktura_polozka_css].[id]')

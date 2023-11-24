@@ -10,5 +10,5 @@ namespace App\Model;
 final class ChangeModel extends BaseModel
 {
     /** @var string nazev tabulky */
-    protected $name = 'change';
+    protected $tableName = 'change';
 }

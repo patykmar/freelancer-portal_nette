@@ -12,7 +12,7 @@ use dibi;
 final class JednotkaModel extends BaseModel
 {
     /** @var string nazev tabulky */
-    protected $name = 'jednotka';
+    protected $tableName = 'jednotka';
 
     /**
      * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari

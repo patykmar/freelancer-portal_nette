@@ -12,6 +12,6 @@ final class TimeZoneModel extends BaseModel
     use FetchPairsTrait;
 
     /** @var string nazev tabulky */
-    protected $name = 'time_zone';
+    protected $tableName = 'time_zone';
 
 }

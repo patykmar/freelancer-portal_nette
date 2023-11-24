@@ -17,7 +17,7 @@ final class TypIncidentModel extends BaseNDbModel
      * cizich klicu ve formulari
      * @return array id, zazev
      */
-    public function fetchPairs()
+    public function fetchPairs(): array
     {
         return $this->fetchAll()
             ->order('nazev DESC')

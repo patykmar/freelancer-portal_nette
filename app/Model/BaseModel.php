@@ -1,11 +1,4 @@
 <?php
-/*
-
- * To change this template, choose Tools | Templates
-
- * and open the template in the editor.
-
- */
 
 namespace App\Model;
 
@@ -23,13 +16,14 @@ use Nette\Utils\ArrayHash;
  * Description of BaseModel
  *
  * @author Martin Patyk
+ * @deprecated use {@link BaseNDbModel}
  */
 abstract class BaseModel extends Object
 {
     /* * ******************* Model behaviour ******************** */
 
     /** @var string table name */
-    protected $name;
+    protected $tableName;
 
     /** @var string primary key name */
     protected $primary = 'id';
@@ -50,7 +44,7 @@ abstract class BaseModel extends Object
      */
     public function fetchAll(array $order = array()): array
     {
-        return dibi::fetchAll('SELECT * FROM %n', $this->name,
+        return dibi::fetchAll('SELECT * FROM %n', $this->tableName,
             '%ex',
             (!empty($order) ? array('ORDER BY %by', $order) : null));
     }
@@ -61,8 +55,8 @@ abstract class BaseModel extends Object
      */
     public function fetchFactory(): DibiFluent
     {
-        return dibi::select('%n.[id]', $this->name)
-            ->from('%n', $this->name);
+        return dibi::select('%n.[id]', $this->tableName)
+            ->from('%n', $this->tableName);
     }
 
     /**
@@ -71,7 +65,7 @@ abstract class BaseModel extends Object
      */
     public function insert(ArrayHash $newItem)
     {
-        $this->explorer->table($this->name)->insert($newItem);
+        $this->explorer->table($this->tableName)->insert($newItem);
     }
 
     /**
@@ -80,7 +74,7 @@ abstract class BaseModel extends Object
      */
     public function update(ArrayHash $arr, $id)
     {
-        $this->explorer->table($this->name)
+        $this->explorer->table($this->tableName)
             ->where($this->primary, $id)
             ->update($arr);
     }
@@ -95,7 +89,7 @@ abstract class BaseModel extends Object
      */
     public function updateAllRows(ArrayHash $arr)
     {
-        dibi::query('UPDATE %n ', $this->name, ' SET ', $arr);
+        dibi::query('UPDATE %n ', $this->tableName, ' SET ', $arr);
     }
 
     /**
@@ -105,7 +99,7 @@ abstract class BaseModel extends Object
     public function fetch(int $id)
     {
         return $this->explorer
-            ->table($this->name)
+            ->table($this->tableName)
             ->where($this->primary, $id)
             ->fetch();
     }
@@ -116,7 +110,7 @@ abstract class BaseModel extends Object
      */
     public function remove($id)
     {
-        dibi::query('DELETE FROM %n WHERE %n=%i LIMIT 1', $this->name, $this->primary, $id);
+        dibi::query('DELETE FROM %n WHERE %n=%i LIMIT 1', $this->tableName, $this->primary, $id);
     }
 
     /**
@@ -145,7 +139,7 @@ abstract class BaseModel extends Object
     public function fetchLastItem()
     {
         return dibi::select('id')
-            ->from('%n', $this->name)
+            ->from('%n', $this->tableName)
             ->orderBy('id')
             ->desc()
             ->fetchSingle();
@@ -157,7 +151,7 @@ abstract class BaseModel extends Object
      */
     public function fetchAllIdUriPair()
     {
-        return dibi::fetchPairs('SELECT [id], [uri] FROM %n ', $this->name);
+        return dibi::fetchPairs('SELECT [id], [uri] FROM %n ', $this->tableName);
     }
 
     /**
@@ -166,7 +160,7 @@ abstract class BaseModel extends Object
      */
     public function fetchAllUriIdPair()
     {
-        return dibi::fetchPairs('SELECT [uri], [id] FROM %n ', $this->name);
+        return dibi::fetchPairs('SELECT [uri], [id] FROM %n ', $this->tableName);
     }
 
     /**
@@ -176,7 +170,7 @@ abstract class BaseModel extends Object
      */
     public function fetchDefault()
     {
-        return dibi::fetchSingle('SELECT [id] FROM ', $this->name, ' WHERE [vychozi] = %b', TRUE);
+        return dibi::fetchSingle('SELECT [id] FROM ', $this->tableName, ' WHERE [vychozi] = %b', TRUE);
     }
 
     /**
@@ -186,6 +180,6 @@ abstract class BaseModel extends Object
      */
     public function fetchCount()
     {
-        return dibi::fetchSingle('SELECT count(id) FROM %n', $this->name);
+        return dibi::fetchSingle('SELECT count(id) FROM %n', $this->tableName);
     }
 }

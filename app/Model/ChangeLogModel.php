@@ -1,1 +1,1 @@
-<?phpnamespace App\Model;/** * Description of ChangeLogModel * * @author Martin Patyk */final class ChangeLogModel extends BaseModel {	/** @var string nazev tabulky */	protected $name = 'change_log';}
+<?phpnamespace App\Model;/** * Description of ChangeLogModel * * @author Martin Patyk */final class ChangeLogModel extends BaseModel {	/** @var string nazev tabulky */	protected $tableName = 'change_log';}

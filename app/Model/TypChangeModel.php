@@ -13,7 +13,7 @@ use DibiException;
 final class TypChangeModel extends BaseModel
 {
     /** @var string nazev tabulky */
-    protected $name = 'typ_change';
+    protected $tableName = 'typ_change';
 
     /**
      * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari

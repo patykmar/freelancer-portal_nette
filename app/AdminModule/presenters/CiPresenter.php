@@ -9,13 +9,18 @@
 namespace App\AdminModule\Presenters;
 
 use App\Grids\Admin\CiGrid;
+use App\Grids\Admin\PotomciCiGrid;
 use App\Model\CiLogModel;
 use App\Model\CiModel;
+use App\Model\FirmaModel;
+use App\Model\FrontaModel;
+use App\Model\StavCiModel;
+use App\Model\TarifModel;
 use DibiException;
 use Exception;
 use App\Form\Admin\Add\CiForm;
 use App\Form\Admin\Edit;
-use Nette\Application\AbortException as AbortExceptionAlias;
+use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Database\Context;
 use Nette\Diagnostics\Debugger;
@@ -26,24 +31,48 @@ class CiPresenter extends AdminbasePresenter
     /** @var CiModel */
     private $ciModel;
 
+    /** @var StavCiModel $stavCiModel */
+    private $stavCiModel;
+
     /** @var CiLogModel */
     private $ciLogModel;
 
     /** @var Context */
     private $ciContext;
 
-    public function __construct(CiModel $ciModel, CiLogModel $modelCiLog, Context $ciContext)
+    /** @var FrontaModel $frontaModel */
+    private $frontaModel;
+
+    /** @var FirmaModel $firmaModel */
+    private $firmaModel;
+
+    /** @var TarifModel $tarifModel , */
+    private $tarifModel;
+
+    public function __construct(
+        CiModel     $ciModel,
+        StavCiModel $stavCiModel,
+        CiLogModel  $modelCiLog,
+        FrontaModel $frontaModel,
+        FirmaModel  $firmaModel,
+        TarifModel  $tarifModel,
+        Context     $ciContext
+    )
     {
         parent::__construct();
         $this->ciModel = $ciModel;
+        $this->stavCiModel = $stavCiModel;
         $this->ciLogModel = $modelCiLog;
+        $this->frontaModel = $frontaModel;
+        $this->firmaModel = $firmaModel;
+        $this->tarifModel = $tarifModel;
         $this->ciContext = $ciContext;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
      */
-    protected function createComponentGrid()
+    protected function createComponentGrid(): CiGrid
     {
         return new CiGrid($this->ciContext->table('ci')->where(array('zobrazit' => 1)));
     }
@@ -60,11 +89,11 @@ class CiPresenter extends AdminbasePresenter
      */
     public function renderAdd($id = null)
     {
-        //	nastaveni sablony
+        //nastaveni sablony
         $this->setView('../_add');
     }
 
-    public function renderAddChild($id)
+    public function renderAddChild(int $id)
     {
         try {
             $this->setView('../_add');
@@ -89,9 +118,15 @@ class CiPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentAdd()
+    public function createComponentAdd(): CiForm
     {
-        $form = new CiForm;
+        $form = new CiForm(
+            $this->ciModel,
+            $this->stavCiModel,
+            $this->frontaModel,
+            $this->firmaModel,
+            $this->tarifModel
+        );
         $form->onSuccess[] = callback($this, 'add');
         return $form;
     }
@@ -116,29 +151,30 @@ class CiPresenter extends AdminbasePresenter
     /**
      * Cast Edit, definice Gridu, ktery zobrazuje potomky
      */
-    protected function createComponentPotomciGrid()
+    protected function createComponentPotomciGrid(): PotomciCiGrid
     {
-        //	nactu si idecko editovaneho predka
+        //nactu si idecko editovaneho predka
         $id = $this->presenter->getParameter('id');
-        return new PotomciCiGrid($this->context->database->context->table('ci')->where(array('ci' => $id)));
+        return new PotomciCiGrid($this->ciContext->table('ci')->where(array('ci' => $id)));
     }
 
     /**
      * Cast EDIT
      * @param int $id Identifikator polozky
+     * @throws AbortException
      */
-    public function renderEdit($id)
+    public function renderEdit(int $id)
     {
         try {
             #$this->setView('../_edit');
-            //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
+            //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
             $v = $this->ciModel->fetch($id);
             $this->template->id = $id;
-            //	do sablony poslu log
+            //do sablony poslu log
             $this->template->ciLog = $this->ciLogModel->fetchAllByCi($id);
-            //	odeberu idecko z pole
-            $v->offsetUnset('id');
-            //	upravene hodnoty odeslu do formulare
+//            //odeberu idecko z pole
+//            $v->offsetUnset('id');
+            //upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
         } catch (BadRequestException $exc) {
             $this->flashMessage($exc->getMessage());
@@ -146,24 +182,26 @@ class CiPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit()
+    public function createComponentEdit(): Edit\CiForm
     {
-        $form = new Edit\CiForm;
+        $form = new Edit\CiForm(
+            $this->ciModel,
+            $this->stavCiModel,
+            $this->frontaModel,
+            $this->firmaModel,
+            $this->tarifModel
+        );
         $form->onSuccess[] = callback($this, 'edit');
         return $form;
     }
 
     /**
-     * @throws \Nette\Application\AbortException
+     * @throws AbortException
      */
     public function edit(Edit\CiForm $form)
     {
         try {
             $v = $form->getValues();
-//            dump($v);
-//            $dbData = $this->Model->fetch($v['id']);
-//            dump($dbData);
-//            exit;
             $this->ciModel->update($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
@@ -176,23 +214,24 @@ class CiPresenter extends AdminbasePresenter
     /**
      * Cast DROP
      * @param int $id Identifikator polozky
-     * @throws AbortExceptionAlias
+     * @throws AbortException
      */
-    public function actionDrop($id)
+    public function actionDrop(int $id)
     {
         try {
             try {
                 $this->ciModel->fetch($id);
                 $this->ciModel->remove($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
-                $this->redirect('Ci:default'); //	change it !!!
+                $this->redirect('Ci:default'); //change it !!!
             } catch (InvalidArgumentException $exc) {
                 $this->flashMessage($exc->getMessage());
-                $this->redirect('Ci:default'); //	change it !!!
+                $this->redirect('Ci:default'); //change it !!!
             }
         } catch (DibiException $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
-            $this->redirect('Ci:default'); //	change it !!!
+            $this->redirect('Ci:default'); //change it !!!
         }
     }
+
 }

@@ -1,1 +1,1 @@
-<?phpnamespace App\Model;/** * Description of FormatDatumModel * * @author Martin Patyk */final class FormatDatumModel extends BaseModel{    use FetchPairsTrait;    /** @var string nazev tabulky */    protected $name = 'format_datum';}
+<?phpnamespace App\Model;/** * Description of FormatDatumModel * * @author Martin Patyk */final class FormatDatumModel extends BaseModel{    use FetchPairsTrait;    /** @var string nazev tabulky */    protected $tableName = 'format_datum';}

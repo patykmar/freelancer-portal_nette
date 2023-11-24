@@ -50,7 +50,7 @@ final class OsobaModel extends BaseNDbModel
         $sql = "SELECT id, CONCAT(jmeno, ' ', prijmeni) AS nazev ";
         $sql .= "FROM osoba ";
         $sql .= "ORDER BY prijmeni";
-        return $this->database->query($sql)->fetchPairs();
+        return $this->explorer->query($sql)->fetchPairs();
     }
 
     /**

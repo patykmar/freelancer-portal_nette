@@ -14,7 +14,7 @@ use Nette\NotImplementedException;
 final class FrontaOsobaModel extends BaseModel
 {
     /** @var string nazev tabulky */
-    protected $name = 'fronta_osoba';
+    protected $tableName = 'fronta_osoba';
 
     /**
      * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari

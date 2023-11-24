@@ -13,7 +13,7 @@ use DibiException;
 final class OdCiModel extends BaseModel
 {
     /** @var string nazev tabulky */
-    protected $name = 'od_ci';
+    protected $tableName = 'od_ci';
 
     /**
      * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari

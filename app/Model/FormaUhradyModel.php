@@ -14,7 +14,7 @@ use dibi;
 final class FormaUhradyModel extends BaseModel
 {
     /** @var string nazev tabulky */
-    protected $name = 'forma_uhrady';
+    protected $tableName = 'forma_uhrady';
 
     private static $staticName = 'forma_uhrady';
 

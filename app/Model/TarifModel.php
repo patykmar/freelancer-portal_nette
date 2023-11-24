@@ -15,18 +15,10 @@ use Nette\InvalidArgumentException;
  */
 final class TarifModel extends BaseModel
 {
-    /** @var string nazev tabulky */
-    protected $name = 'tarif';
+    use FetchPairsTrait;
 
-    /**
-     * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
-     * @return string
-     * @throws DibiException
-     */
-    public static function fetchPairs()
-    {
-        return dibi::fetchPairs('SELECT [id], [nazev] FROM [tarif] ORDER BY [nazev]');
-    }
+    /** @var string nazev tabulky */
+    protected $tableName = 'tarif';
 
     /**
      * Vklada data do tabulky tarif a k tomu vytvari vychozi hodnoty SLAcek
@@ -38,7 +30,7 @@ final class TarifModel extends BaseModel
     {
         try {
             dibi::begin();
-            dibi::query('INSERT INTO %n', $this->name, '%v', $newItem);
+            dibi::query('INSERT INTO %n', $this->tableName, '%v', $newItem);
             $slaModel = new SlaModel();
             $slaModel->insertDefaultValue($this->getLastId());
             dibi::commit();
