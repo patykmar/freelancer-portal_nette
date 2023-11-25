@@ -20,6 +20,7 @@ use Nette\Utils\Strings;
 final class IncidentModel extends BaseNDbModel
 {
     public const TABLE_NAME = 'incident';
+    private const INCIDENT_STAV_UZAVREN = 5;
 
     private $connection;
     private $incidentStavModel;
@@ -63,44 +64,33 @@ final class IncidentModel extends BaseNDbModel
             'LEFT JOIN fronta_osoba ON incident.fronta_osoba = fronta_osoba.id ' .
             'LEFT JOIN fronta ON fronta_osoba.fronta = fronta.id ' .
             'WHERE incident.id = ? ';
-
         $result = $this->connection->query($query, $id, $id)->fetch();
 
-//        $result = $this->explorer->table(self::TABLE_NAME)
-//            ->where("incident.osoba_vytvoril = osoba.id")
-//            ->where("incident.ci = ci.id")
-//            ->where("ci.firma = firma.id")
-//            ->where("incident.fronta_osoba = fronta_osoba.id")
-//            ->where("fronta_osoba.fronta = fronta.id")
-//            ->where("incident.id", $id)
-//            ->select('CONCAT(typ_incident.zkratka,incident.id) AS idTxt')
-//            ->select('incident.typ_incident')
-//            ->select('priorita')
-//            ->select('incident_stav')
-//            ->select('fronta_osoba')
-//            ->select('datum_ukonceni')
-//            ->select('datum_reakce')
-//            ->select('zpusob_uzavreni')
-//            ->select('obsah_uzavreni')
-//            ->select('ukon')
-//            ->select('ovlivneni')
-//            ->select('incident.osoba_vytvoril')
-//            ->select('maly_popis')
-//            ->select('firma.nazev AS firma_nazev')
-//            ->select('fronta.nazev AS fronta')
-//            ->select('incident.ci')
-//            ->select('incident.datum_vytvoreni AS datum_vytvoreni')
-//            ->select('CONCAT(osoba.jmeno," ",osoba.prijmeni) AS osoba_vytvoril_text')
-//            ->select('(SELECT count(id) FROM  incident WHERE incident = %i) AS pocetPotomku')
-//            ->getSql();
-//            ->fetch();
-
-//        dump($result);
-//        exit();
         if ($result):
             return $result;
         endif;
         throw new InvalidArgumentException('Tiket cislo ' . $id . ' nebyl nalezen');
+    }
+
+    public function retrieveListOfUnpaidWork(): array
+    {
+        $query = "SELECT firma.nazev, firma.id AS firma_id, " .
+            "count(incident.id) AS pocet_incidentu, " .
+            "sum(tarif.cena * sla.cena_koeficient * zpusob_uzavreni.koeficient_cena) AS cena_nevyuctovano " .
+            'FROM ' . self::TABLE_NAME . ' ' .
+            "LEFT JOIN ci ON incident.ci = ci.id " .
+            "LEFT JOIN firma ON ci.firma = firma.id " .
+            "LEFT JOIN tarif ON ci.tarif = tarif.id " .
+            "LEFT JOIN sla ON ci.tarif = sla.priorita = incident.priorita AND sla.typ_incident = incident.typ_incident AND sla.tarif = ci.tarif " .
+            "LEFT JOIN zpusob_uzavreni ON incident.zpusob_uzavreni = zpusob_uzavreni.id " .
+            "WHERE incident_stav = 5 AND faktura is null " .
+            "GROUP BY ci.firma";
+        $result = $this->connection->query($query)->fetchAll();
+
+        if ($result):
+            return $result;
+        endif;
+        throw new InvalidArgumentException('Zadna odvedena prace nebyla nalezena');
     }
 
     /**
@@ -222,41 +212,39 @@ final class IncidentModel extends BaseNDbModel
 
     /**
      * Nactu si tikety, ktere byli pro daneho odberatele uzavrene.
-     * @param int ID firma odberatel
+     * @param int $firmaId ID firma odberatel
      */
-    public function selectAllTicketsForInvoicingByIdCompany($id)
+    public function selectAllTicketsForInvoicingByIdCompany(int $firmaId)
     {
-        return $this->fetchFactory()
-            #->select('CONCAT("Produkt: ",[ci].[nazev]," ; Služba: ",[ukon].nazev)')->as('nadpis')
-            #->select('CONCAT("Produkt: ",[ci].[nazev]," ; Služba: ",[ukon].nazev," ; Uzavřeno: ",[zpusob_uzavreni].[nazev]," ; Priorita: ", [priorita].[nazev])')->as('nadpis')
-            ->select('CONCAT("Produkt: ",[ci].[nazev],", Způsob uzavření: ",[zpusob_uzavreni].[nazev])')->as('nadpis')
-            ->select('CONCAT("Služba: ",[ukon].nazev,", Priorita: ", [priorita].[nazev])')->as('dodatek')
-            ->select('[ci].[nazev]')->as('produkt')
-            ->select('[ukon].[nazev]')->as('ukon')
-            ->select('[zpusob_uzavreni].[nazev]')->as('uzavreno')
-            ->select('1')->as('pocet_polozek')
-            ->select('[priorita].[nazev]')->as('priorita')
-            ->select('CONCAT([typ_incident].[zkratka],[incident].[id]," - ",[maly_popis])')->as('polozka_nazev')
-            #->select('CONCAT("Uzavřeno: ", [zpusob_uzavreni].[nazev]," ; Priorita: ", [priorita].[nazev])')->as('dodatek')
-            ->select('ROUND((typ_incident.koeficient_cena * ovlivneni.koeficient_cena * priorita.koeficient_cena * zpusob_uzavreni.koeficient_cena),2)')->as('koeficient_cena')
-            ->select('ukon.cena')->as('cena_za_jednotku')
-            ->select('1')->as('dph') // id DPH 0%
-
-            ->select('1')->as('jednotka') // id jednotka neurcito 0%
-            #->select('[ci].[nazev]')->as('nazevCi')
-            ->innerJoin('ukon')->on('[incident].[ukon] = [ukon].[id]')
-            ->innerJoin('ovlivneni')->on('[incident].[ovlivneni] = [ovlivneni].[id]')
-            ->innerJoin('typ_incident')->on('([incident].[typ_incident] = [typ_incident].[id])')
-            ->innerJoin('priorita')->on('([incident].[priorita] = [priorita].[id])')
-            ->innerJoin('zpusob_uzavreni')->on('([incident].[zpusob_uzavreni] = [zpusob_uzavreni].[id])')
-            ->innerJoin('ci')->on('([incident].[ci] = [ci].[id])')
-            ->innerJoin('firma')->on('([ci].[firma] = [firma].[id])')
-            ->innerJoin('tarif')->on('([ci].[tarif] = [tarif].[id])')
-            ->where('incident_stav = %i', 5)
-            ->and('faktura')->is(NULL)
-            ->and('firma.id = %i', $id)
-            ->orderBy('zpusob_uzavreni,priorita.nazev,typ_incident.nazev');
-        //->fetchAssoc('nazevCi,zpusob_uzavreni,priorita,id');
+        $query = 'SELECT ' .
+            'CONCAT("Produkt: ",ci.nazev,", Způsob uzavření: ",zpusob_uzavreni.nazev) AS nadpis, ' .
+            'CONCAT("Služba: ",ukon.nazev,", Priorita: ", priorita.nazev) AS dodatek, ' .
+            'CONCAT(typ_incident.zkratka,incident.id," - ",maly_popis) AS polozka_nazev, ' .
+            'ROUND((typ_incident.koeficient_cena * ovlivneni.koeficient_cena * priorita.koeficient_cena * zpusob_uzavreni.koeficient_cena),2) AS koeficient_cena, ' .
+            'ci.nazev AS produkt, ' .
+            'ukon.nazev AS ukon, ' .
+            'zpusob_uzavreni.nazev AS uzavreno, ' .
+            'priorita.nazev AS priorita, ' .
+            'ukon.cena AS cena_za_jednotku, ' .
+            'incident.id AS incident_id, '.
+            '1 AS pocet_polozek, ' .
+            '1 AS dph, ' . // id DPH 0%
+            '1 AS jednotka ' . // id jednotka neurcito 0%
+            'FROM ' . self::TABLE_NAME . ' ' .
+            'INNER JOIN ukon ON incident.ukon = ukon.id ' .
+            'INNER JOIN ovlivneni ON incident.ovlivneni = ovlivneni.id ' .
+            'INNER JOIN typ_incident ON incident.typ_incident = typ_incident.id ' .
+            'INNER JOIN priorita ON incident.priorita = priorita.id ' .
+            'INNER JOIN zpusob_uzavreni ON incident.zpusob_uzavreni = zpusob_uzavreni.id ' .
+            'INNER JOIN ci ON incident.ci = ci.id ' .
+            'INNER JOIN firma ON ci.firma = firma.id ' .
+            'INNER JOIN tarif ON ci.tarif = tarif.id ' .
+            'WHERE incident_stav = ? ' .
+            'AND faktura is null ' .
+            'AND firma.id = ? ' .
+            'ORDER BY zpusob_uzavreni,priorita.nazev,typ_incident.nazev ';
+        return $this->connection->query($query, self::INCIDENT_STAV_UZAVREN, $firmaId)
+            ->fetchAssoc('nadpis|incident_id');
     }
 
     /**

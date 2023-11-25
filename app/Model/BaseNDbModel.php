@@ -64,4 +64,16 @@ abstract class BaseNDbModel extends Object
             ->where("id", $id)
             ->update($arr);
     }
+
+    /**
+     * @return bool|IRow
+     */
+    public function getLastId()
+    {
+        return $this->explorer->table($this->tableName)
+            ->select('id')
+            ->order('id DESC')
+            ->limit(1)
+            ->fetch()['id'];
+    }
 }

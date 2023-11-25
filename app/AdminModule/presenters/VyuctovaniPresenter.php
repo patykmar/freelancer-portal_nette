@@ -58,11 +58,11 @@ class VyuctovaniPresenter extends AdminbasePresenter
      */
     protected function createComponentGridNezauctovanaPrace(): VyuctovaniGrid
     {
-        return new VyuctovaniGrid($this->context->database->context
+        return new VyuctovaniGrid($this->vyuctovaniContext
             ->table('incident')
             ->where(array(
                 'incident_stav' => 5,
-                'faktura' => NULL,
+                'faktura' => null,
             )));
     }
 
@@ -77,24 +77,8 @@ class VyuctovaniPresenter extends AdminbasePresenter
      */
     public function renderOld()
     {
-        $model = $this->modelIncident->fetchFactory();
-        $model->select('[firma].[nazev]')
-            ->select('[firma].[id]')->as('firma_id')
-            ->select('count(incident.id)')->as('pocet_incidentu')
-            ->select('sum(tarif.cena * sla.cena_koeficient * zpusob_uzavreni.cana_koeficient)')->as('cena_nevyuctovano')
-            ->leftJoin('ci')->on('(incident.ci = ci.id)')
-            ->leftJoin('firma')->on('(ci.firma = firma.id)')
-            ->leftJoin('tarif')->on('(ci.tarif = tarif.id)')
-            ->leftJoin('sla')->on('(sla.priorita = incident.priorita AND sla.typ_incident = incident.typ_incident AND sla.tarif = ci.tarif)')
-            ->leftJoin('zpusob_uzavreni')->on('(incident.zpusob_uzavreni = zpusob_uzavreni.id)')
-            ->where('incident_stav = %i', 5)
-            ->and('faktura')->is(NULL)
-            ->groupBy('ci.firma');
+        $model = $this->modelIncident->retrieveListOfUnpaidWork();
         $this->template->items = $model;
-    }
-
-    public function renderTest()
-    {
     }
 
     /**
@@ -110,7 +94,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
             $identita = $this->getUser()->getIdentity();
 
             //nactu si inicialy od dodavatele a odberatele
-            $novaFaktura = $this->firmaModel->fetchDodavatelOdberatel($identita->data['firma'], $id);
+            $novaFaktura = $this->firmaModel->fetchDodavatelOdberatel($identita->__get("data")['firma'], $id);
 
             //existuje firma?
             if (!$novaFaktura) {
@@ -144,7 +128,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd()
+    public function createComponentAdd(): AddFkBaseForm
     {
         $form = new AddFkBaseForm;
         $form->onSuccess[] = callback($this, 'add');

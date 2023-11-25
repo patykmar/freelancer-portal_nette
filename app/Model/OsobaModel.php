@@ -27,35 +27,35 @@ final class OsobaModel extends BaseNDbModel
      */
     public function fetchPairsSpecialistSystem(): array
     {
-        return $this->explorer->table($this->tableName)
+        return $this->explorer->table(self::TABLE_NAME)
             ->where("typ_osoby", [2, 3])
             ->fetchPairs('id', 'CONCAT([jmeno]," ",[prijmeni]) as nazev');
     }
 
     /**
      * Vrati v paru id a jmena pouze specialistu a systemovych uzivatelu.
-     * @return DibiRow id => nazev
+     * @return array id => nazev
      * typ_osoby:
      *  1 - zakaznik
      *  2 - specialista
      *  3 - system
      */
-    public static function fetchPairs()
+    public function fetchPairs(): array
     {
-        return dibi::select('id')
-            ->select('CONCAT([jmeno]," ",[prijmeni])')->as('nazev')
-            ->from('%n', 'osoba')
-            ->where('typ_osoby')->in('(2,3)')
-            ->orderBy('prijmeni')
-            ->fetchPairs();
+        return $this->explorer->table(self::TABLE_NAME)
+            ->where("typ_osoby", [2, 3])
+            ->order("prijmeni")
+            ->select("id")
+            ->select('CONCAT(jmeno," ",prijmeni) AS nazev')
+            ->fetchPairs("id", "nazev");
     }
 
     /**
      * Metoda vraci vsechny osoby k pouziti do formulare.
      */
-    public function fetchAllPairs()
+    public function fetchAllPairs(): array
     {
-        $sql = "SELECT id, CONCAT(jmeno, ' ', prijmeni) AS nazev ";
+        $sql = "SELECT id, CONCAT(jmeno, ' ', prijmeni) as nazev ";
         $sql .= "FROM osoba ";
         $sql .= "ORDER BY prijmeni";
         return $this->explorer->query($sql)->fetchPairs();
@@ -65,14 +65,14 @@ final class OsobaModel extends BaseNDbModel
      * Vrati Map<string, Map<int,string>>, kde klic je nazev firmy a v ni je mapa CiId => CiName
      * @return array
      */
-    public function fetchAllPairsWithCompanyName()
+    public function fetchAllPairsWithCompanyName(): array
     {
         $result = $this->explorer->table(self::TABLE_NAME)
-            ->where("firma.id = osoba.firma")
-            ->order("osoba.prijmeni")
-            ->select("osoba.id")
+            ->where("firma . id = osoba . firma")
+            ->order("osoba . prijmeni")
+            ->select("osoba . id")
             ->select('CONCAT(prijmeni," ",jmeno) AS nazev')
-            ->select("firma.nazev AS nazevFirmy")
+            ->select("firma.nazev as nazevFirmy")
             ->fetchAssoc("nazevFirmy|id");
 
         foreach ($result as $k => $v) {

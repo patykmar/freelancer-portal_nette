@@ -4,95 +4,95 @@
 
 <h1>Faktura {$title}</h1>
 {form edit}
-	{control edit errors}
-<table>
-	<tr>
-		<td colspan="4" style="text-align: right">
-			<a n:href="Faktura:GeneratePdf,$faktura">Generuj PDF</a>
-			{input btSbmt}
-		</td>
-	</tr>
-	{formContainer new}
-	<tr>
-		<th>{label dodavatel_nazev/}</th>
-		<td>{input dodavatel_nazev}</td>
-		<th>{label odberatel_nazev/}</th>
-		<td>{input odberatel_nazev}</td>
-	</tr>
-	<tr>
-		<th>{label dodavatel_ico/}</th>
-		<td>{input dodavatel_ico}</td>
-		<th>{label odberatel_ico/}</th>
-		<td>{input odberatel_ico}</td>
-	</tr>
-	<tr>
-		<th>{label dodavatel_dic/}</th>
-		<td>{input dodavatel_dic}</td>
-		<th>{label odberatel_dic/}</th>
-		<td>{input odberatel_dic}</td>
-	</tr>
-	<tr>
-		<th>{label dodavatel_ulice/}</th>
-		<td>{input dodavatel_ulice}</td>
-		<th>{label odberatel_ulice/}</th>
-		<td>{input odberatel_ulice}</td>
-	</tr>
-	<tr>
-		<th>{label dodavatel_obec/}</th>
-		<td>{input dodavatel_obec}</td>
-		<th>{label odberatel_obec/}</th>
-		<td>{input odberatel_obec}</td>
-	</tr>
-	<tr>
-		<th>{label dodavatel_psc/}</th>
-		<td>{input dodavatel_psc}</td>
-		<th>{label odberatel_psc/}</th>
-		<td>{input odberatel_psc}</td>
-	</tr>
-	<tr>
-		<th>{label dodavatel_zeme/}</th>
-		<td>{input dodavatel_zeme}</td>
-		<th>{label odberatel_zeme/}</th>
-		<td>{input odberatel_zeme}</td>
-	</tr>
-	<tr>
-		<th>{label dodavatel_cislo_uctu/}</th>
-		<td>{input dodavatel_cislo_uctu}</td>
-		<th>{label odberatel_cislo_uctu/}</th>
-		<td>{input odberatel_cislo_uctu}</td>
-	</tr>
-	<tr>
-		<th>{label dodavatel_iban/}</th>
-		<td>{input dodavatel_iban}</td>
-		<th>{label odberatel_iban/}</th>
-		<td>{input odberatel_iban}</td>
-	</tr>
-	<tr>
-		<th>{label splatnost/}</th>
-		<td>{input splatnost}</td>
-		<th>{label datum_vystaveni/}</th>
-		<td>{input datum_vystaveni}</td>
-	</tr>
-	<tr>
-		<th>{label vs/}</th>
-		<td>{input vs}</td>
-		<th>{label datum_splatnosti/}</th>
-		<td>{input datum_splatnosti}</td>
-	</tr>
-	<tr>
-		<th>{label ks/}</th>
-		<td>{input ks}</td>
-		<th>{label datum_zaplaceni/}</th>
-		<td>{input datum_zaplaceni}</td>
-	</tr>
-	<tr>
-		<th>{label vytvoril/}</th>
-		<td>{input vytvoril}</td>
-		<th>{label forma_uhrady/}</th>
-		<td>{input forma_uhrady}</td>
-	</tr>
-	{/formContainer}
-</table>
+    {control edit errors}
+    <table>
+        <tr>
+            <td colspan="4" style="text-align: right">
+                <a n:href="Faktura:GeneratePdf, $faktura">Generuj PDF</a>
+                {input btSbmt}
+            </td>
+        </tr>
+        {formContainer new}
+            <tr>
+                <th>{label dodavatel_nazev/}</th>
+                <td>{input dodavatel_nazev}</td>
+                <th>{label odberatel_nazev/}</th>
+                <td>{input odberatel_nazev}</td>
+            </tr>
+            <tr>
+                <th>{label dodavatel_ico/}</th>
+                <td>{input dodavatel_ico}</td>
+                <th>{label odberatel_ico/}</th>
+                <td>{input odberatel_ico}</td>
+            </tr>
+            <tr>
+                <th>{label dodavatel_dic/}</th>
+                <td>{input dodavatel_dic}</td>
+                <th>{label odberatel_dic/}</th>
+                <td>{input odberatel_dic}</td>
+            </tr>
+            <tr>
+                <th>{label dodavatel_ulice/}</th>
+                <td>{input dodavatel_ulice}</td>
+                <th>{label odberatel_ulice/}</th>
+                <td>{input odberatel_ulice}</td>
+            </tr>
+            <tr>
+                <th>{label dodavatel_obec/}</th>
+                <td>{input dodavatel_obec}</td>
+                <th>{label odberatel_obec/}</th>
+                <td>{input odberatel_obec}</td>
+            </tr>
+            <tr>
+                <th>{label dodavatel_psc/}</th>
+                <td>{input dodavatel_psc}</td>
+                <th>{label odberatel_psc/}</th>
+                <td>{input odberatel_psc}</td>
+            </tr>
+            <tr>
+                <th>{label dodavatel_zeme/}</th>
+                <td>{input dodavatel_zeme}</td>
+                <th>{label odberatel_zeme/}</th>
+                <td>{input odberatel_zeme}</td>
+            </tr>
+            <tr>
+                <th>{label dodavatel_cislo_uctu/}</th>
+                <td>{input dodavatel_cislo_uctu}</td>
+                <th>{label odberatel_cislo_uctu/}</th>
+                <td>{input odberatel_cislo_uctu}</td>
+            </tr>
+            <tr>
+                <th>{label dodavatel_iban/}</th>
+                <td>{input dodavatel_iban}</td>
+                <th>{label odberatel_iban/}</th>
+                <td>{input odberatel_iban}</td>
+            </tr>
+            <tr>
+                <th>{label splatnost/}</th>
+                <td>{input splatnost}</td>
+                <th>{label datum_vystaveni/}</th>
+                <td>{input datum_vystaveni}</td>
+            </tr>
+            <tr>
+                <th>{label vs/}</th>
+                <td>{input vs}</td>
+                <th>{label datum_splatnosti/}</th>
+                <td>{input datum_splatnosti}</td>
+            </tr>
+            <tr>
+                <th>{label ks/}</th>
+                <td>{input ks}</td>
+                <th>{label datum_zaplaceni/}</th>
+                <td>{input datum_zaplaceni}</td>
+            </tr>
+            <tr>
+                <th>{label vytvoril/}</th>
+                <td>{input vytvoril}</td>
+                <th>{label forma_uhrady/}</th>
+                <td>{input forma_uhrady}</td>
+            </tr>
+        {/formContainer}
+    </table>
 {/form}
 
 <h2>Položky faktury</h2>
@@ -100,6 +100,6 @@
 {control gridPolozkyFaktury}
 
 <p>
-	<a n:href="FakturaPolozka:add,$faktura">Přidej nový záznam</a>
+    <a n:href="FakturaPolozka:add, $faktura">Přidej nový záznam</a>
 </p>
 

@@ -98,7 +98,7 @@ class TicketsPresenter extends AdminbasePresenter
 
     /*************************************** PART ADD **************************************/
 
-    protected function createComponentAdd()
+    protected function createComponentAdd(): Add\IncidentForm
     {
         $form = new Add\IncidentForm;
         $form['osoba_vytvoril']->setItems($this->osobaModel->fetchAllPairs());
@@ -148,13 +148,13 @@ class TicketsPresenter extends AdminbasePresenter
     /*************************************** PART EDIT **************************************/
 
     //for load work load
-    protected function createComponentWl()
+    protected function createComponentWl(): WorkLogControl
     {
         return new WorkLogControl($this->netteModel);
     }
 
     //component for edit new item
-    protected function createComponentEditTiket()
+    protected function createComponentEditTiket(): Edit\IncidentForm
     {
         $form = new Edit\IncidentForm;
         $form->onSuccess[] = callback($this, 'edit');

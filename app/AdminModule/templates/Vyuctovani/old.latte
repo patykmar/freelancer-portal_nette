@@ -4,6 +4,8 @@
 
 <h1>Nezaučtováná práce</h1>
 
+{dump $items}
+
 <table>
 	<tr>
 		<th>Nazev</th>
@@ -13,12 +15,13 @@
 		<th>Akce</th>
 		<th>Akce</th>
 	</tr>
-		<tr n:foreach="$items->fetchAll() as $item">
+		<tr n:foreach="$items as $item">
 		<th>{$item['nazev']}</th>
 		<th>{$item['pocet_incidentu']}</th>
 		<th>{$item['cena_nevyuctovano']|number:2:',':' '} Kč</th>
 		<th><a n:href="generujFakturu,$item['firma_id']" title="Vygeneruj fakturu">Vygeneruj fakturu</a></th>
 		<th><a n:href="generate" title="Vygeneruj fakturu">pdf</a></th>
-		<th><a href="#" title="Vygeneruj fakturu" onclick="window.open('{link vyuctovani:generujFakturu,$item['firma_id']}', '_blank', 'width=400,height=500')">Vygeneruj fakturu</a></th>
+		<th><a href="#" title="Vygeneruj fakturu"
+			   onclick="window.open('{link Vyuctovani:generujFakturu,$item['firma_id']}', '_blank', 'width=400,height=500')">Vygeneruj fakturu</a></th>
 	</tr>
 </table>

@@ -1,33 +1,23 @@
 <?php
 
-
 namespace App\Model;
 
-
-use dibi;
+use Nette\Database\Context;
 
 /**
  * Description of FormaUhradyModel
  *
  * @author Martin Patyk
  */
-final class FormaUhradyModel extends BaseModel
+final class FormaUhradyModel extends BaseNDbModel
 {
-    /** @var string nazev tabulky */
-    protected $tableName = 'forma_uhrady';
+    use FetchPairsTrait;
 
-    private static $staticName = 'forma_uhrady';
+    public const TABLE_NAME = 'forma_uhrady';
 
-    /**
-     * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
-     * @return array id, zazev
-     */
-    public static function fetchPairs()
+    public function __construct(Context $context)
     {
-        return dibi::select('[id]')
-            ->select('[nazev]')
-            ->from('%n', FormaUhradyModel::$staticName)
-            ->orderBy('nazev')
-            ->fetchPairs();
+        parent::__construct(self::TABLE_NAME, $context);
     }
+
 }

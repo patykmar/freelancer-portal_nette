@@ -17,6 +17,8 @@ use App\Model\FakturaModel;
 use App\Model\FakturaPolozkaModel;
 use App\Model\FirmaModel;
 use App\Form\Admin\Edit\FakturaForm as FakturaFormAlias;
+use App\Model\FormaUhradyModel;
+use App\Model\OsobaModel;
 use DibiException;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
@@ -32,19 +34,22 @@ use OndrejBrejla\Eciovni\TaxImpl;
 use Tracy\Debugger;
 use Exception;
 
-
 class FakturaPresenter extends AdminbasePresenter
 {
     private $fakturaModel;
     private $fakturaPolozkaModel;
     private $modelFirma;
     private $fakturaContext;
+    private $osobaModel;
+    private $formaUhradyModel;
 
     public function __construct(
         FakturaModel        $fakturaModel,
         FakturaPolozkaModel $fakturaPolozkaModel,
         FirmaModel          $modelFirma,
-        Context             $fakturaContext
+        Context             $fakturaContext,
+        OsobaModel          $osobaModel,
+        FormaUhradyModel    $formaUhradyModel
     )
     {
         parent::__construct();
@@ -52,6 +57,8 @@ class FakturaPresenter extends AdminbasePresenter
         $this->fakturaPolozkaModel = $fakturaPolozkaModel;
         $this->modelFirma = $modelFirma;
         $this->fakturaContext = $fakturaContext;
+        $this->osobaModel = $osobaModel;
+        $this->formaUhradyModel = $formaUhradyModel;
     }
 
     /*************************************** DEFINE GRIDS **************************************/
@@ -63,7 +70,7 @@ class FakturaPresenter extends AdminbasePresenter
 
     protected function createComponentGridPolozkyFaktury(): PolozkyFakturyGrid
     {
-        return new PolozkyFakturyGrid($this->fakturaContext);
+        return new PolozkyFakturyGrid($this->fakturaContext->table(FakturaPolozkaModel::TABLE_NAME));
     }
 
     public function renderDefault()
@@ -151,7 +158,7 @@ class FakturaPresenter extends AdminbasePresenter
      */
     public function createComponentEdit(): FakturaFormAlias
     {
-        $form = new FakturaFormAlias();
+        $form = new FakturaFormAlias($this->osobaModel, $this->formaUhradyModel);
         $form->onSuccess[] = callback($this, 'edit');
         return $form;
     }
@@ -170,7 +177,7 @@ class FakturaPresenter extends AdminbasePresenter
             $this->getTemplate()->faktura = $id;
 
             //podminka pro zobrazeni polozek pro konkretni fakturu
-            $this->modelGridFakturaPolozka->where('faktura = ?', $id);
+            $this->fakturaPolozkaModel->fetchAllByIdFaktura($id);
 
             //odeberu idecko z pole
 //            $v->offsetUnset('id');
@@ -212,9 +219,9 @@ class FakturaPresenter extends AdminbasePresenter
         try {
             //nactu si data
             $faData = $this->fakturaModel->fetchWithName($id);
-            $faData->offsetSet('polozky', $this->fakturaPolozkaModel->fetchAllByIdFaktura($id));
+            $faPolozky = $this->fakturaPolozkaModel->fetchAllByIdFaktura($id);
 
-            $this['fa'] = new MojeFakturaControl($faData);
+            $this['fa'] = new MojeFakturaControl($faData, $faPolozky);
 
             include_once(__DIR__ . '/../../vendor/others/mpdf/mpdf.php');
 
