@@ -18,33 +18,35 @@ use App\Form\Admin\Edit\FkBaseForm as EditFkBaseForm;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
 use Nette\DateTime;
-use Nette\Diagnostics\Debugger;
+use Tracy\Debugger;
 use Nette\InvalidArgumentException;
 
 class VyuctovaniPresenter extends AdminbasePresenter
 {
-    /** @var FakturaModel */
     private $fakturaModel;
-
-    /** @var IncidentModel Description */
     private $modelIncident;
-
-    /** @var Context */
     private $vyuctovaniContext;
+    private $firmaModel;
 
-    public function __construct(FakturaModel $fakturaModel, IncidentModel $modelIncident, Context $vyuctovaniContext)
+    public function __construct(
+        FakturaModel  $fakturaModel,
+        IncidentModel $modelIncident,
+        Context       $vyuctovaniContext,
+        FirmaModel    $firmaModel
+    )
     {
         parent::__construct();
         $this->fakturaModel = $fakturaModel;
         $this->modelIncident = $modelIncident;
         $this->vyuctovaniContext = $vyuctovaniContext;
+        $this->firmaModel = $firmaModel;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
      * incident_stav:=4 == vyreseno
      */
-    protected function createComponentGrid()
+    protected function createComponentGrid(): VyuctovaniGrid
     {
         return new VyuctovaniGrid($this->vyuctovaniContext->table('incident'));
     }
@@ -54,7 +56,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
      * pro kazdou firmu zvlast.
      * incident_stav:=5 == uzavreno
      */
-    protected function createComponentGridNezauctovanaPrace()
+    protected function createComponentGridNezauctovanaPrace(): VyuctovaniGrid
     {
         return new VyuctovaniGrid($this->context->database->context
             ->table('incident')
@@ -101,16 +103,16 @@ class VyuctovaniPresenter extends AdminbasePresenter
      * @param int $id Identifikator firma, odberatel pro kterou se generuje faktura
      * @throws DibiException|AbortException
      */
-    public function actionGenerujFakturu($id)
+    public function actionGenerujFakturu(int $id)
     {
         try {
-            //	zjistim identitu prave prihlaseneho cloveka
+            //zjistim identitu prave prihlaseneho cloveka
             $identita = $this->getUser()->getIdentity();
 
-            //	nactu si inicialy od dodavatele a odberatele
-            $novaFaktura = FirmaModel::fetchDodavatelOdberatel($identita->data['firma'], $id);
+            //nactu si inicialy od dodavatele a odberatele
+            $novaFaktura = $this->firmaModel->fetchDodavatelOdberatel($identita->data['firma'], $id);
 
-            //	existuje firma?
+            //existuje firma?
             if (!$novaFaktura) {
                 throw new InvalidArgumentException('Dodavatel nebo odberatel nenelezen!');
             }
@@ -124,9 +126,9 @@ class VyuctovaniPresenter extends AdminbasePresenter
             $novaFaktura->offsetSet('ks', 3658);
             $novaFaktura->offsetSet('id_odberatel', $id);
 
-            //	vygeneruj novou fakturu
+            //vygeneruj novou fakturu
             $this->fakturaModel->insertFromTickets($novaFaktura);
-            #//	presmeruji aplikaci, aby vygenerovala PDF soubor
+            #//presmeruji aplikaci, aby vygenerovala PDF soubor
             #$this->redirect('Faktura:GeneratePdf', $this->Model->getLastId());
             $this->redirect('Faktura:');
         } catch (InvalidArgumentException $exc) {
@@ -171,15 +173,15 @@ class VyuctovaniPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function renderEdit($id)
+    public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
-            //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
+            //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
             $v = $this->fakturaModel->fetch($id);
-            //	odeberu idecko z pole
-            $v->offsetUnset('id');
-            //	upravene hodnoty odeslu do formulare
+            //odeberu idecko z pole
+//            $v->offsetUnset('id');
+            //upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
@@ -187,7 +189,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit()
+    public function createComponentEdit(): EditFkBaseForm
     {
         $form = new EditFkBaseForm;
         $form->onSuccess[] = callback($this, 'edit');
@@ -216,16 +218,16 @@ class VyuctovaniPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function actionDrop($id)
+    public function actionDrop(int $id)
     {
         try {
             $this->fakturaModel->fetch($id);
             $this->fakturaModel->remove($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
-            $this->redirect('VyuctovaniPresenter:default'); //	change it !!!
+            $this->redirect('VyuctovaniPresenter:default'); //change it !!!
         } catch (DibiException $exc) {
             $this->flashMessage($exc->getMessage());
-            $this->redirect('VyuctovaniPresenter:default'); //	change it !!!
+            $this->redirect('VyuctovaniPresenter:default'); //change it !!!
         }
     }
 }

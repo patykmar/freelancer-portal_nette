@@ -18,7 +18,7 @@ use App\Form\Admin\Edit\FrontaOsobaForm as EditFrontaOsobaForm;
 use App\Model\FrontaOsobaModel;
 use Nette\Application\AbortException as AbortExceptionAlias;
 use Nette\Database\Context;
-use Nette\Diagnostics\Debugger;
+use Tracy\Debugger;
 use Nette\InvalidArgumentException;
 
 class FrontaOsobaPresenter extends AdminbasePresenter
@@ -99,7 +99,7 @@ class FrontaOsobaPresenter extends AdminbasePresenter
             $v = $this->frontaOsobaModel->fetch($id);
 
             //odeberu idecko z pole
-            $v->offsetUnset('id');
+//            $v->offsetUnset('id');
 
             //upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));

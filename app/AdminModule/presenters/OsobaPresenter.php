@@ -25,7 +25,7 @@ use Nette\Application\BadRequestException;
 use Nette\ArrayHash;
 use Nette\Database\Context;
 use Nette\DateTime;
-use Nette\Diagnostics\Debugger;
+use Tracy\Debugger;
 use Nette\InvalidArgumentException;
 use SendMail\SendMailControler;
 

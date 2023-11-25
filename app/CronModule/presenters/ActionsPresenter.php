@@ -21,7 +21,7 @@ use greeny\MailLibrary\Selection;
 use Nette\Application\AbortException;
 use Nette\ArrayHash;
 use Nette\DateTime;
-use Nette\Diagnostics\Debugger;
+use Tracy\Debugger;
 use Nette\Utils\Strings;
 
 class ActionsPresenter extends CronBasePresenter

@@ -28,7 +28,7 @@ use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Database\Context;
 use Nette\DateTime;
-use Nette\Diagnostics\Debugger;
+use Tracy\Debugger;
 use Nette\Forms\Form;
 use Nette\InvalidArgumentException;
 use Nette\Utils\Strings;
@@ -243,7 +243,7 @@ class TicketsPresenter extends AdminbasePresenter
             $this->template->wl = $this->modelIncWl->fetchAllByIncidentId($id);
             $this->template->pocetPotomku = $v['pocetPotomku'];
             //odeberu idecko z pole
-            $v->offsetUnset('id');
+//            $v->offsetUnset('id');
             //upravene hodnoty odeslu do formulare
             $this['editTiket']->setDefaults(array('id' => $id, 'new' => $v));
         } catch (InvalidArgumentException $exc) {

@@ -15,7 +15,7 @@ use Nette\Forms\Form;
 
 class TypIncidentForm extends UIForm
 {
-    public function __construct(IContainer $parent = NULL, $name = NULL)
+    public function __construct(TypIncidentModel $typIncidentModel, IContainer $parent = null, $name = null)
     {
         parent::__construct($parent, $name);
         $this->addHidden('id');
@@ -30,11 +30,11 @@ class TypIncidentForm extends UIForm
         $new->addText('koeficient_cas', 'Koeficient čas:', null, 10)
             ->setType('number')
             ->addRule(Form::FLOAT);
-        $new->addSelect('typ_incident', 'Typ incidentu - rodič:', TypIncidentModel::fetchPairsMain())
+        $new->addSelect('typ_incident', 'Typ incidentu - rodič:', $typIncidentModel->fetchPairsMain())
             ->setPrompt(' - - - ');
-        //	Obrana před Cross-Site Request Forgery (CSRF)
+        //Obrana před Cross-Site Request Forgery (CSRF)
         $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
-        //	Tlacitko odeslat
+        //Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;
     }

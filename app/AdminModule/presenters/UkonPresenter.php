@@ -15,7 +15,7 @@ use App\Form\Admin\Edit\UkonForm as EditUkonForm;
 use App\Form\Admin\Add\UkonForm as AddUkonForm;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
-use Nette\Diagnostics\Debugger;
+use Tracy\Debugger;
 use Nette\InvalidArgumentException;
 
 class UkonPresenter extends AdminbasePresenter
@@ -97,7 +97,7 @@ class UkonPresenter extends AdminbasePresenter
             $v = $this->model->fetch($id);
 
             //	odeberu idecko z pole
-            $v->offsetUnset('id');
+//            $v->offsetUnset('id');
 
             //	upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));

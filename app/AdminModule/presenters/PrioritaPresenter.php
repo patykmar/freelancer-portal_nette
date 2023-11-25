@@ -16,7 +16,7 @@ use App\Form\Admin\Add\FkBaseForm as AddFkBaseForm;
 use App\Form\Admin\Edit\FkBaseForm as EditFkBaseForm;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
-use Nette\Diagnostics\Debugger;
+use Tracy\Debugger;
 use Nette\InvalidArgumentException;
 
 class PrioritaPresenter extends AdminbasePresenter
@@ -91,7 +91,7 @@ class PrioritaPresenter extends AdminbasePresenter
             //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
             $v = $this->prioritaModel->fetch($id);
             //	odeberu idecko z pole
-            $v->offsetUnset('id');
+//            $v->offsetUnset('id');
 
             //	upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));

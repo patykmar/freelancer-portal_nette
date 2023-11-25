@@ -15,7 +15,7 @@ use App\Form\Admin\Add\TarifForm as AddTarifForm;
 use App\Form\Admin\Edit\TarifForm as EditTarifForm;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
-use Nette\Diagnostics\Debugger;
+use Tracy\Debugger;
 use Nette\InvalidArgumentException;
 
 

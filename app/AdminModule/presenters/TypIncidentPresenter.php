@@ -16,25 +16,22 @@ use App\Form\Admin\Add\TypIncidentForm as AddTypIncidentForm;
 use App\Form\Admin\Edit\TypIncidentForm as EditTypIncidentForm;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
-use Nette\Diagnostics\Debugger;
+use Tracy\Debugger;
 use Nette\InvalidArgumentException;
 
 class TypIncidentPresenter extends AdminbasePresenter
 {
-    /** @var TypIncidentModel */
-    private $model;
-
-    /** @var Context */
+    private $typIncidentModel;
     private $typIncidentu;
 
-    public function __construct(Context $context, TypIncidentModel $model)
+    public function __construct(Context $context, TypIncidentModel $typIncidentModel)
     {
         parent::__construct();
-        $this->model = $model;
+        $this->typIncidentModel = $typIncidentModel;
         $this->typIncidentu = $context;
     }
 
-    protected function createComponentGrid()
+    protected function createComponentGrid(): TypIncidentGrid
     {
         return new TypIncidentGrid($this->typIncidentu->table('typ_incident'));
     }
@@ -51,10 +48,10 @@ class TypIncidentPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd()
+    public function createComponentAdd(): AddTypIncidentForm
     {
         $form = new AddTypIncidentForm();
-        $form['typ_incident']->setItems($this->model->fetchPairs());
+        $form['typ_incident']->setItems($this->typIncidentModel->fetchPairs());
         $form->onSuccess[] = callback($this, 'add');
         return $form;
     }
@@ -66,7 +63,7 @@ class TypIncidentPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->model->insert($v);
+            $this->typIncidentModel->insert($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -81,17 +78,17 @@ class TypIncidentPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function renderEdit($id)
+    public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
-            //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->model->fetch($id);
+            //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
+            $v = $this->typIncidentModel->fetch($id);
 
-            //	odeberu idecko z pole
-            $v->offsetUnset('id');
+            //odeberu idecko z pole
+//            $v->offsetUnset('id');
 
-            //	upravene hodnoty odeslu do formulare
+            //upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
@@ -99,9 +96,9 @@ class TypIncidentPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit()
+    public function createComponentEdit(): EditTypIncidentForm
     {
-        $form = new EditTypIncidentForm();
+        $form = new EditTypIncidentForm($this->typIncidentModel);
         $form->onSuccess[] = callback($this, 'edit');
         return $form;
     }
@@ -113,7 +110,7 @@ class TypIncidentPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->model->update($v['new'], $v['id']);
+            $this->typIncidentModel->update($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -128,19 +125,19 @@ class TypIncidentPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function actionDrop($id)
+    public function actionDrop(int $id)
     {
         try {
-            $this->model->fetch($id);
-            $this->model->remove($id);
+            $this->typIncidentModel->fetch($id);
+            $this->typIncidentModel->remove($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
-            $this->redirect('TypIncident:default');    //	change it !!!
+            $this->redirect('TypIncident:default');    //change it !!!
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
-            $this->redirect('TypIncident:default');    //	change it !!!
+            $this->redirect('TypIncident:default');    //change it !!!
         } catch (DibiException $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
-            $this->redirect('TypIncident:default');    //	change it !!!
+            $this->redirect('TypIncident:default');    //change it !!!
         }
     }
 }

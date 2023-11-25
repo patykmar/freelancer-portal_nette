@@ -9,7 +9,7 @@ use Nette\ComponentModel\IContainer;
 
 class FirmaForm extends UIForm
 {
-    public function __construct(IContainer $parent = NULL, $name = NULL)
+    public function __construct(ZemeModel $zemeModel, IContainer $parent = null, $name = null)
     {
         parent::__construct($parent, $name);
         $this->addText('nazev', 'Název:', null, 250)
@@ -24,13 +24,13 @@ class FirmaForm extends UIForm
             ->addRule(NetteForm::FILLED);
         $this->addText('psc', 'PSČ:', null, 15)
             ->addRule(NetteForm::FILLED);
-        $this->addSelect('zeme', 'Stát:', ZemeModel::fetchPairs())
+        $this->addSelect('zeme', 'Stát:', $zemeModel->fetchPairs())
             ->setPrompt(' - - - ')
             ->addRule(NetteForm::FILLED);
         $this->addText('cislo_uctu', 'Číslo účtu:', null, 50);
-        //	Obrana před Cross-Site Request Forgery (CSRF)
+        //Obrana před Cross-Site Request Forgery (CSRF)
         $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
-        //	Tlacitko odeslat
+        //Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;
     }
