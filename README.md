@@ -11,8 +11,9 @@ Developed on Nette framework ~2014. In 2021 has been done code review where was:
     - is still using old php version
     - running on unmaintained nette framework
     - main aim of publishing this source code was backup to GitHub and learn how to dockerized old project
-- Application has been refactored in 2023/11 to run under PHP 7.1 and Nette 2.3
-- 11/23 remove using database layer `dibi` and use only `Nette database`
+- 2023/11
+  - Application has been refactored to run under PHP 7.1 and upgrade Nette framework to 2.3 version
+  - 11/23 remove using database layer `dibi` and use only `Nette database`
 
 ## Versions of components
 
