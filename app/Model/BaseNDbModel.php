@@ -58,7 +58,7 @@ abstract class BaseNDbModel extends Object
      * @param ArrayHash $arr
      * @param int $id
      */
-    public function update(ArrayHash $arr, $id)
+    public function update(ArrayHash $arr, int $id)
     {
         $this->explorer->table($this->tableName)
             ->where("id", $id)

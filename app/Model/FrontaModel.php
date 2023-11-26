@@ -2,19 +2,22 @@
 
 namespace App\Model;
 
-use dibi;
-use DibiException;
+use Nette\Database\Context;
 
 /**
  * Description of FrontaModel
  *
  * @author Martin Patyk
  */
-final class FrontaModel extends BaseModel
+final class FrontaModel extends BaseNDbModel
 {
     use FetchPairsTrait;
 
-    /** @var string nazev tabulky */
-    protected $tableName = 'fronta';
+    public const TABLE_NAME = 'fronta';
+
+    public function __construct(Context $context)
+    {
+        parent::__construct(self::TABLE_NAME, $context);
+    }
 
 }

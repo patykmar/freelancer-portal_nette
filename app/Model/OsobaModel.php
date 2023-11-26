@@ -2,8 +2,6 @@
 
 namespace App\Model;
 
-use dibi;
-use DibiRow;
 use Nette\Database\Context;
 
 /**
@@ -29,7 +27,7 @@ final class OsobaModel extends BaseNDbModel
     {
         return $this->explorer->table(self::TABLE_NAME)
             ->where("typ_osoby", [2, 3])
-            ->fetchPairs('id', 'CONCAT([jmeno]," ",[prijmeni]) as nazev');
+            ->fetchPairs('id', 'CONCAT(jmeno," ",prijmeni) as nazev');
     }
 
     /**
@@ -72,7 +70,7 @@ final class OsobaModel extends BaseNDbModel
             ->order("osoba . prijmeni")
             ->select("osoba . id")
             ->select('CONCAT(prijmeni," ",jmeno) AS nazev')
-            ->select("firma.nazev as nazevFirmy")
+            ->select("firma.nazev AS nazevFirmy")
             ->fetchAssoc("nazevFirmy|id");
 
         foreach ($result as $k => $v) {

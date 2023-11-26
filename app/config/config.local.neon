@@ -4,3 +4,11 @@ database:
     password: 'password'
     options:
         lazy: yes
+
+parameters:
+    imap-driver:
+        user: 'webalerts@patyk.cz'
+        password: 'Zu7tp0ic32vSeiUa8DUt'
+        host: 'mail.patyk.cz'
+        port: 143
+        ssl: true

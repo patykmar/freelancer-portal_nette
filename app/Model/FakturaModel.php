@@ -62,21 +62,21 @@ final class FakturaModel extends BaseNDbModel
      *
      * Funkce vklada novou fakturu vcetne polozek
      */
-    public function insert(ArrayHash $newItem)
+    public function insert(ArrayHash $values)
     {
         throw new NotImplementedException("Nepouziva se. Bude to funkce pro rucni vkladani faktury");
 
         $this->explorer->beginTransaction();
         try {
             //polozky si dam bokem
-            $polozky = $newItem['polozky'];
+            $polozky = $values['polozky'];
             //odeberu polozky z formulare
-            $newItem->offsetUnset('polozky');
-            dump($newItem);
+            $values->offsetUnset('polozky');
+            dump($values);
             dump($polozky);
             exit;
             $this->explorer->table(self::TABLE_NAME)
-                ->insert($newItem);
+                ->insert($values);
             // nactu si ID prave vlozene faktury
             $idFaktura = $this->getLastId();
             $novePolozky = array(

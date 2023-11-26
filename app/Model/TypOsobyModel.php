@@ -2,16 +2,23 @@
 
 namespace App\Model;
 
+use Nette\Database\Context;
+
 /**
  * Description of TypOsobyModel
  *
  * @author Martin Patyk
  */
-final class TypOsobyModel extends BaseModel
+final class TypOsobyModel extends BaseNDbModel
 {
     use FetchPairsTrait;
 
-    /** @var string nazev tabulky */
-    protected $tableName = 'typ_osoby';
+    public const TABLE_NAME = 'typ_osoby';
+
+    public function __construct(Context $context)
+    {
+        parent::__construct(self::TABLE_NAME, $context);
+    }
+
 
 }

@@ -2,7 +2,6 @@
 
 namespace App\Model;
 
-use dibi;
 use Nette\Database\Context;
 use stdClass;
 
