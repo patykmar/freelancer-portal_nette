@@ -19,7 +19,7 @@ use Nette\Application\AbortException as AbortExceptionAlias;
 use Nette;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
-use Nette\Diagnostics\Debugger;
+use Tracy\Debugger;
 use Nette\InvalidArgumentException;
 
 class FakturaPolozkaPresenter extends AdminbasePresenter
@@ -117,7 +117,7 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
                 ->addRule(Form::FLOAT);
 
             //	odeberu idecko z pole
-            $v->offsetUnset('id');
+//            $v->offsetUnset('id');
 
             //	upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));

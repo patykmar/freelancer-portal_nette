@@ -15,16 +15,13 @@ use App\Form\Admin\Add\TarifForm as AddTarifForm;
 use App\Form\Admin\Edit\TarifForm as EditTarifForm;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
-use Nette\Diagnostics\Debugger;
+use Tracy\Debugger;
 use Nette\InvalidArgumentException;
 
 
 class TarifPresenter extends AdminbasePresenter
 {
-    /** @var TarifModel */
     private $tarifModel;
-
-    /** @var Context */
     private $tarifContext;
 
     public function __construct(TarifModel $tarifModel, Context $tarifContext)
@@ -37,7 +34,7 @@ class TarifPresenter extends AdminbasePresenter
     /**
      * Cast DEFAULT, definice Gridu
      */
-    protected function createComponentGrid()
+    protected function createComponentGrid(): TarifGrid
     {
         return new TarifGrid($this->tarifContext->table('tarif'));
     }
@@ -54,7 +51,7 @@ class TarifPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd()
+    public function createComponentAdd(): AddTarifForm
     {
         $form = new AddTarifForm();
         $form->onSuccess[] = callback($this, 'add');
@@ -62,13 +59,15 @@ class TarifPresenter extends AdminbasePresenter
     }
 
     /**
+     * @param AddTarifForm $form
      * @throws AbortException
+     * @throws DibiException
      */
     public function add(AddTarifForm $form)
     {
         try {
             $v = $form->getValues();
-            //	vlozim novy tarif do databaze
+            //vlozim novy tarif do databaze
             $this->tarifModel->insert($v);
             $this->flashMessage('Nový záznam byl přidán');
             $this->redirect('default');
@@ -88,11 +87,11 @@ class TarifPresenter extends AdminbasePresenter
     {
         try {
             $this->setView('../_edit');
-            //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
+            //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
             $v = $this->tarifModel->fetch($id);
-            //	odeberu idecko z pole
-            $v->offsetUnset('id');
-            //	upravene hodnoty odeslu do formulare
+            //odeberu idecko z pole
+//            $v->offsetUnset('id');
+            //upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
@@ -100,7 +99,7 @@ class TarifPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit()
+    public function createComponentEdit(): EditTarifForm
     {
         $form = new EditTarifForm();
         $form->onSuccess[] = callback($this, 'edit');
@@ -129,20 +128,21 @@ class TarifPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function actionDrop($id)
+    public function actionDrop(int $id)
     {
         try {
             $this->tarifModel->fetch($id);
             $this->tarifModel->remove($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
-            $this->redirect('Tarif:default'); //	change it !!!
+            $this->redirect('Tarif:default'); //change it !!!
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
-            $this->redirect('Tarif:default'); //	change it !!!
+            $this->redirect('Tarif:default'); //change it !!!
 
         } catch (DibiException $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
-            $this->redirect('Tarif:default'); //	change it !!!
+            $this->redirect('Tarif:default'); //change it !!!
         }
     }
+
 }

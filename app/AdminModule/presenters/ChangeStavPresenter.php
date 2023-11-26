@@ -17,7 +17,7 @@ use App\Form\Admin\Edit;
 use App\Model\ChangeStavModel;
 use Nette\Application\AbortException as AbortExceptionAlias;
 use Nette\Database\Context;
-use Nette\Diagnostics\Debugger;
+use Tracy\Debugger;
 
 
 class ChangeStavPresenter extends AdminbasePresenter
@@ -90,7 +90,7 @@ class ChangeStavPresenter extends AdminbasePresenter
             //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
             $v = $this->changeStavModel->fetch($id);
             //	odeberu idecko z pole
-            $v->offsetUnset('id');
+//            $v->offsetUnset('id');
             //	upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
         } catch (\Nette\InvalidArgumentException $exc) {

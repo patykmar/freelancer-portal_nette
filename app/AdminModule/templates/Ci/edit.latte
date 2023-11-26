@@ -17,5 +17,5 @@
 
 <p id="log_area" n:inner-foreach="$ciLog as $item">
 	<div class="log_item_date">{$item['datum_vytvoreni']}</div>
-	<div class="log_item_body">{!$item['obsah']}</div>
+	<div class="log_item_body">{$item['obsah']|noescape}</div>
 </p>

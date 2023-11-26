@@ -2,34 +2,30 @@
 
 namespace App\Model;
 
-use dibi;
-use DibiException;
+use Nette\Database\Context;
 
 /**
  * Description of OdCiModel
  *
  * @author Martin Patyk
  */
-final class OdCiModel extends BaseModel
+final class OdCiModel extends BaseNDbModel
 {
-    /** @var string nazev tabulky */
-    protected $name = 'od_ci';
+    use FetchPairsTrait;
 
-    /**
-     * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
-     * @return string
-     * @throws DibiException
-     */
-    public static function fetchPairs()
+    public const TABLE_NAME = 'od_ci';
+
+    public function __construct(Context $context)
     {
-        return dibi::fetchPairs('SELECT [id], [nazev] FROM [od_ci] ORDER BY [nazev]');
+        parent::__construct(self::TABLE_NAME, $context);
     }
 
-    /**
-     * @throws DibiException
-     */
-    public static function fetchCiId($from)
+    public function fetchCiId(string $from)
     {
-        return dibi::fetchSingle('SELECT [ci] FROM [od_ci] WHERE [od] = %s', $from, 'LIMIT 1');
+        return $this->explorer->table(self::TABLE_NAME)
+            ->where("od", $from)
+            ->limit(1)
+            ->fetch();
     }
+
 }

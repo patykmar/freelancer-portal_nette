@@ -9,6 +9,10 @@
 namespace App\AdminModule\Presenters;
 
 use App\Grids\Admin\OsobaGrid;
+use App\Model\FirmaModel;
+use App\Model\FormatDatumModel;
+use App\Model\TimeZoneModel;
+use App\Model\TypOsobyModel;
 use App\Model\UserManager;
 use DibiException;
 use DibiRow;
@@ -21,7 +25,7 @@ use Nette\Application\BadRequestException;
 use Nette\ArrayHash;
 use Nette\Database\Context;
 use Nette\DateTime;
-use Nette\Diagnostics\Debugger;
+use Tracy\Debugger;
 use Nette\InvalidArgumentException;
 use SendMail\SendMailControler;
 
@@ -33,20 +37,41 @@ class OsobaPresenter extends AdminbasePresenter
     /** @var Context */
     private $osobaContext;
 
-    public function __construct(OsobaModel $osobaModel, Context $osobaContext)
+    /** @var TypOsobyModel $typOsobyModel */
+    private $typOsobyModel;
+
+    /** @var FirmaModel $firmaModel */
+    private $firmaModel;
+
+    /** @var TimeZoneModel $timeZoneModel */
+    private $timeZoneModel;
+
+    /** @var FormatDatumModel $formatDatumModel */
+    private $formatDatumModel;
+
+    public function __construct(
+        OsobaModel       $osobyModel,
+        Context          $osobaContext,
+        TypOsobyModel    $typOsobyModel,
+        FirmaModel       $firmaModel,
+        TimeZoneModel    $timeZoneModel,
+        FormatDatumModel $formatDatumModel
+    )
     {
         parent::__construct();
-        $this->osobaModel = $osobaModel;
+        $this->osobaModel = $osobyModel;
         $this->osobaContext = $osobaContext;
+        $this->typOsobyModel = $typOsobyModel;
+        $this->firmaModel = $firmaModel;
+        $this->timeZoneModel = $timeZoneModel;
+        $this->formatDatumModel = $formatDatumModel;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
      */
-    protected function createComponentGrid()
+    protected function createComponentGrid(): OsobaGrid
     {
-//        dump($this->context->database->context);
-//        exit;
         return new OsobaGrid($this->osobaContext->table('osoba'));
     }
 
@@ -63,9 +88,14 @@ class OsobaPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd()
+    public function createComponentAdd(): AddOsobaForm
     {
-        $form = new AddOsobaForm();
+        $form = new AddOsobaForm(
+            $this->typOsobyModel,
+            $this->firmaModel,
+            $this->timeZoneModel,
+            $this->formatDatumModel
+        );
         $form->onSuccess[] = callback($this, 'add');
         return $form;
     }
@@ -78,15 +108,15 @@ class OsobaPresenter extends AdminbasePresenter
         try {
             $v = $form->getValues();
             try {
-                //	vygeneruji heslo v plain textu
+                //vygeneruji heslo v plain textu
                 $v->offsetSet('password', UserManager::generateNewPassword());
             } catch (InvalidArgumentException $exc) {
                 throw new Exception($exc->getMessage());
             }
 
-            //	pridam datum vytvoreni
+            //pridam datum vytvoreni
             $v->offsetSet('datum_vytvoreni', new DateTime);
-            $mail = new SendMailControler;
+            $mail = new SendMailControler();
             $mail->novaOsoba($v);
             $v->offsetSet('password', UserManager::hashPassword($v['password']));
             $this->osobaModel->insert($v);
@@ -102,20 +132,20 @@ class OsobaPresenter extends AdminbasePresenter
     /**
      * Cast EDIT
      * @param int $id Identifikator polozky
-     * @throws \Nette\Application\AbortException
+     * @throws AbortException
      */
     public function renderEdit($id)
     {
         try {
             $this->setView('../_edit');
-            //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
+            //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
             $v = $this->osobaModel->fetch($id);
 
-            //	odeberu idecko z pole a heslo
-            $v->offsetUnset('id');
-            $v->offsetUnset('password');
+            //odeberu idecko z pole a heslo
+//            $v->offsetUnset('id');
+//            $v->offsetUnset('password');
 
-            //	upravene hodnoty odeslu do formulare
+            //upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
@@ -126,9 +156,14 @@ class OsobaPresenter extends AdminbasePresenter
     /**
      * @return EditOsobaForm
      */
-    public function createComponentEdit()
+    public function createComponentEdit(): EditOsobaForm
     {
-        $form = new EditOsobaForm;
+        $form = new EditOsobaForm(
+            $this->typOsobyModel,
+            $this->firmaModel,
+            $this->timeZoneModel,
+            $this->formatDatumModel
+        );
         $form->onSuccess[] = callback($this, 'edit');
         return $form;
     }
@@ -149,7 +184,7 @@ class OsobaPresenter extends AdminbasePresenter
     /**
      * Cast DROP
      * @param int $id Identifikator polozky
-     * @throws \Nette\Application\AbortException
+     * @throws AbortException
      */
     public function actionDrop($id)
     {
@@ -158,14 +193,14 @@ class OsobaPresenter extends AdminbasePresenter
                 $this->osobaModel->fetch($id);
                 $this->osobaModel->remove($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
-                $this->redirect('Osoba:default'); //	change it !!!
+                $this->redirect('Osoba:default'); //change it !!!
             } catch (InvalidArgumentException $exc) {
                 $this->flashMessage($exc->getMessage());
-                $this->redirect('Osoba:default'); //	change it !!!
+                $this->redirect('Osoba:default'); //change it !!!
             }
         } catch (DibiException $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
-            $this->redirect('Osoba:default'); //	change it !!!
+            $this->redirect('Osoba:default'); //change it !!!
         }
     }
 
@@ -180,7 +215,7 @@ class OsobaPresenter extends AdminbasePresenter
             /** @var DibiRow|FALSE Informace o uzivateli nactene z databaze */
             $item = $this->osobaModel->fetch($id);
 
-            //	necham si vygenerovat nove heslo
+            //necham si vygenerovat nove heslo
             $item->offsetSet('password', UserManager::generateNewPassword());
 
             $item->offsetSet('datum_zmeny_hesla', new DateTime);
@@ -189,13 +224,15 @@ class OsobaPresenter extends AdminbasePresenter
             $mail = new SendMailControler;
             $mail->vygenerujNoveHeslo($item);
 
-            //	password encrypt
+            //password encrypt
             $item->offsetSet('password', UserManager::hashPassword($item['password']));
 
-            //	save to db
+            //save to db
             $this->osobaModel->update(ArrayHash::from($item), $id);
 
-            $this->flashMessage('Uzivateli ' . $item['jmeno'] . ' ' . $item['prijmeni'] . ' bylo vygenerovano nove heslo');
+            $flashMessage = sprintf('Uzivateli %s %s bylo vygenerovano nove heslo', $item['jmeno'], $item['prijmeni']);
+
+            $this->flashMessage($flashMessage);
             $this->redirect('default');
         } catch (BadRequestException $exc) {
             Debugger::log($exc->getMessage());

@@ -2,8 +2,10 @@
 
 namespace App\Model;
 
-use dibi;
-use DibiException;
+use DateTime;
+use Exception;
+use Nette\Database\Context;
+use Nette\Database\IRow;
 use Nette\Utils\ArrayHash;
 use Nette\InvalidArgumentException;
 use Nette\NotImplementedException;
@@ -14,10 +16,19 @@ use Nette\NotImplementedException;
  *
  * @author Martin Patyk
  */
-final class FakturaModel extends BaseModel
+final class FakturaModel extends BaseNDbModel
 {
-    /** @var string nazev tabulky */
-    protected $name = 'faktura';
+    public const TABLE_NAME = 'faktura';
+    public const INVOICE_VS_LEN = 6;
+
+    private $incidentModel;
+
+    public function __construct(Context $context, IncidentModel $incidentModel)
+    {
+        parent::__construct(self::TABLE_NAME, $context);
+        $this->incidentModel = $incidentModel;
+    }
+
 
     /**
      * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
@@ -31,18 +42,18 @@ final class FakturaModel extends BaseModel
     /**
      * Funkce nacitajici data pro vygenerovani fakturty
      * @param int $id identifikator faktury
+     * @return IRow|bool
      */
-    public function fetchWithName($id)
+    public function fetchWithName(int $id)
     {
-        return dibi::select('[faktura].[*]')
-            ->select('CONCAT("Faktura: ",[faktura].[vs])')->as('title')
-            #->select('sum([dph].[koeficient] * [cena] * [pocet_polozek])')->as('celkova_cena_s_dph')
-            ->select('(SELECT SUM([cena] * [pocet_polozek] * [koeficient_cena]) FROM [faktura_polozka] WHERE [faktura] = %i)', $id)->as('celkova_cena_bez_dph_bez_slevy')
-            ->select('(SELECT SUM([cena] * [pocet_polozek] * [koeficient_cena] * (1-(sleva*0.01))) FROM [faktura_polozka] WHERE [faktura] = %i)', $id)->as('celkova_cena_bez_dph')
-            ->select('forma_uhrady.nazev')->as('forma_uhrady')
-            ->from('%n', $this->name)
-            ->leftJoin('[forma_uhrady]')->on('([faktura].[forma_uhrady] = [forma_uhrady].[id])')
-            ->where('[faktura].[id] = %i', $id)
+        return $this->explorer->table(self::TABLE_NAME)
+            ->where("faktura.forma_uhrady = forma_uhrady.id")
+            ->where("faktura.id", $id)
+            ->select("faktura.*")
+            ->select('CONCAT("Faktura: ",faktura.vs) AS title')
+            ->select('(SELECT SUM(cena * pocet_polozek * koeficient_cena) FROM faktura_polozka WHERE faktura = ?) AS celkova_cena_bez_dph_bez_slevy', $id)
+            ->select('(SELECT SUM(cena * pocet_polozek * koeficient_cena * (1-(sleva*0.01))) FROM faktura_polozka WHERE faktura = ?) AS celkova_cena_bez_dph', $id)
+            ->select('forma_uhrady.nazev AS forma_uhrady')
             ->fetch();
     }
 
@@ -50,25 +61,24 @@ final class FakturaModel extends BaseModel
      * <b>!!! Nepouziva se. Bude to funkce pro rucni vkladani faktury !!!</b>
      *
      * Funkce vklada novou fakturu vcetne polozek
-     * @throws DibiException
      */
-    public function insert(ArrayHash $newItem)
+    public function insert(ArrayHash $values)
     {
         throw new NotImplementedException("Nepouziva se. Bude to funkce pro rucni vkladani faktury");
 
-        dibi::begin();
+        $this->explorer->beginTransaction();
         try {
-            //	polozky si dam bokem
-            $polozky = $newItem['polozky'];
-            //	odeberu polozky z formulare
-            $newItem->offsetUnset('polozky');
-            dump($newItem);
+            //polozky si dam bokem
+            $polozky = $values['polozky'];
+            //odeberu polozky z formulare
+            $values->offsetUnset('polozky');
+            dump($values);
             dump($polozky);
             exit;
-            dibi::insert('faktura', $newItem)
-                ->execute();
+            $this->explorer->table(self::TABLE_NAME)
+                ->insert($values);
             // nactu si ID prave vlozene faktury
-            $idFaktura = dibi::insertId();
+            $idFaktura = $this->getLastId();
             $novePolozky = array(
                 'nazev' => array(),
                 'pocet_polozek' => array(),
@@ -87,132 +97,129 @@ final class FakturaModel extends BaseModel
                     continue;
                 endif;
             endforeach;
-            dibi::rollback();
+            $this->explorer->rollBack();
             exit;
             #dump($tikety->fetchAll());
-            //	nastavim id prave vytvorene faktury incidentum, aby bylo zrejme ze uz
-            //	byly zauctovany
-            dibi::update('incident', array('faktura' => $idFaktura))
-                ->where('id')->in($incidentIds)
-                ->execute();
-            dibi::query('INSERT INTO [faktura_polozka] %m', $faktura_polozka);
-            dibi::commit();
-        } catch (DibiException $exc) {
-            dibi::rollback();
+            //nastavim id prave vytvorene faktury incidentum, aby bylo zrejme ze uz
+            //byly zauctovany
+            $this->explorer->table(IncidentModel::TABLE_NAME)
+                ->where('id', $incidentIds)
+                ->update(['faktura' => $idFaktura]);
+
+            $this->explorer->table(FakturaPolozkaModel::TABLE_NAME)
+                ->insert($faktura_polozka);
+            $this->explorer->commit();
+        } catch (Exception $exc) {
+            $this->explorer->rollBack();
             throw new InvalidArgumentException($exc->getMessage());
         }
     }
 
     /**
      * Funkce slouzi pro vytvoreni nove faktury z uzavrenych tiketu
-     * @param DibiRow $newItem Inicialy pro novou fakturu
-     * @throws DibiException
+     * @param IRow $newItem Inicialy pro novou fakturu
      */
-    public function insertFromTickets(DibiRow $newItem)
+    public function insertFromTickets(IRow $newItem)
     {
-        //	nactu si vsechny uzavrene tikety pro konkretniho zakaznika
+        //nactu si vsechny uzavrene tikety pro konkretniho zakaznika
 
-        dibi::begin();
+        $this->explorer->beginTransaction();
         try {
-            //	nactu si vsechny uzavrene tikety pro konkretniho zakaznika
-            $incidentModel = new IncidentModel;
-            //	nactu si vsechny uzavrene tikety, ktere patri odberateli
-            $im = $incidentModel->selectAllTicketsForInvoicingByIdCompany($newItem['id_odberatel']);
-            #dump($im->fetchAssoc('nadpis,id'));
-            #exit;
-            //	odebetu id odberatele, ktere neni potreba.
+            //nactu si vsechny uzavrene tikety, ktere patri odberateli
+            $im = $this->incidentModel->selectAllTicketsForInvoicingByIdCompany($newItem['id_odberatel']);
+            //odebetu id odberatele, ktere neni potreba.
             $newItem->offsetUnset('id_odberatel');
-            //	vlozim novou fakturu
-            dibi::insert('faktura', $newItem)
-                ->execute();
+            $newItem->offsetSet('vs', $this->nextInvoiceVsRandom());
+            $newItem->offsetSet('pdf_soubor', "");
+            //vlozim novou fakturu
+            $this->explorer->table(self::TABLE_NAME)->insert($newItem);
             // nactu si ID prave vlozene faktury
-            $idFaktura = dibi::insertId();
+            $idFaktura = $this->getLastId();
             /*
              * Idealni funkce pro Triger
              */
-            // vlozim VS k fakture, pouzije se aktualni rok a ID prave vlozene faktury
-            dibi::query('UPDATE %n ', $this->name, ' ',
-                'SET vs = CONCAT(YEAR(NOW()),LPAD(faktura.id,6,"0")) ',
-                'WHERE ID = %i', $idFaktura);
-            //	docasne pole pro naplneni p
-            $faktura_polozka = array(
-                'cssclass' => array(),
-                'nazev' => array(),
-                'dodatek' => array(),
-                'dph' => array(),
-                'jednotka' => array(),
-                'koeficient_cena' => array(),
-                'pocet_polozek' => array(),
-                'sleva' => array(),
-                'cena' => array(),
-                'faktura' => array(),
-            );
+            $fakturaPolozky = array();
             // posbiram vsechny idecka tiketu pro potrebu sparovani jejich sparovani s fakturou
             $incidentIds = array();
-
-            //	pro hromadne vlozeni potrebuji naplnit strukturu
-            foreach ($im->fetchAssoc('nadpis,id') as $nadpis => $items) {
-                $faktura_polozka['cssclass'][] = 2;
-                $faktura_polozka['nazev'][] = $nadpis;
-                $faktura_polozka['dodatek'][] = NULL;
-                $faktura_polozka['dph'][] = NULL;
-                $faktura_polozka['jednotka'][] = NULL;
-                $faktura_polozka['koeficient_cena'][] = 0;
-                $faktura_polozka['pocet_polozek'][] = 0;
-                $faktura_polozka['cena'][] = 0;
-                $faktura_polozka['sleva'][] = 0;
-                $faktura_polozka['faktura'][] = $idFaktura;
+            //pro hromadne vlozeni potrebuji naplnit strukturu
+            foreach ($im as $nadpis => $items) {
+                $fakturaPolozky[] = [
+                    "faktura" => $idFaktura,
+                    "cssclass" => 2,
+                    "nazev" => $nadpis,
+                    "dodatek" => "",
+                    "dph" => null,
+                    "jednotka" => null,
+                    "koeficient_cena" => 0,
+                    "pocet_polozek" => 0,
+                    "cena" => 0,
+                    "sleva" => 0,
+                ];
                 foreach ($items as $tiket) {
-                    $incidentIds[] = $tiket['id'];
-                    $faktura_polozka['cssclass'][] = 1;
-                    $faktura_polozka['nazev'][] = $tiket['polozka_nazev'];
-                    $faktura_polozka['dodatek'][] = $tiket['dodatek'];
-                    $faktura_polozka['dph'][] = $tiket['dph'];
-                    $faktura_polozka['jednotka'][] = $tiket['jednotka'];
-                    $faktura_polozka['koeficient_cena'][] = $tiket['koeficient_cena'];
-                    $faktura_polozka['pocet_polozek'][] = $tiket['pocet_polozek'];
-                    $faktura_polozka['cena'][] = $tiket['cena_za_jednotku'];
-                    $faktura_polozka['sleva'][] = 0;
-                    $faktura_polozka['faktura'][] = $idFaktura;
+                    $incidentIds[] = $tiket['incident_id'];
+                    $fakturaPolozky[] = [
+                        "faktura" => $idFaktura,
+                        "cssclass" => 1,
+                        "nazev" => $tiket['polozka_nazev'],
+                        "dodatek" => $tiket['dodatek'],
+                        "dph" => $tiket['dph'],
+                        "jednotka" => $tiket['jednotka'],
+                        "koeficient_cena" => $tiket['koeficient_cena'],
+                        "pocet_polozek" => $tiket['pocet_polozek'],
+                        "cena" => $tiket['cena_za_jednotku'],
+                        "sleva" => 0,
+                    ];
                 }
             }
-            //	nastavim id prave vytvorene faktury incidentum, aby bylo zrejme ze uz
-            //	byly zauctovany
-
-            dibi::update('incident', array('faktura' => $idFaktura))
-                ->where('id')->in($incidentIds)
-                ->execute();
-            //	vlozim polozky faktury do databaze
-            dibi::query('INSERT INTO [faktura_polozka] %m', $faktura_polozka);
-            dibi::commit();
-        } catch (DibiException $exc) {
-            dibi::rollback();
+            //nastavim id prave vytvorene faktury incidentum, aby bylo zrejme ze uz
+            //byly zauctovany
+            $this->explorer->table(IncidentModel::TABLE_NAME)
+                ->where('id', $incidentIds)
+                ->update(['faktura' => $idFaktura]);
+            //vlozim polozky faktury do databaze
+//            dump($im);
+//            dump($fakturaPolozky);
+//            exit();
+            $this->explorer->table(FakturaPolozkaModel::TABLE_NAME)->insert($fakturaPolozky);
+            $this->explorer->commit();
+        } catch (Exception $exc) {
+            $this->explorer->rollBack();
             throw new InvalidArgumentException($exc->getMessage());
         }
     }
 
     /**
-     * @param int $id
-     * @throws DibiException
+     * @return string
      */
-    public function remove($id)
+    private function nextInvoiceVsRandom(): string
     {
-        dibi::begin();
-        //	test jestli faktura existuje
-        if ($this->fetch($id)) {
-            //	tikety, ktere jsou zapocitane do faktury uvolnim
-            dibi::update('incident', array('faktura' => NULL))
-                ->where('faktura = %i', $id)
-                ->execute();
+        $today = new DateTime('now');
+        $year = $today->format('Y');
+        $randomMaxValue = str_pad('9', self::INVOICE_VS_LEN, '9', STR_PAD_LEFT);
+        return $year . str_pad(rand(100, (int)$randomMaxValue), self::INVOICE_VS_LEN, "0", STR_PAD_LEFT);
+    }
 
-            //	smazu fakturu
-            dibi::delete($this->name)
-                ->where('id = %i', $id)
-                ->limit(1)
-                ->execute();
-            dibi::commit();
+    /**
+     * @param int $id
+     */
+    public function remove(int $id)
+    {
+        $this->explorer->beginTransaction();
+
+        //test jestli faktura existuje
+        if ($this->fetch($id)) {
+            //tikety, ktere jsou zapocitane do faktury uvolnim
+            $this->explorer->table(IncidentModel::TABLE_NAME)
+                ->where('faktura', $id)
+                ->update(['faktura' => null]);
+
+            //smazu fakturu
+            $this->explorer->table(self::TABLE_NAME)
+                ->where('id', $id)
+                ->delete();
+            $this->explorer->commit();
         } else {
-            dibi::rollback();
+            $this->explorer->rollBack();
         }
     }
 }

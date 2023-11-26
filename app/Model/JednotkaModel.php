@@ -2,27 +2,21 @@
 
 namespace App\Model;
 
-use dibi;
-
 /**
  * Description of JednotkaModel
  *
  * @author Martin Patyk
  */
-final class JednotkaModel extends BaseModel
+final class JednotkaModel extends BaseNDbModel
 {
-    /** @var string nazev tabulky */
-    protected $name = 'jednotka';
+    use FetchPairsTrait {
+        fetchPairs as protected traitFetchPairs;
+    }
 
-    /**
-     * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
-     * @return array id, zazev
-     */
-    public static function fetchPairs()
+    public const TABLE_NAME = 'jednotka';
+
+    public function fetchPairs(): array
     {
-        return dibi::select('[id]')
-            ->select('CONCAT([nazev]," ",[zkratka])')
-            ->from('[jednotka]')
-            ->fetchPairs();
+        return $this->traitFetchPairs('CONCAT(nazev," ",zkratka) AS nazev');
     }
 }

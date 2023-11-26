@@ -2,103 +2,80 @@
 
 namespace App\Model;
 
-use dibi;
-use DibiException;
-use Nette\Database\Connection;
 use Nette\Database\Context;
-use Nette\Database\IRow;
-use Nette\Database\Row;
-use Nette\Utils\ArrayHash;
+use Nette\Database\Table\IRow;
 
 /**
  * Description of SlaModel
  *
  * @author Martin Patyk
  */
-final class SlaModel extends BaseModel
+final class SlaModel extends BaseNDbModel
 {
-    /** @var string nazev tabulky */
-    protected $name = 'sla';
+    use FetchPairsTrait;
 
-    /** @var Connection $connection */
-    private $connection;
+    public const TABLE_NAME = 'sla';
+    private $prioritaModel;
+    private $typIncidentModel;
 
-    public function __construct(Context $context, Connection $connection)
+    public function __construct(Context $context, PrioritaModel $prioritaModel, TypIncidentModel $typIncidentModel)
     {
-        parent::__construct($context);
-        $this->connection = $connection;
+        parent::__construct(self::TABLE_NAME, $context);
+        $this->prioritaModel = $prioritaModel;
+        $this->typIncidentModel = $typIncidentModel;
     }
 
-
-    /**
-     * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
-     * @return string
-     * @throws DibiException
-     */
-    public static function fetchPairs()
-    {
-        return dibi::fetchPairs('SELECT [id], [nazev] FROM [sla] ORDER BY [nazev]');
-    }
 
     /**
      * Funkce slouzi k zjisteni pritomnosti SLAcek v tabulce k danemu tarifu
      * @param int $id identifikator tarifu
      */
-    public function fetchSlaByTarif($id)
+    public function fetchSlaByTarif(int $id)
     {
-        return dibi::fetch('SELECT [id] FROM %n', $this->name, 'WHERE [tarif] = %i', 'LIMIT 1');
+        return $this->explorer->table($this->tableName)
+            ->where("tarif", $id)
+            ->limit(1)->fetch();
     }
 
     /**
      * Pretizena funkce ktera krome vsech hodnot v tabulce SLA vraci i nazvy
      * tarifu a priority
      * @param int $id Identifikator SLAcka
-     * @return bool|IRow|Row
+     * @return IRow
      */
-    public function fetch(int $id)
+    public function fetch(int $id): IRow
     {
-        return $this->connection
-            ->query(
-                "SELECT s.*, t.nazev as tarif, p.nazev as priorita " .
-                "FROM ?tableName AS s" .
-                "LEFT JOIN (tarif AS t, priorita AS p) ON (t.id = s.tarif AND p.id = s.priorita)" .
-                "WHERE ?tableName.id = ?id",
-                [
-                    "tableName" => $this->name,
-                    "id" => $id
-                ]
-            )->fetch();
-//        return dibi::fetch('SELECT [sla].*, [tarif].[nazev] AS [tarif], [priorita].[nazev] AS [priorita]',
-//            'FROM %n', $this->name,
-//            'LEFT JOIN ([tarif], [priorita]) ON ([tarif].[id]=[sla].[tarif] AND [priorita].[id]=[sla].[priorita])',
-//            'WHERE %n=%i LIMIT 1', $this->name . '.' . $this->primary, $id);
-    }
-
-
-    /**
-     * Funkce vklada vice slacek k tarifu najednou
-     * @throws DibiException
-     */
-    public function insert(ArrayHash $newItem)
-    {
-        foreach ($newItem as $item) {
-            dump(dibi::query('INSERT INTO %n', $this->name, '%v', $item));
-        }
+        $sla = $this->explorer->table(self::TABLE_NAME);
+        $sla->where("tarif.id = sla.tarif");
+        $sla->where("priorita.id = sla.priorita");
+        return $sla->get($id);
     }
 
     /**
      * Vstupem je identifikator prave pridaneho tarifu. K tomuto tarifu se
      * vygeneruji slacka pro kazdou prioritu.
-     * @throws DibiException
+     * @param int $idTarif
      */
-    public function insertDefaultValue($id)
+    public function insertDefaultValue(int $idTarif)
     {
         $cenaKoeficient = 0.5;
-        dump(PrioritaModel::fetchPairs());
+        $priority = $this->prioritaModel->fetchPairs();
+        $typIncidentu = $this->typIncidentModel->fetchPairs();
 
-        foreach (PrioritaModel::fetchPairs() as $key => $value) {
-            dibi::test('INSERT INTO %n', $this->name, '%v',
-                array(
+        $priorityAndTypIncidentu = array();
+
+        foreach ($priority as $key1 => $item1) {
+            foreach ($typIncidentu as $key2 => $item2) {
+                $priorityAndTypIncidentu[] = [
+                    'priorita' => $key1,
+                    'typ_incident' => $key2
+                ];
+            }
+        }
+
+        foreach ($priorityAndTypIncidentu as $value) {
+            $this->explorer->table(self::TABLE_NAME)
+                ->insert([
                     'reakce_mesic' => 3,
                     'reakce_den' => 0,
                     'reakce_hod' => 0,
@@ -107,12 +84,12 @@ final class SlaModel extends BaseModel
                     'hotovo_den' => 0,
                     'hotovo_hod' => 0,
                     'hotovo_min' => 0,
-                    'tarif' => $id,
-                    'priorita' => $key,
+                    'tarif' => $idTarif,
+                    'priorita' => $value['priorita'],
+                    'typ_incident' => $value['typ_incident'],
                     'cena_koeficient' => $cenaKoeficient,
-                ));
+                ]);
             $cenaKoeficient += 0.25;
         }
-        exit;
     }
 }

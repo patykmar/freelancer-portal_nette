@@ -16,7 +16,7 @@ use App\Form\Admin\Edit\FormatDatumForm as EditFormatDatumForm;
 use App\Model\FormatDatumModel;
 use Nette\Application\AbortException as AbortExceptionAlias;
 use Nette\Database\Context;
-use Nette\Diagnostics\Debugger;
+use Tracy\Debugger;
 use Nette\InvalidArgumentException;
 
 class FormatDatumPresenter extends AdminbasePresenter
@@ -88,7 +88,7 @@ class FormatDatumPresenter extends AdminbasePresenter
             $v = $this->formatDatumModel->fetch($id);
 
             //	odeberu idecko z pole
-            $v->offsetUnset('id');
+//            $v->offsetUnset('id');
             //	upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
         } catch (InvalidArgumentException $exc) {

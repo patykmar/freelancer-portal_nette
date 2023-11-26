@@ -14,7 +14,7 @@ use App\Model;
 use Nette\Application\AbortException;
 use Nette\ArrayHash;
 use Nette\DateTime;
-use Nette\Diagnostics\Debugger;
+use Tracy\Debugger;
 
 class TiketTaskPresenter extends AdminbasePresenter
 {

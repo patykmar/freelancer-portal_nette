@@ -2,74 +2,114 @@
 
 namespace App\Model;
 
-use dibi;
-use DibiException;
-use DibiRow;
+use Exception;
+use Nette\Database\Connection;
+use Nette\Database\Context;
+use Nette\Database\Table\IRow;
 use Nette\Utils\ArrayHash;
 use Nette\Utils\DateTime;
 use Nette\InvalidArgumentException;
 use Nette\Utils\Strings;
+use Tracy\Debugger;
 
 /**
  * Description of IncidentModel
  *
  * @author Martin Patyk
  */
-final class IncidentModel extends BaseModel
+final class IncidentModel extends BaseNDbModel
 {
-    /** @var string nazev tabulky */
-    protected $name = 'incident';
+    public const TABLE_NAME = 'incident';
+    private const INCIDENT_STAV_UZAVREN = 5;
+    private const OSOBA_SS = 9;
 
-    ###
-    ### Nacitani dat
-    ###
+    private $connection;
+    private $incidentStavModel;
+    private $incidentLogModel;
+    private $typIncidentModel;
+    private $prioritaModel;
+    private $frontaOsobaModel;
+
+    public function __construct(
+        Context           $context,
+        Connection        $connection,
+        IncidentStavModel $incidentStavModel,
+        IncidentLogModel  $incidentLogModel,
+        TypIncidentModel  $typIncidentModel,
+        PrioritaModel     $prioritaModel,
+        FrontaOsobaModel  $frontaOsobaModel
+    )
+    {
+        parent::__construct(self::TABLE_NAME, $context);
+        $this->connection = $connection;
+        $this->incidentStavModel = $incidentStavModel;
+        $this->incidentLogModel = $incidentLogModel;
+        $this->typIncidentModel = $typIncidentModel;
+        $this->prioritaModel = $prioritaModel;
+        $this->frontaOsobaModel = $frontaOsobaModel;
+    }
 
     /**
      * Funkce nacita hodnoty do tiketu v textove podobe, aby se mohly informace
      * zobrazit uzivateli.
      * @param int $id cislo teketu
      */
-    public function fetchWith3thPartyTable($id)
+    public function fetchWith3thPartyTable(int $id)
     {
-        $r = dibi::select('CONCAT([typ_incident].[zkratka],[incident].[id])')->as('idTxt')
-            ->select('incident.typ_incident')
-            ->select('priorita')
-            ->select('incident_stav')
-            ->select('fronta_osoba')
-            ->select('incident.obsah')
-            ->select('datum_ukonceni')
-            ->select('datum_reakce')
-            ->select('zpusob_uzavreni')
-            ->select('obsah_uzavreni')
-            ->select('ukon')
-            ->select('ovlivneni')
-            ->select('[incident].[osoba_vytvoril]')
-            ->select('maly_popis')
-            ->select('firma.nazev')->as('firma_nazev')
-            ->select('fronta.nazev')->as('fronta')
-            ->select('incident.ci')
-            ->select('[incident].[datum_vytvoreni]')->as('[datum_vytvoreni]')
-            ->select('CONCAT(osoba.jmeno," ",osoba.prijmeni)')->as('osoba_vytvoril_text')
-            ->select('(SELECT count([id]) FROM  [incident] WHERE incident = %i)', $id)->as('pocetPotomku')
-            ->from('%n', $this->name)
-            ->leftJoin('osoba')->on('([incident].[osoba_vytvoril] = [osoba].[id])')
-            ->leftJoin('ci')->on('([incident].[ci] = [ci].[id])')
-            ->leftJoin('firma')->on('([ci].[firma] = [firma].[id])')
-            ->leftJoin('typ_incident')->on('([typ_incident].[id] = [incident].[typ_incident])')
-            ->leftJoin('fronta_osoba')->on('([incident].[fronta_osoba] = [fronta_osoba].[id])')
-            ->leftJoin('fronta')->on('([fronta_osoba].[fronta] = [fronta].[id])')
-            ->where('[incident].[id] = %i', $id)
-            ->fetch();
-        if ($r):
-            return $r;
+        $query =
+            'SELECT CONCAT(typ_incident.zkratka,incident.id) AS idTxt, ' .
+            'incident.typ_incident, priorita, incident_stav, ukon, incident.ci, ' .
+            'fronta_osoba, datum_ukonceni, datum_reakce, zpusob_uzavreni, incident.obsah, ' .
+            'obsah_uzavreni, ovlivneni, incident.osoba_vytvoril, maly_popis, ' .
+            'firma.nazev AS firma_nazev, ' .
+            'fronta.nazev AS fronta, ' .
+            'incident.datum_vytvoreni AS datum_vytvoreni, ' .
+            'CONCAT(osoba.jmeno," ",osoba.prijmeni) AS osoba_vytvoril_text, ' .
+            '(SELECT count(id) FROM  incident WHERE incident = ?) AS pocetPotomku ' .
+            'FROM ' . self::TABLE_NAME . ' ' .
+            'LEFT JOIN osoba ON incident.osoba_vytvoril = osoba.id ' .
+            'LEFT JOIN ci ON incident.ci = ci.id ' .
+            'LEFT JOIN firma ON ci.firma = firma.id ' .
+            'LEFT JOIN typ_incident ON typ_incident.id = incident.typ_incident ' .
+            'LEFT JOIN fronta_osoba ON incident.fronta_osoba = fronta_osoba.id ' .
+            'LEFT JOIN fronta ON fronta_osoba.fronta = fronta.id ' .
+            'WHERE incident.id = ? ';
+        $result = $this->connection->query($query, $id, $id)->fetch();
+
+        if ($result):
+            return $result;
         endif;
         throw new InvalidArgumentException('Tiket cislo ' . $id . ' nebyl nalezen');
+    }
+
+    public function retrieveListOfUnpaidWork(): array
+    {
+        $query = "SELECT firma.nazev, firma.id AS firma_id, " .
+            "count(incident.id) AS pocet_incidentu, " .
+            "sum(tarif.cena * sla.cena_koeficient * zpusob_uzavreni.koeficient_cena) AS cena_nevyuctovano " .
+            'FROM ' . self::TABLE_NAME . ' ' .
+            "LEFT JOIN ci ON incident.ci = ci.id " .
+            "LEFT JOIN firma ON ci.firma = firma.id " .
+            "LEFT JOIN tarif ON ci.tarif = tarif.id " .
+            "LEFT JOIN sla ON ci.tarif = sla.priorita = incident.priorita " .
+            "AND sla.typ_incident = incident.typ_incident " .
+            "AND sla.tarif = ci.tarif " .
+            "LEFT JOIN zpusob_uzavreni ON incident.zpusob_uzavreni = zpusob_uzavreni.id " .
+            "WHERE incident_stav = 5 AND faktura is null " .
+            "GROUP BY ci.firma";
+        $result = $this->connection->query($query)->fetchAll();
+
+        if ($result):
+            return $result;
+        endif;
+        throw new InvalidArgumentException('Zadna odvedena prace nebyla nalezena');
     }
 
     /**
      * Funkce vrati vsechny tikety, ktere jsou filtrovane podle stavu tiketu.
      * K tiketum se nactou i identifikatory front.
      * @param int $id identifikator stavu tiketu
+     * @return IRow[]
      * id    nazev
      * 1    Otevřen
      * 2    Přiřazen
@@ -79,15 +119,16 @@ final class IncidentModel extends BaseModel
      * 6    Čeká se na vyjádření zákazníka
      * 7    Znovu otevřen
      */
-    public function fetchAllIdByStav($id = 1)
+    public function fetchAllIdByStav(int $id = 1): array
     {
-        return dibi::select('[incident].[id],[datum_uzavreni]')
-            ->select('[ci].[fronta_tier_1]')
-            ->select('[ci].[fronta_tier_2]')
-            ->select('[ci].[fronta_tier_3]')
-            ->from('%n', $this->name)
-            ->where('incident_stav = %i', $id)
-            ->leftJoin('ci')->on('([incident].[ci] = [ci].[id])')
+        return $this->explorer->table(self::TABLE_NAME)
+            ->where("incident.ci = ci.id")
+            ->where("incident_stav", $id)
+            ->select('incident.id')
+            ->select('datum_uzavreni')
+            ->select('ci.fronta_tier_1')
+            ->select('ci.fronta_tier_2')
+            ->select('ci.fronta_tier_3')
             ->fetchAll();
     }
 
@@ -104,78 +145,66 @@ final class IncidentModel extends BaseModel
      *
      * Funkce nacte a vrati vsechny neprirazene tikety na frontach a
      * tikety kteri jsou na SSacich
-     * @return DibiRow key => value
+     * @return array|object|\stdClass|null key => value
      */
     public function fetchAllSsTickets()
     {
-        return dibi::select('incident.id')->as('tiket')
-            ->select('FO1.id')->as('ss')
-            ->select('FO2.id')->as('specialista')
-            ->from('%n', $this->name)
-            ->innerJoin('fronta_osoba')->as('FO1')->on('incident.fronta_osoba = FO1.id')
-            ->innerJoin('osoba')->as('OS1')->on('FO1.osoba = OS1.id')
-            ->leftJoin('fronta_osoba')->as('FO2')->on('FO1.fronta = FO2.fronta')
-            ->leftJoin('osoba')->as('OS2')->on('FO2.osoba = OS2.id')
-            ->where('incident.incident_stav = %i', 2)
-            ->and('OS1.typ_osoby = %i', 3) // nactu si systemove uzivatele ; SS
-            ->and('OS2.typ_osoby = %i', 2) // nacti mi pouze specialisty
-            ->fetchAssoc('tiket,specialista');
-        #->fetchAll();
+        $query = "SELECT " .
+            "incident.id AS ticket, FO1.id AS ss, FO2.id AS specialista " .
+            "FROM " . self::TABLE_NAME . " " .
+            "INNER JOIN fronta_osoba AS FO1 ON incident.fronta_osoba = FO1.id " .
+            "INNER JOIN osoba AS OS1 ON FO1.osoba = OS1.id " .
+            "LEFT JOIN fronta_osoba AS FO2 ON FO1.fronta = FO2.fronta " .
+            "LEFT JOIN osoba AS OS2 ON FO2.osoba = OS2.id " .
+            "WHERE incident.incident_stav = 2 " .
+            "AND OS1.typ_osoby = 3 " . // nactu si systemove uzivatele ; SS
+            "AND OS2.typ_osoby = 2 ";
+        return $this->connection->query($query)->fetchAssoc('tiket|specialista');
     }
 
     /**
      * Nacte detail incidentu pro klienta. Jelikoz klient nema moznost evidovat
      * nektere hodnoty je potrebu mu nacist s nazvy polozek.
-     * @return DibiRow key => value
+     * @return bool|\Nette\Database\IRow
      */
-    public function fetchKlientEditIncident($id)
+    public function fetchKlientEditIncident(int $id)
     {
-        return dibi::select('incident.typ_incident')
-            ->select('priorita')
-            ->select('incident.obsah')
-            ->select('datum_ukonceni')
-            ->select('datum_reakce')
-            ->select('zpusob_uzavreni')
-            ->select('obsah_uzavreni')
-            #->select('CONCAT([fronta_osoba].[osoba].[prijmeni],",",[fronta_osoba].[osoba].[jmeno])')->as('osoba_prirazen')
-            ->select('CONCAT([osoba_prirazen].[jmeno]," ",[osoba_prirazen].[prijmeni])')->as('osoba_prirazen')
-            ->select('CONCAT([osoba_vytvoril].[jmeno]," ",[osoba_vytvoril].[prijmeni])')->as('osoba_vytvoril')
-            ->select('CONCAT([typ_incident].[zkratka],[incident].[id])')->as('idTxt')
-            ->select('incident.datum_vytvoreni')->as('datum_vytvoreni')
-            ->select('incident_stav.nazev')->as('incident_stav')
-            ->select('fronta_prirazen.nazev')->as('fronta')
-            ->select('firma.nazev')->as('firma_nazev')
-            ->select('ci.nazev')->as('ci')
-            ->select('ci.firma')
-            ->select('osoba_vytvoril.firma')
-            ->from('%n', $this->name)
-            ->leftJoin('typ_incident')->on('incident.typ_incident = typ_incident.id')
-            ->leftJoin('priorita')->on('incident.priorita = priorita.id')
-            ->leftJoin('incident_stav')->on('incident.incident_stav = incident_stav.id')
-#              ->leftJoin('fronta')->on('incident.fronta = fronta.id')
-            ->leftJoin('ci')->on('incident.ci = ci.id')
-            ->leftJoin('firma')->on('ci.firma = firma.id')
-            ->leftJoin('fronta_osoba')->on('[incident].[fronta_osoba] = [fronta_osoba].[id]')
-            ->leftJoin('osoba')->as('osoba_prirazen')->on('[fronta_osoba].[osoba] = [osoba_prirazen].[id]')
-            ->leftJoin('fronta')->as('fronta_prirazen')->on('[fronta_osoba].[fronta] = [fronta_prirazen].[id]')
-            ->leftJoin('osoba')->as('osoba_vytvoril')->on('incident.osoba_vytvoril = osoba_vytvoril.id')
-            ->where('incident.id = %i', $id)->and('ci.firma = osoba_vytvoril.firma')
-            ->fetch();
+        $query = 'SELECT ' .
+            'incident.typ_incident, priorita, incident.obsah, datum_ukonceni, datum_reakce, zpusob_uzavreni, ' .
+            'obsah_uzavreni, CONCAT(osoba_prirazen.jmeno," ",osoba_prirazen.prijmeni) AS osoba_prirazen ' .
+            'CONCAT(osoba_vytvoril.jmeno," ",osoba_vytvoril.prijmeni) AS osoba_vytvoril ' .
+            'CONCAT(typ_incident.zkratka,incident.id) AS idTxt ' .
+            'incident.datum_vytvoreni AS datum_vytvoreni, incident_stav.nazev AS datum_vytvoreni, ' .
+            'incident_stav.nazev AS incident_stav, fronta_prirazen.nazev AS fronta, ' .
+            'firma.nazev AS firma_nazev, ci.nazev AS ci, ci.firma, osoba_vytvoril.firma ' .
+            'FROM ' . self::TABLE_NAME . ' ' .
+            'LEFT JOIN typ_incident ON incident.typ_incident = typ_incident.id ' .
+            'LEFT JOIN priorita ON incident.priorita = priorita.id ' .
+            'LEFT JOIN incident_stav ON incident.incident_stav = incident_stav.id ' .
+            'LEFT JOIN ci ON incident.ci = ci.id ' .
+            'LEFT JOIN firma ON ci.firma = firma.id ' .
+            'LEFT JOIN fronta_osoba ON incident.fronta_osoba = fronta_osoba.id ' .
+            'LEFT JOIN osoba AS osoba_prirazen ON fronta_osoba.osoba = osoba_prirazen.id ' .
+            'LEFT JOIN fronta AS fronta_prirazen ON fronta_osoba.fronta = fronta_prirazen.id ' .
+            'LEFT JOIN osoba AS osoba_vytvoril ON incident.osoba_vytvoril = osoba_vytvoril.id ' .
+            'WHERE incident.id = ? AND  ci.firma = osoba_vytvoril.firma';
+
+        return $this->connection->query($query, $id)->fetch();
     }
 
     /**
      * Funkce nacte tiket, u ktereho je mozne zaslat feedback. Funkce slouzi pro
      * overeni. Pokud neco najde v databazi tak vrati radek z databaze dle ID.
      * @param int $id Description
+     * @return bool|IRow
      * @throws InvalidArgumentException
      */
-    public function fetchForFeedBack($id)
+    public function fetchForFeedBack(int $id)
     {
-        $r = dibi::select('*')
-            ->from('%n', $this->name)
-            ->where('id = %i', $id)
-            ->and('odezva_cekam = %b', TRUE)
-            ->and('odezva_odeslan_pozadavek = %b', TRUE)
+        $r = $this->explorer->table(self::TABLE_NAME)
+            ->where("id", $id)
+            ->where("odezva_cekam", true)
+            ->where("odezva_odeslan_pozadavek", true)
             ->fetch();
         if (!$r) {
             throw new InvalidArgumentException('Tiket nebyl nalezen');
@@ -185,41 +214,39 @@ final class IncidentModel extends BaseModel
 
     /**
      * Nactu si tikety, ktere byli pro daneho odberatele uzavrene.
-     * @param int ID firma odberatel
+     * @param int $firmaId ID firma odberatel
      */
-    public function selectAllTicketsForInvoicingByIdCompany($id)
+    public function selectAllTicketsForInvoicingByIdCompany(int $firmaId)
     {
-        return $this->fetchFactory()
-            #->select('CONCAT("Produkt: ",[ci].[nazev]," ; Služba: ",[ukon].nazev)')->as('nadpis')
-            #->select('CONCAT("Produkt: ",[ci].[nazev]," ; Služba: ",[ukon].nazev," ; Uzavřeno: ",[zpusob_uzavreni].[nazev]," ; Priorita: ", [priorita].[nazev])')->as('nadpis')
-            ->select('CONCAT("Produkt: ",[ci].[nazev],", Způsob uzavření: ",[zpusob_uzavreni].[nazev])')->as('nadpis')
-            ->select('CONCAT("Služba: ",[ukon].nazev,", Priorita: ", [priorita].[nazev])')->as('dodatek')
-            ->select('[ci].[nazev]')->as('produkt')
-            ->select('[ukon].[nazev]')->as('ukon')
-            ->select('[zpusob_uzavreni].[nazev]')->as('uzavreno')
-            ->select('1')->as('pocet_polozek')
-            ->select('[priorita].[nazev]')->as('priorita')
-            ->select('CONCAT([typ_incident].[zkratka],[incident].[id]," - ",[maly_popis])')->as('polozka_nazev')
-            #->select('CONCAT("Uzavřeno: ", [zpusob_uzavreni].[nazev]," ; Priorita: ", [priorita].[nazev])')->as('dodatek')
-            ->select('ROUND((typ_incident.koeficient_cena * ovlivneni.koeficient_cena * priorita.koeficient_cena * zpusob_uzavreni.koeficient_cena),2)')->as('koeficient_cena')
-            ->select('ukon.cena')->as('cena_za_jednotku')
-            ->select('1')->as('dph') // id DPH 0%
-
-            ->select('1')->as('jednotka') // id jednotka neurcito 0%
-            #->select('[ci].[nazev]')->as('nazevCi')
-            ->innerJoin('ukon')->on('[incident].[ukon] = [ukon].[id]')
-            ->innerJoin('ovlivneni')->on('[incident].[ovlivneni] = [ovlivneni].[id]')
-            ->innerJoin('typ_incident')->on('([incident].[typ_incident] = [typ_incident].[id])')
-            ->innerJoin('priorita')->on('([incident].[priorita] = [priorita].[id])')
-            ->innerJoin('zpusob_uzavreni')->on('([incident].[zpusob_uzavreni] = [zpusob_uzavreni].[id])')
-            ->innerJoin('ci')->on('([incident].[ci] = [ci].[id])')
-            ->innerJoin('firma')->on('([ci].[firma] = [firma].[id])')
-            ->innerJoin('tarif')->on('([ci].[tarif] = [tarif].[id])')
-            ->where('incident_stav = %i', 5)
-            ->and('faktura')->is(NULL)
-            ->and('firma.id = %i', $id)
-            ->orderBy('zpusob_uzavreni,priorita.nazev,typ_incident.nazev');
-        //->fetchAssoc('nazevCi,zpusob_uzavreni,priorita,id');
+        $query = 'SELECT ' .
+            'CONCAT("Produkt: ",ci.nazev,", Způsob uzavření: ",zpusob_uzavreni.nazev) AS nadpis, ' .
+            'CONCAT("Služba: ",ukon.nazev,", Priorita: ", priorita.nazev) AS dodatek, ' .
+            'CONCAT(typ_incident.zkratka,incident.id," - ",maly_popis) AS polozka_nazev, ' .
+            'ROUND((typ_incident.koeficient_cena * ovlivneni.koeficient_cena * priorita.koeficient_cena * zpusob_uzavreni.koeficient_cena),2) AS koeficient_cena, ' .
+            'ci.nazev AS produkt, ' .
+            'ukon.nazev AS ukon, ' .
+            'zpusob_uzavreni.nazev AS uzavreno, ' .
+            'priorita.nazev AS priorita, ' .
+            'ukon.cena AS cena_za_jednotku, ' .
+            'incident.id AS incident_id, ' .
+            '1 AS pocet_polozek, ' .
+            '1 AS dph, ' . // id DPH 0%
+            '1 AS jednotka ' . // id jednotka neurcito 0%
+            'FROM ' . self::TABLE_NAME . ' ' .
+            'INNER JOIN ukon ON incident.ukon = ukon.id ' .
+            'INNER JOIN ovlivneni ON incident.ovlivneni = ovlivneni.id ' .
+            'INNER JOIN typ_incident ON incident.typ_incident = typ_incident.id ' .
+            'INNER JOIN priorita ON incident.priorita = priorita.id ' .
+            'INNER JOIN zpusob_uzavreni ON incident.zpusob_uzavreni = zpusob_uzavreni.id ' .
+            'INNER JOIN ci ON incident.ci = ci.id ' .
+            'INNER JOIN firma ON ci.firma = firma.id ' .
+            'INNER JOIN tarif ON ci.tarif = tarif.id ' .
+            'WHERE incident_stav = ? ' .
+            'AND faktura is null ' .
+            'AND firma.id = ? ' .
+            'ORDER BY zpusob_uzavreni,priorita.nazev,typ_incident.nazev ';
+        return $this->connection->query($query, self::INCIDENT_STAV_UZAVREN, $firmaId)
+            ->fetchAssoc('nadpis|incident_id');
     }
 
     /**
@@ -228,32 +255,34 @@ final class IncidentModel extends BaseModel
      */
     public function selectAllTicketsForInvoicingByIdCompanyOld($id)
     {
-        return $this->fetchFactory()
-            ->select('CONCAT([typ_incident].[zkratka], [incident].[id])')->as('idTxt')
-            ->select('CONCAT("Produkt: ",[ci].[nazev]," - Uzavřeno: ", [zpusob_uzavreni].[nazev]," - Priorita: ", [priorita].[nazev])')->as('nadpis')
-            #->select('[typ_incident].[nazev]')->as('typ_incident')
-            #->select('[priorita].[nazev]')->as('priorita')
-            #->select('[zpusob_uzavreni].[nazev]')->as('zpusob_uzavreni')
-            ->select('CONCAT([typ_incident].[zkratka],[incident].[id]," - ",[maly_popis])')->as('polozka_nazev')
-            ->select('[sla].[cena_koeficient]')->as('slaKoeficient')
-            ->select('[zpusob_uzavreni].[koeficient_cena]')->as('uzavreniKoeficient')
-            ->select('[tarif].[cena]')->as('cenaTarif')
-            ->select('([tarif].[cena] * [sla].[cena_koeficient] * [zpusob_uzavreni].[koeficient_cena])')->as('cenaZaJednotku')
-            ->select('1')->as('dph') // id DPH 0%
-            ->select('1')->as('jednotka') // id jednotka neurcito 0%
-            ->select('[ci].[nazev]')->as('nazevCi')
-            ->leftJoin('typ_incident')->on('([incident].[typ_incident] = [typ_incident].[id])')
-            ->leftJoin('priorita')->on('([incident].[priorita] = [priorita].[id])')
-            ->leftJoin('zpusob_uzavreni')->on('([incident].[zpusob_uzavreni] = [zpusob_uzavreni].[id])')
-            ->leftJoin('ci')->on('([incident].[ci] = [ci].[id])')
-            ->leftJoin('firma')->on('([ci].[firma] = [firma].[id])')
-            ->leftJoin('tarif')->on('([ci].[tarif] = [tarif].[id])')
-            ->leftJoin('sla')->on('([sla].[priorita] = [incident].[priorita] AND [sla].[typ_incident] = [incident].[typ_incident] AND [sla].[tarif] = [ci].[tarif])')
-            ->where('incident_stav = %i', 5)
-            ->and('faktura')->is(NULL)
-            ->and('firma.id = %i', $id)
-            ->orderBy('zpusob_uzavreni,priorita.nazev,typ_incident.nazev');
-        //->fetchAssoc('nazevCi,zpusob_uzavreni,priorita,id');
+        $query = 'SELECT ' .
+            'CONCAT(typ_incident.zkratka, incident.id) AS idTxt ' .
+            'CONCAT("Produkt: ",ci.nazev," - Uzavřeno: ", zpusob_uzavreni.nazev," - Priorita: ", priorita.nazev) AS nadpis ' .
+            'CONCAT(typ_incident.zkratka,incident.id," - ",maly_popis) AS polozka_nazev ' .
+            'sla.cena_koeficientAS slaKoeficient ' .
+            'zpusob_uzavreni.koeficient_cena AS uzavreniKoeficient ' .
+            'tarif.cena AS cenaTarif ' .
+            '(tarif.cena * sla.cena_koeficient * zpusob_uzavreni.koeficient_cena) AS cenaZaJednotku ' .
+            '1 AS dph ' .
+            '1 AS jednotka ' .
+            'ci.nazev AS nazevCi ' .
+            'FROM ' . self::TABLE_NAME . ' ' .
+            'LEFT JOIN typ_incident ON incident.typ_incident = typ_incident.id ' .
+            'LEFT JOIN priorita ON incident.priorita = priorita.id ' .
+            'LEFT JOIN zpusob_uzavreni ON incident.zpusob_uzavreni = zpusob_uzavreni.id ' .
+            'LEFT JOIN ci ON incident.ci = ci.id ' .
+            'LEFT JOIN firma ON ci.firma = firma.id ' .
+            'LEFT JOIN tarif ON ci.tarif = tarif.id ' .
+            'LEFT JOIN sla ON sla.priorita = incident.priorita ' .
+            'AND sla.typ_incident = incident.typ_incident ' .
+            'AND sla.tarif = ci.tarif ' .
+            'WHERE incident_stav = 5 ' .
+            'AND faktura is null ' .
+            'AND firma.id = ? ' .
+            'ORDER BY zpusob_uzavreni,priorita.nazev,typ_incident.nazev ';
+
+        return $this->connection->query($query, $id)
+            ->fetchAssoc('nazevCi|zpusob_uzavreni|priorita,id');
     }
 
     ###
@@ -262,71 +291,72 @@ final class IncidentModel extends BaseModel
 
     /**
      * Vkladani noveho tiketu
-     * @param ArrayHash $newItem form values
-     * @throws InvalidArgumentException|DibiException
+     * @param ArrayHash $values form values
      */
-    public function insert(ArrayHash $newItem)
+    public function insert(ArrayHash $values)
     {
-        dibi::begin();
+        $this->connection->beginTransaction();
         try {
             //   na zaklade vybrane priority a tarifu nastavenem na CI si vypocitam casy na reakci a dokonceni tiketu
-            $cas = dibi::select("ADDDATE(ADDDATE(now(), INTERVAL + CONCAT(sla.reakce_mesic,' ',sla.reakce_hod,':',sla.reakce_min) MONTH), INTERVAL + sla.reakce_den DAY_MINUTE)")->as('[reakce]')
-                ->select("ADDDATE(ADDDATE(now(), INTERVAL + CONCAT(sla.hotovo_mesic,' ',sla.hotovo_hod,':',sla.hotovo_min) MONTH), INTERVAL + sla.hotovo_den DAY_MINUTE)")->as('[hotovo]')
-                ->from('%n', 'ci')
-                ->leftJoin('sla')->on('[sla].[tarif] = [ci].[tarif]')
-                ->and('[sla].[priorita] = %i', $newItem['priorita'])
-                ->and('[sla].[typ_incident] = %i', $newItem['typ_incident'])
-                ->where('[ci].[id] = %i', $newItem['ci'])
+            $queryCas = "SELECT " .
+                "ADDDATE(ADDDATE(now(), INTERVAL + CONCAT(sla.reakce_mesic,' ',sla.reakce_hod,':',sla.reakce_min) MONTH), INTERVAL + sla.reakce_den DAY_MINUTE) AS reakce, " .
+                "ADDDATE(ADDDATE(now(), INTERVAL + CONCAT(sla.hotovo_mesic,' ',sla.hotovo_hod,':',sla.hotovo_min) MONTH), INTERVAL + sla.hotovo_den DAY_MINUTE) AS hotovo, " .
+                "FROM " . self::TABLE_NAME . " " .
+                "LEFT JOIN sla ON sla.tarif = ci.tarif " .
+                "AND sla.priorita = ? " .
+                "AND sla.typ_incident = ? " .
+                "AND ci.id = ? ";
+            $cas = $this->connection->query($queryCas, $values['priorita'], $values['typ_incident'], $values['ci'])
                 ->fetch();
 
-            $newItem->offsetSet('datum_reakce', $cas['reakce']);
-            $newItem->offsetSet('datum_ukonceni', $cas['hotovo']);
+            $values->offsetSet('datum_reakce', $cas['reakce']);
+            $values->offsetSet('datum_ukonceni', $cas['hotovo']);
 
             //   nove tikety jsou odeslany automaticky na SD
-            $newItem->offsetSet('fronta_osoba', 2);
+            $values->offsetSet('fronta_osoba', 2);
 
             //   zapisu do datbaze
-            dibi::query('INSERT INTO %n', $this->name, ' %v', $newItem);
+            $this->connection->query("INSERT INTO " . self::TABLE_NAME . " ", $values);
 
             //   nactu si id od prave zapsaneho incidentu a vytvorim text pro WL
-            $lastId = $this->getLastId();
+            $lastId = $this->connection->getInsertId();
 
             //   naplnim docasne pole ktere pouziju pro vlozeni do tabulky WL
-            $WlArr = new ArrayHash;
-            $WlArr->offsetSet('incident', $lastId);
-            $WlArr->offsetSet('datum_vytvoreni', new DateTime);
-            $WlArr->offsetSet('osoba', $newItem['osoba_vytvoril']);
+            $workLogArray = new ArrayHash;
+            $workLogArray->offsetSet('incident', $lastId);
+            $workLogArray->offsetSet('datum_vytvoreni', new DateTime);
+            $workLogArray->offsetSet('osoba', $values['osoba_vytvoril']);
 
             //   nactu si nazvy k vlozenym hodnotam, aby byly citelne pro cloveka
-            $dbFetch = dibi::select('[incident_stav].[nazev]')->as('[incident_stav]')
-                ->select('[priorita].[nazev]')->as('[priorita]')
-                ->select('[fronta].[nazev]')->as('[fronta]')
-                ->from('%n', $this->name)
-                ->leftJoin('[incident_stav]')->on('[incident].[incident_stav] = [incident_stav].[id]')
-                ->leftJoin('[priorita]')->on('[incident].[priorita] = [priorita].[id]')
-                ->leftJoin('[fronta_osoba]')->on('[incident].[fronta_osoba] = [fronta_osoba].[id]')
-                ->leftJoin('[fronta]')->on('[fronta_osoba].[fronta] = [fronta].[id]')
-                ->where('[incident].[id] = %i', $lastId)
-                ->fetch();
+            $query = 'SELECT ' .
+                'incident_stav.nazev AS incident_stav, priorita.nazev AS priorita, ' .
+                'fronta.nazev AS fronta ' .
+                'FROM ' . self::TABLE_NAME . ' ' .
+                'LEFT JOIN incident_stav ON incident.incident_stav = incident_stav.id ' .
+                'LEFT JOIN priorita ON incident.priorita = priorita.id ' .
+                'LEFT JOIN fronta_osoba ON incident.fronta_osoba = fronta_osoba.id ' .
+                'LEFT JOIN fronta ON fronta_osoba.fronta = fronta.id ' .
+                'WHERE incident.id = ? ';
+
+            $dbFetch = $this->connection->query($query, $lastId)->fetch();
 
             //   vytvorim si text, ktery se zapise do WL, char(10) - novy radek
             $obsah = '**Tiket vytvořen**' . chr(10);
             $obsah .= ' **Typ incidentu**: ' . $dbFetch['incident_stav'] . chr(10);
             $obsah .= ' **Priorita**: ' . $dbFetch['priorita'] . chr(10);
             $obsah .= ' **Fronta**: ' . $dbFetch['fronta'] . chr(10);
-            $obsah .= ' **Maly popis**: ' . $newItem['maly_popis'] . chr(10);
+            $obsah .= ' **Maly popis**: ' . $values['maly_popis'] . chr(10);
             $obsah .= ' **Popis požadavku**: ' . chr(10);
-            $obsah .= $newItem['obsah'];
+            $obsah .= $values['obsah'];
 
-            $WlArr->offsetSet('obsah', $obsah);
+            $workLogArray->offsetSet('obsah', $obsah);
             //   uvolnim pamet s docasnymi promennymi
             unset($obsah, $dbFetch);
             //   zapisi do WL informace o novem tiketu
-            $wlModel = new IncidentLogModel();
-            $wlModel->insert($WlArr);
-            dibi::commit();
-        } catch (DibiException $exc) {
-            dibi::rollback();
+            $this->incidentLogModel->insert($workLogArray);
+            $this->connection->commit();
+        } catch (Exception $exc) {
+            $this->connection->rollBack();
             // zapisu chybu do logy
             Debugger::log($exc->getMessage());
             throw new InvalidArgumentException($exc->getMessage());
@@ -346,7 +376,7 @@ final class IncidentModel extends BaseModel
      * @return void
      * @throws InvalidArgumentException
      */
-    public function update(ArrayHash $arr, $id)
+    public function update(ArrayHash $arr, int $id)
     {
         // nejprve si nactu stare hodnoty radku z databaze pro potreby porovnani
         $dbData = $this->fetchWith3thPartyTable($id);
@@ -390,12 +420,12 @@ final class IncidentModel extends BaseModel
              * vystupu z formularetam vybec nemuseji byt.
              */
             //   docasna promenna, pokud se nastavi na TRUE prepocita se cas reakce a dokonceni tiketu
-            $novyCas = FALSE;
+            $novyCas = false;
             //
             //   TYP_INCIDENTU
             //
             if (isset($arr['typ_incident']) && $arr['typ_incident'] !== $dbData['typ_incident']) {
-                $tmp = TypIncidentModel::fetchPairs();
+                $tmp = $this->typIncidentModel->fetchPairs();
                 $new = $tmp[$arr['typ_incident']];
 
                 // Je potreba osetrit nulovou hodnotu u stareho zaznamu jinak hrozi
@@ -408,7 +438,7 @@ final class IncidentModel extends BaseModel
                     $wl[] = '**Typ incidentu:** ' . $new;
                 }
                 //   prepocitej cas
-                $novyCas = TRUE;
+                $novyCas = true;
                 //   uvolnim z pameti docasne promenne
                 unset($tmp, $old, $new);
             }
@@ -416,7 +446,7 @@ final class IncidentModel extends BaseModel
             //   PRIORITA
             //
             if (isset($arr['priorita']) && $arr['priorita'] !== $dbData['priorita']) {
-                $tmp = PrioritaModel::fetchPairs();
+                $tmp = $this->prioritaModel->fetchPairs();
                 $new = $tmp[$arr['priorita']];
                 /*
                  * Je potreba osetrit nulovou hodnotu u stareho zaznamu jinak hrozi
@@ -429,7 +459,7 @@ final class IncidentModel extends BaseModel
                     $wl[] = '**Priorita:** ' . $new;
                 }
                 //   prepocitej cas
-                $novyCas = TRUE;
+                $novyCas = true;
                 //   uvolnim z pameti docasne promenne
                 unset($tmp, $old, $new);
             }
@@ -437,7 +467,7 @@ final class IncidentModel extends BaseModel
             //   STAV_INCIDENTU
             //
             if (isset($arr['incident_stav']) && $arr['incident_stav'] !== $dbData['incident_stav']) {
-                $tmp = IncidentStavModel::fetchPairs();
+                $tmp = $this->incidentStavModel->fetchPairs();
                 $new = $tmp[$arr['incident_stav']];
                 /*
                  * Je potreba osetrit nulovou hodnotu u stareho zaznamu jinak hrozi
@@ -458,28 +488,22 @@ final class IncidentModel extends BaseModel
 
             /**
              * array (6)
-             *
              * 1 => DibiRow #253d
-             *
              * id => 1
              *            jmeno => "Martin Patyk" (12)
              *            fronta_nazev => "Programatori" (12)
-             *
              * 6 => DibiRow #0414
-             *
              * id => 6
              *            jmeno => "Shift Supervisor" (16)
              *            fronta_nazev => "Programatori" (12)
-             *
              * 2 => DibiRow #a33b
-             *
              * id => 2
              *            jmeno => "Service Desk" (12)
              *            fronta_nazev => "TIER 1" (6)
              */
             if (isset($arr['fronta_osoba']) && $arr['fronta_osoba'] !== $dbData['fronta_osoba']):
                 //   asociativni pole s hodnotami obsazene v tabulce
-                $tmp = FrontaOsobaModel::fetchAllWithOsobaAndFrontaName();
+                $tmp = $this->frontaOsobaModel->fetchAllWithOsobaAndFrontaName();
                 #dump($tmp);
                 #exit;
                 $new = $tmp[$arr['fronta_osoba']];
@@ -502,19 +526,31 @@ final class IncidentModel extends BaseModel
             //   pokud je $novyCas = TRUE pak prepocitej casy
             if ($novyCas) {
                 //pri uprave priority je potreba prepocitat cas do kdy se ma tiket vytvorit
-                $cas = dibi::select('[incident].[datum_ukonceni]')->as('[stary_datum_ukonceni]')
-                    ->select('[incident].[datum_reakce]')->as('[stary_datum_reakce]')
-                    ->select("ADDDATE(ADDDATE(incident.datum_vytvoreni, INTERVAL + CONCAT(sla.reakce_mesic,' ',sla.reakce_hod,':',sla.reakce_min) MONTH), INTERVAL + sla.reakce_den DAY_MINUTE)")->as('[nove_datum_ukonceni]')
-                    ->select("ADDDATE(ADDDATE(incident.datum_vytvoreni, INTERVAL + CONCAT(sla.hotovo_mesic,' ',sla.hotovo_hod,':',sla.hotovo_min) MONTH), INTERVAL + sla.hotovo_den DAY_MINUTE)")->as('[nove_datum_reakce]')
-                    ->from('%n', $this->name)
-                    ->leftJoin('ci')->on('[incident].[ci] = [ci].[id]')
-                    ->leftJoin('sla')->on('[ci].[tarif] = [sla].[tarif]')
-                    ->and('[sla].[typ_incident] = %i', $arr['incident_stav'])
-                    ->and('[sla].[priorita] = %i', $arr['priorita'])
-                    ->where('[incident].[id] = %i', $id)
-                    ->fetch();
-                $wl[] = '**Datum dokončení:** ' . $cas['nove_datum_ukonceni'] . ' <span class="old">bylo: ' . $cas['stary_datum_ukonceni'] . '</span>';
-                $wl[] = '**Datum reakce:** ' . $cas['nove_datum_reakce'] . ' <span class="old">bylo: ' . $cas['stary_datum_reakce'] . '</span>';
+                $queryCas = 'SELECT ' .
+                    'incident.datum_ukonceni AS stary_datum_ukonceni, ' .
+                    'incident.datum_reakce AS stary_datum_reakce, ' .
+                    "ADDDATE(ADDDATE(incident.datum_vytvoreni, INTERVAL + CONCAT(sla.reakce_mesic,' ',sla.reakce_hod,':',sla.reakce_min) MONTH), INTERVAL + sla.reakce_den DAY_MINUTE) AS nove_datum_ukonceni, " .
+                    "ADDDATE(ADDDATE(incident.datum_vytvoreni, INTERVAL + CONCAT(sla.hotovo_mesic,' ',sla.hotovo_hod,':',sla.hotovo_min) MONTH), INTERVAL + sla.hotovo_den DAY_MINUTE) AS nove_datum_reakce, " .
+                    'FROM ' . self::TABLE_NAME . ' ' .
+                    "LEFT JOIN ci ON incident.ci = ci.id " .
+                    "LEFT JOIN sla ON ci.tarif = sla.tarif " .
+                    "LEFT JOIN sla ON ci.tarif = sla.tarif " .
+                    "AND sla.typ_incident = ? " .
+                    "AND sla.priorita = ? " .
+                    "WHERE incident.id = ?";
+
+                $cas = $this->connection->query($queryCas, $arr['incident_stav'], $arr['priorita'], $id)->fetch();
+
+                $wl[] = '**Datum dokončení:** ' .
+                    $cas['nove_datum_ukonceni'] .
+                    ' <span class="old">bylo: ' .
+                    $cas['stary_datum_ukonceni'] .
+                    '</span>';
+                $wl[] = '**Datum reakce:** ' .
+                    $cas['nove_datum_reakce'] .
+                    ' <span class="old">bylo: ' .
+                    $cas['stary_datum_reakce'] .
+                    '</span>';
 
                 // nastavim nove casy reakce a dokonceni tiketu
                 $arr->offsetSet('datum_ukonceni', $cas['nove_datum_ukonceni']);
@@ -534,7 +570,6 @@ final class IncidentModel extends BaseModel
             if (count($wl) > 0) {
                 /**    @var ArrayHash Description */
                 $item = new ArrayHash();
-                $wlModel = new IncidentLogModel;
                 $item->offsetSet('incident', $id);
                 $item->offsetSet('datum_vytvoreni', new DateTime);
                 $wlTmp = '';
@@ -543,7 +578,7 @@ final class IncidentModel extends BaseModel
                 }
                 $item->offsetSet('obsah', $wlTmp);
                 $item->offsetSet('osoba', $arr['identity']);
-                $wlModel->insert($item);
+                $this->incidentLogModel->insert($item);
             }
             /*
              * Pred odeslanim hodnot do databaze odeberu polozky, ktere se
@@ -560,12 +595,21 @@ final class IncidentModel extends BaseModel
             $arr->offsetUnset('datum_reakce');
             $arr->offsetUnset('identity');
 
-            #dump($arr);
-            #dump($wl);
-            #exit;
             parent::update($arr, $id);
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             throw new InvalidArgumentException($exc->getMessage());
         }
+    }
+
+    public function retrieveAllTicketWhichAreInStateOpenAndReOpened(): array
+    {
+        $query = "ci.fronta_tier_2, fronta_osoba.id AS fronta_osoba_id " .
+            "FROM " . self::TABLE_NAME . " " .
+            "WHERE incident_stav IN (1, 7) " .
+            "INNER JOIN ci ON incident.ci = ci.id " .
+            "LEFT JOIN fronta_osoba ON fronta_osoba.fronta = ci.fronta_tier_2 " .
+            "AND fronta_osoba.osoba = ?";
+
+        return $this->connection->query($query, self::OSOBA_SS)->fetchAll();
     }
 }

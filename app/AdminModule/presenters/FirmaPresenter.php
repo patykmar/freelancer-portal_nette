@@ -9,6 +9,7 @@
 namespace App\AdminModule\Presenters;
 
 use App\Grids\Admin\FirmaGrid;
+use App\Model\ZemeModel;
 use DibiException;
 use Exception;
 use App\Form\Admin\Add;
@@ -16,28 +17,28 @@ use App\Form\Admin\Edit;
 use App\Model\FirmaModel;
 use Nette\Application\AbortException as AbortExceptionAlias;
 use Nette\Database\Context;
-use Nette\Diagnostics\Debugger;
+use Nette\DateTime;
+use Tracy\Debugger;
 use Nette\InvalidArgumentException;
 
 class FirmaPresenter extends AdminbasePresenter
 {
-    /** @var FirmaModel */
     private $firmaModel;
-
-    /** @var Context */
     private $firmaContext;
+    private $zemeModel;
 
-    public function __construct(FirmaModel $firmaModel, Context $firmaContext)
+    public function __construct(FirmaModel $firmaModel, Context $firmaContext, ZemeModel $zemeModel)
     {
         parent::__construct();
         $this->firmaModel = $firmaModel;
         $this->firmaContext = $firmaContext;
+        $this->zemeModel = $zemeModel;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
      */
-    protected function createComponentGrid()
+    protected function createComponentGrid(): FirmaGrid
     {
         return new FirmaGrid($this->firmaContext->table('firma'));
     }
@@ -55,19 +56,22 @@ class FirmaPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd()
+    public function createComponentAdd(): Add\FirmaForm
     {
-        $form = new Add\FirmaForm();
+        $form = new Add\FirmaForm($this->zemeModel);
         $form->onSuccess[] = callback($this, 'add');
         return $form;
     }
 
+    /**
+     * @throws AbortExceptionAlias
+     */
     public function add(Add\FirmaForm $form)
     {
         try {
             $v = $form->getValues();
-            $v->offsetSet('datum_vytvoreni', new \Nette\DateTime);
-            $v->offsetSet('datum_upravy', new \Nette\DateTime);
+            $v->offsetSet('datum_vytvoreni', new DateTime);
+            $v->offsetSet('datum_upravy', new DateTime);
             $this->firmaModel->insert($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
@@ -80,18 +84,19 @@ class FirmaPresenter extends AdminbasePresenter
     /**
      * Cast EDIT
      * @param int $id Identifikator polozky
+     * @throws AbortExceptionAlias
      */
-    public function renderEdit($id)
+    public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
-            //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
+            //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
             $v = $this->firmaModel->fetch($id);
 
-            //	odeberu idecko z pole
-            $v->offsetUnset('id');
+            //odeberu idecko z pole
+//            $v->offsetUnset('id');
 
-            //	upravene hodnoty odeslu do formulare
+            //upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
@@ -99,9 +104,9 @@ class FirmaPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit()
+    public function createComponentEdit(): Edit\FirmaForm
     {
-        $form = new Edit\FirmaForm();
+        $form = new Edit\FirmaForm($this->zemeModel);
         $form->onSuccess[] = callback($this, 'edit');
         return $form;
     }
@@ -110,7 +115,7 @@ class FirmaPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $v['new']->offsetSet('datum_upravy', new \Nette\DateTime);
+            $v['new']->offsetSet('datum_upravy', new DateTime);
             $this->firmaModel->update($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
@@ -125,7 +130,7 @@ class FirmaPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortExceptionAlias
      */
-    public function actionDrop($id)
+    public function actionDrop(int $id)
     {
         try {
             try {
@@ -139,7 +144,8 @@ class FirmaPresenter extends AdminbasePresenter
             }
         } catch (DibiException $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
-            $this->redirect('Firmas:default');    //	change it !!!
+            $this->redirect('Firmas:default');    //change it !!!
         }
     }
+
 }

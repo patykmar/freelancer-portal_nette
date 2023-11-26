@@ -8,7 +8,7 @@
 <table>
 	<tr>
 		<td colspan="4" class="formSbmt">
-			<a n:href="tiketTask:add,$incId" onclick="return confirm('Opravdu chcete vytvořit nový úkol ?');">Vytvoř úkol</a>
+			<a n:href="TiketTask:add, $incId" onclick="return confirm('Opravdu chcete vytvořit nový úkol ?');">Vytvoř úkol</a>
 			{input btSbmt}
 		</td>
 	</tr>
@@ -82,7 +82,7 @@
 	{/formContainer}
 	<tr>
 		<td colspan="4" class="formSbmt">
-			<a n:href="tiketTask:add,$incId" onclick="return confirm('Opravdu chcete vytvořit nový úkol ?');">Vytvoř úkol</a>
+			<a n:href="TiketTask:add,$incId" onclick="return confirm('Opravdu chcete vytvořit nový úkol ?');">Vytvoř úkol</a>
 			{input btSbmt}
 		</td>
 	</tr>
@@ -111,6 +111,6 @@
 			
 	<div id="tabs-3">
 		<h2>Seznam úkolů</h2>
-		{control childTaskList}
+		{control childTaskList, $incId}
 	</div>
 </div>

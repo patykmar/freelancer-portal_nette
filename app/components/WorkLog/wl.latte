@@ -1,0 +1,12 @@
+{* Latte template *}
+
+<h2>Záznam práce</h2>
+<div n:inner-foreach="$items as $item" id="workLog">
+	<a name="{$item->id}"></a>
+	<div class="wlFirstLine">
+		<span class="wlDate">{$item->datum_vytvoreni|date:'H:i:s d.m.Y'}</span>
+		<span class="wlNameOfSpecialist">{$item->jmeno} {$item->prijmeni}</span>
+		<span class="wlLink"><a href="#{$item->id}">#link</a></span>
+	</div>
+	<div class="wlBody">{!$item->obsah|texyWl}</div>
+</div>

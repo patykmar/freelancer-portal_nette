@@ -2,7 +2,7 @@
 
 namespace App\Model;
 
-use DibiException;
+use Nette\Database\Context;
 
 /**
  * Description of OvlivneniModel
@@ -11,15 +11,13 @@ use DibiException;
  */
 final class OvlivneniModel extends BaseNDbModel
 {
-    /** @var string nazev tabulky */
-    protected $tableName = 'ovlivneni';
+    use FetchPairsTrait;
 
-    /**
-     * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
-     * @return array
-     */
-    public function fetchPairs()
+    public const TABLE_NAME = 'ovlivneni';
+
+    public function __construct(Context $context)
     {
-        return $this->fetchAll()->fetchPairs('id', 'nazev');
+        parent::__construct(self::TABLE_NAME, $context);
     }
+
 }

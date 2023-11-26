@@ -2,8 +2,7 @@
 
 namespace App\Model;
 
-use dibi;
-use DibiRow;
+use Nette\Database\Context;
 
 /**
  * Description of OsobaModel
@@ -12,66 +11,74 @@ use DibiRow;
  */
 final class OsobaModel extends BaseNDbModel
 {
-    /** @var string nazev tabulky */
-    protected $tableName = 'osoba';
+    public const TABLE_NAME = 'osoba';
+
+    public function __construct(Context $context)
+    {
+        parent::__construct(self::TABLE_NAME, $context);
+    }
+
 
     /**
      * Vrati v paru id a jmena pouze specialistu a systemovych uzivatelu
      * @return array
      */
-    public function fetchPairsSpecialistSystem()
+    public function fetchPairsSpecialistSystem(): array
     {
-        return $this->fetchAll()->fetchPairs();
+        return $this->explorer->table(self::TABLE_NAME)
+            ->where("typ_osoby", [2, 3])
+            ->fetchPairs('id', 'CONCAT(jmeno," ",prijmeni) as nazev');
     }
 
     /**
      * Vrati v paru id a jmena pouze specialistu a systemovych uzivatelu.
-     * @return DibiRow id => nazev
+     * @return array id => nazev
      * typ_osoby:
      *  1 - zakaznik
      *  2 - specialista
      *  3 - system
      */
-    public static function fetchPairs()
+    public function fetchPairs(): array
     {
-        return dibi::select('id')
-            ->select('CONCAT([jmeno]," ",[prijmeni])')->as('nazev')
-            ->from('%n', 'osoba')
-            ->where('typ_osoby')->in('(2,3)')
-            ->orderBy('prijmeni')
-            ->fetchPairs();
+        return $this->explorer->table(self::TABLE_NAME)
+            ->where("typ_osoby", [2, 3])
+            ->order("prijmeni")
+            ->select("id")
+            ->select('CONCAT(jmeno," ",prijmeni) AS nazev')
+            ->fetchPairs("id", "nazev");
     }
 
     /**
      * Metoda vraci vsechny osoby k pouziti do formulare.
      */
-    public function fetchAllPairs()
+    public function fetchAllPairs(): array
     {
-        $sql = "SELECT id, CONCAT(jmeno, ' ', prijmeni) AS nazev ";
+        $sql = "SELECT id, CONCAT(jmeno, ' ', prijmeni) as nazev ";
         $sql .= "FROM osoba ";
         $sql .= "ORDER BY prijmeni";
-        return $this->database->query($sql)->fetchPairs();
+        return $this->explorer->query($sql)->fetchPairs();
     }
 
     /**
-     * Metoda vraci vsechny osoby k pouziti do formulare. Jmena jsou rarazene
-     * do firmy ve ktere se osoba nachazi.
+     * Vrati Map<string, Map<int,string>>, kde klic je nazev firmy a v ni je mapa CiId => CiName
+     * @return array
      */
-    public static function fetchAllPairsWithCompanyName()
+    public function fetchAllPairsWithCompanyName(): array
     {
-        $r = dibi::select('[osoba].[id]')
-            ->select('CONCAT([prijmeni]," ",[jmeno])')->as('nazev')
-            ->select('[firma].[nazev]')->as('nazevFirmy')
-            ->from('%n', 'osoba')
-            ->leftJoin('[firma]')->on('([firma].[id] = [osoba].[firma])')
-            ->orderBy('[osoba].[prijmeni]')
-            ->fetchAssoc('nazevFirmy,id');
+        $result = $this->explorer->table(self::TABLE_NAME)
+            ->where("firma . id = osoba . firma")
+            ->order("osoba . prijmeni")
+            ->select("osoba . id")
+            ->select('CONCAT(prijmeni," ",jmeno) AS nazev')
+            ->select("firma.nazev AS nazevFirmy")
+            ->fetchAssoc("nazevFirmy|id");
 
-        foreach ($r as $k => $v) {
+        foreach ($result as $k => $v) {
             foreach ($v as $key => $value) {
-                $r[$k][$key] = $value['nazev'];
+                $result[$k][$key] = $value['nazev'];
             }
         }
-        return $r;
+
+        return $result;
     }
 }

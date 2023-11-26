@@ -77,7 +77,7 @@ class FeedBackPresenter extends BasePresenter
     /**
      * Formular pro zadani negativniho komentare
      */
-    public function createComponentNegative($name)
+    public function createComponentNegative($name): FeedBackNegativeForm
     {
         $form = new FeedBackNegativeForm();
         $form->onSuccess[] = callback($this, 'negative');
@@ -92,7 +92,7 @@ class FeedBackPresenter extends BasePresenter
     {
         try {
             $v = $form->getValues();
-            //	uvereni zda-li je v db takovy radek
+            //uvereni zda-li je v db takovy radek
             $dbVal = $this->model->fetchForFeedBack($v['id']);
             $change = new ArrayHash;
             $change->offsetSet('incident_stav', 7); // znovu otevren

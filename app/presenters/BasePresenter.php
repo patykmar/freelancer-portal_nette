@@ -10,7 +10,6 @@ use Nette\Application\UI\Presenter;
 use Nette\Forms\Controls\CsrfProtection;
 use Nette\Forms\Controls\SelectBox;
 use Nette\Forms\Controls\SubmitButton;
-use Texy;
 use Vodacek\Forms\Controls\DateInput;
 use WebLoader\Compiler;
 use WebLoader\FileCollection;
@@ -58,26 +57,26 @@ abstract class BasePresenter extends Presenter
         DateInput::register();
     }
 
-    protected function createTemplate($class = null)
-    {
-        /**
-         *  Texy pro vypis work logu
-         */
-        $texy = new Texy;
-        $texy->encoding = 'utf-8';
-        $texy->imageModule->linkedRoot = $this->context->getParameters()['wwwDir'];
-        $texy->imageModule->root = $this->basePath . '/images/';
-
-        $texy->setOutputMode(Texy::XHTML1_TRANSITIONAL);
-        $texy->allowed['heading'] = FALSE;
-        $texy->allowed['paragraph'] = FALSE;
-
-        //registrace filtru
-        $template = parent::createTemplate($class); //parent::createTemplate($class);
-        $template->registerHelper('texyWl', callback($texy, 'process'));
-        $template->registerHelper('texy', callback($texy, 'process'));
-        return $template;
-    }
+//    protected function createTemplate($class = null)
+//    {
+//        /**
+//         *  Texy pro vypis work logu
+//         */
+//        $texy = new Texy;
+//        $texy->encoding = 'utf-8';
+//        $texy->imageModule->linkedRoot = $this->context->getParameters()['wwwDir'];
+//        $texy->imageModule->root = $this->basePath . '/images/';
+//
+//        $texy->setOutputMode(Texy::XHTML1_TRANSITIONAL);
+//        $texy->allowed['heading'] = FALSE;
+//        $texy->allowed['paragraph'] = FALSE;
+//
+//        //registrace filtru
+//        $template = parent::createTemplate($class); //parent::createTemplate($class);
+//        $template->registerHelper('texyWl', callback($texy, 'process'));
+//        $template->registerHelper('texy', callback($texy, 'process'));
+//        return $template;
+//    }
 
     /**
      * Nacteni css

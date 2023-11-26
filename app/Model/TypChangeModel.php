@@ -2,26 +2,23 @@
 
 namespace App\Model;
 
-use dibi;
-use DibiException;
+
+use Nette\Database\Context;
 
 /**
  * Description of TypChangeModel
  *
  * @author Martin Patyk
  */
-final class TypChangeModel extends BaseModel
+final class TypChangeModel extends BaseNDbModel
 {
-    /** @var string nazev tabulky */
-    protected $name = 'typ_change';
+    use FetchPairsTrait;
 
-    /**
-     * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
-     * @return array id, zazev
-     * @throws DibiException
-     */
-    public static function fetchPairs()
+    public const TABLE_NAME = 'typ_change';
+
+    public function __construct(Context $context)
     {
-        return dibi::fetchPairs('SELECT [id], [nazev] FROM [typ_change] ORDER BY [nazev]');
+        parent::__construct(self::TABLE_NAME, $context);
     }
+
 }

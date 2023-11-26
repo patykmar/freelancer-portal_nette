@@ -1,31 +1,32 @@
 <?php
 
-
 namespace App\Model;
 
-
-use dibi;
-use DibiException;
+use Nette\Database\Context;
 
 /**
  * Description of CiLogModel
  *
  * @author Martin Patyk
  */
-final class CiLogModel extends BaseModel
+final class CiLogModel extends BaseNDbModel
 {
-    /** @var string nazev tabulky */
-    protected $name = 'ci_log';
+    public const TABLE_NAME = 'ci_log';
 
+    public function __construct(Context $context)
+    {
+        parent::__construct(self::TABLE_NAME, $context);
+    }
 
     /**
      * Nacte log na zaklade CI identifikatoru
      * @param int $id identifikaotr CIcka
-     * @return array of DibiRow
-     * @throws DibiException
+     * @return array
      */
-    public function fetchAllByCi($id)
+    public function fetchAllByCi(int $id): array
     {
-        return dibi::fetchAll('SELECT * FROM %n', $this->name, ' WHERE [ci]=%i', $id);
+        return $this->explorer->table($this->tableName)
+            ->where('ci', $id)->fetchAll();
     }
+
 }

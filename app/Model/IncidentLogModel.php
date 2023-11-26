@@ -2,36 +2,37 @@
 
 namespace App\Model;
 
-use dibi;
-use DibiException;
-use Nette\Utils\ArrayHash;
+use Nette\Database\Context;
 
 /**
  * Description of IncidentLogModel
  *
  * @author Martin Patyk
  */
-final class IncidentLogModel extends BaseModel
+final class IncidentLogModel extends BaseNDbModel
 {
-    /** @var string nazev tabulky */
-    protected $name = 'incident_log';
+    public const TABLE_NAME = 'incident_log';
 
-    public function fetchAllByIncidentId($id)
+    public function __construct(Context $context)
     {
-        return dibi::select('incident_log.*, osoba.jmeno, osoba.prijmeni')
-            ->from('%n', $this->name)
-            ->leftJoin('osoba')->on('([incident_log].[osoba] = [osoba].[id])')
-            ->where('incident = %i', $id)
-            ->orderBy('datum_vytvoreni')->desc()
+        parent::__construct(self::TABLE_NAME, $context);
+    }
+
+
+    /**
+     * @param int $id
+     * @return array
+     */
+    public function fetchAllByIncidentId(int $id): array
+    {
+        return $this->explorer->table(self::TABLE_NAME)
+            ->where("incident_log.osoba = osoba.id")
+            ->where("incident", $id)
+            ->order("datum_vytvoreni DESC")
+            ->select("incident_log.*")
+            ->select("osoba.jmeno")
+            ->select("osoba.prijmeni")
             ->fetchAll();
     }
 
-    /**
-     * @param ArrayHash $newItem
-     * @throws DibiException
-     */
-    public function insert(ArrayHash $newItem)
-    {
-        parent::insert($newItem);
-    }
 }

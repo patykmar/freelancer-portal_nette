@@ -17,6 +17,9 @@ use App\Model\FakturaModel;
 use App\Model\FakturaPolozkaModel;
 use App\Model\FirmaModel;
 use App\Form\Admin\Edit\FakturaForm as FakturaFormAlias;
+use App\Model\FormaUhradyModel;
+use App\Model\OsobaModel;
+use DibiException;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Database\Context;
@@ -28,29 +31,25 @@ use OndrejBrejla\Eciovni\ParticipantBuilder;
 use OndrejBrejla\Eciovni\ItemImpl;
 use OndrejBrejla\Eciovni\DataBuilder;
 use OndrejBrejla\Eciovni\TaxImpl;
-use Nette\Diagnostics\Debugger;
+use Tracy\Debugger;
 use Exception;
-
 
 class FakturaPresenter extends AdminbasePresenter
 {
-    /** @var FakturaModel */
     private $fakturaModel;
-
-    /** @var FakturaPolozkaModel */
     private $fakturaPolozkaModel;
-
-    /** @var FirmaModel */
     private $modelFirma;
-
-    /** @var Context */
     private $fakturaContext;
+    private $osobaModel;
+    private $formaUhradyModel;
 
     public function __construct(
         FakturaModel        $fakturaModel,
         FakturaPolozkaModel $fakturaPolozkaModel,
         FirmaModel          $modelFirma,
-        Context             $fakturaContext
+        Context             $fakturaContext,
+        OsobaModel          $osobaModel,
+        FormaUhradyModel    $formaUhradyModel
     )
     {
         parent::__construct();
@@ -58,18 +57,20 @@ class FakturaPresenter extends AdminbasePresenter
         $this->fakturaPolozkaModel = $fakturaPolozkaModel;
         $this->modelFirma = $modelFirma;
         $this->fakturaContext = $fakturaContext;
+        $this->osobaModel = $osobaModel;
+        $this->formaUhradyModel = $formaUhradyModel;
     }
 
     /*************************************** DEFINE GRIDS **************************************/
 
-    protected function createComponentGrid()
+    protected function createComponentGrid(): FakturaGrid
     {
         return new FakturaGrid($this->fakturaContext);
     }
 
-    protected function createComponentGridPolozkyFaktury()
+    protected function createComponentGridPolozkyFaktury(): PolozkyFakturyGrid
     {
-        return new PolozkyFakturyGrid($this->fakturaContext);
+        return new PolozkyFakturyGrid($this->fakturaContext->table(FakturaPolozkaModel::TABLE_NAME));
     }
 
     public function renderDefault()
@@ -78,14 +79,14 @@ class FakturaPresenter extends AdminbasePresenter
     }
 
     /*************************************** PART ADD *************************************
-     * @throws \Nette\Application\AbortException
+     * @throws AbortException
      */
 
-    public function renderAdd($odberatel, $dodavatel = NULL)
+    public function renderAdd(int $odberatel, int $dodavatel = null)
     {
         try {
-            //	pokud neni nastaveny dodavatel nastim jako dodavatele
-            // firmu ve ktere je prihlaseny uzivatel.
+            //pokud neni nastaveny dodavatel nastavim jako dodavatele
+            //firmu ve ktere je prihlaseny uzivatel.
             if (is_null($dodavatel)) {
                 $dodavatel = $this->identity->data['firma'];
             }
@@ -102,7 +103,7 @@ class FakturaPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentAdd()
+    public function createComponentAdd(): FakturaForm
     {
         $form = new FakturaForm;
         $form->onSuccess[] = callback($this, 'add');
@@ -127,14 +128,14 @@ class FakturaPresenter extends AdminbasePresenter
         }
     }
 
-    //	zobrazi formular, ve kterem se bude moci vybrat odberatel a dodavatel
+    //zobrazi formular, ve kterem se bude moci vybrat odberatel a dodavatel
     public function renderAddSelect()
     {
         throw new NotImplementedException("New invoice is not implement yet");
     }
 
 
-    public function createComponentOdberatelDodavatel()
+    public function createComponentOdberatelDodavatel(): SelectOdberatelDodavatelForm
     {
         $form = new SelectOdberatelDodavatelForm();
         $form->onSuccess[] = callback($this, 'edit');
@@ -155,9 +156,9 @@ class FakturaPresenter extends AdminbasePresenter
      * Formular pro editaci faktury
      * @return FakturaFormAlias
      */
-    public function createComponentEdit()
+    public function createComponentEdit(): FakturaFormAlias
     {
-        $form = new FakturaFormAlias();
+        $form = new FakturaFormAlias($this->osobaModel, $this->formaUhradyModel);
         $form->onSuccess[] = callback($this, 'edit');
         return $form;
     }
@@ -166,22 +167,22 @@ class FakturaPresenter extends AdminbasePresenter
      * @param int $id Identifikator faktury
      * @throws AbortException
      */
-    public function renderEdit($id)
+    public function renderEdit(int $id)
     {
         try {
             #$this->setView('../_edit');
-            //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
+            //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
             $v = $this->fakturaModel->fetch($id);
             $this->getTemplate()->title = $v['vs'];
             $this->getTemplate()->faktura = $id;
 
-            //	podminka pro zobrazeni polozek pro konkretni fakturu
-            $this->modelGridFakturaPolozka->where('faktura = ?', $id);
+            //podminka pro zobrazeni polozek pro konkretni fakturu
+            $this->fakturaPolozkaModel->fetchAllByIdFaktura($id);
 
-            //	odeberu idecko z pole
-            $v->offsetUnset('id');
+            //odeberu idecko z pole
+//            $v->offsetUnset('id');
 
-            //	upravene hodnoty odeslu do formulare
+            //upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
         } catch (BadRequestException $exc) {
             $this->flashMessage($exc->getMessage());
@@ -211,15 +212,16 @@ class FakturaPresenter extends AdminbasePresenter
     /**
      * Funkce generuje PDF soubor faktury
      * @param int $id identifikator faktury
+     * @throws AbortException
      */
-    public function actionGeneratePdf($id)
+    public function actionGeneratePdf(int $id)
     {
         try {
-            //	nactu si data
+            //nactu si data
             $faData = $this->fakturaModel->fetchWithName($id);
-            $faData->offsetSet('polozky', $this->fakturaPolozkaModel->fetchAllByIdFaktura($id));
+            $faPolozky = $this->fakturaPolozkaModel->fetchAllByIdFaktura($id);
 
-            $this['fa'] = new MojeFakturaControl($faData);
+            $this['fa'] = new MojeFakturaControl($faData, $faPolozky);
 
             include_once(__DIR__ . '/../../vendor/others/mpdf/mpdf.php');
 
@@ -234,7 +236,7 @@ class FakturaPresenter extends AdminbasePresenter
 
             #$this->redirectUrl(__DIR__ . '/../../../facka/'.$faData['vs'].'.pdf');
 
-            //	nastavim u faktury nazev PDF souboru
+            //nastavim u faktury nazev PDF souboru
             $arr = new \Nette\ArrayHash;
             $arr->offsetSet('pdf_soubor', $faData['pdf_soubor']);
 
@@ -281,7 +283,7 @@ class FakturaPresenter extends AdminbasePresenter
                 $items[] = new ItemImpl($item['nazev'], $item['pocet_polozek'], $item['cena'], TaxImpl::fromPercent($item['procent']));
             endforeach;
 
-            /* 		$items = array(
+            /* $items = array(
               new ItemImpl('Testing item - from percent', 1, 900, TaxImpl::fromPercent(22)),
               new ItemImpl('Testing item - from lower decimal', 1, 900, TaxImpl::fromLowerDecimal(0.22)),
               new ItemImpl('Testing item - from upper decimal', 1, 900, TaxImpl::fromUpperDecimal(1.22)),
@@ -316,8 +318,10 @@ class FakturaPresenter extends AdminbasePresenter
     /**
      * Cast DROP
      * @param int $id Identifikator polozky
+     * @throws AbortException
+     * @throws DibiException
      */
-    public function actionDrop($id)
+    public function actionDrop(int $id)
     {
         try {
             $this->fakturaModel->remove($id);
@@ -326,10 +330,9 @@ class FakturaPresenter extends AdminbasePresenter
         } catch (InvalidArgumentException $exc) {
             Debugger::log($exc->getMessage());
             $this->flashMessage($exc->getMessage());
-            $this->redirect('Faktura:default'); //	change it !!!
+            $this->redirect('Faktura:default'); //change it !!!
         }
 
     }
 
 }
-

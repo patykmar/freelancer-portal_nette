@@ -2,35 +2,40 @@
 
 namespace App\Model;
 
-use dibi;
+use Nette\Database\Connection;
+use Nette\Database\Context;
 
 /**
  * Description of FakturaPolozkaModel
  *
  * @author Martin Patyk
  */
-final class FakturaPolozkaModel extends BaseModel
+final class FakturaPolozkaModel extends BaseNDbModel
 {
-    /** @var string nazev tabulky */
-    protected $name = 'faktura_polozka';
+    public const TABLE_NAME = 'faktura_polozka';
+    private $connection;
 
-    public function fetchAllByIdFaktura($id)
+    public function __construct(Context $context, Connection $connection)
     {
-        return dibi::select('[faktura_polozka].[nazev]')
-            ->select('dodatek')
-            ->select('cena')
-            ->select('sleva')
-            ->select('([faktura_polozka].[pocet_polozek] * [faktura_polozka].[koeficient_cena])')->as('pocet_polozek')
-            ->select('[dph].[procent]')->as('[dph]')
-            ->select('[jednotka].[zkratka]')->as('[jednotka]')
-            ->select('([faktura_polozka].[cena] * [faktura_polozka].[pocet_polozek] * [faktura_polozka].[koeficient_cena] * (1-(sleva*0.01)))')->as('[cena_celkem]')
-            ->select('faktura_polozka_css.nazev')->as('cssclass')
-            ->from('%n', $this->name)
-            ->leftJoin('[dph]')->on('[faktura_polozka].[dph] = [dph].[id]')
-            ->leftJoin('[jednotka]')->on('[faktura_polozka].[jednotka] = [jednotka].[id]')
-            ->leftJoin('[faktura_polozka_css]')->on('[faktura_polozka].[cssclass] = [faktura_polozka_css].[id]')
-            ->where('faktura = %i', $id)
-            ->orderBy('[faktura_polozka].[id]')
-            ->fetchAll();
+        parent::__construct(self::TABLE_NAME, $context);
+        $this->connection = $connection;
     }
+
+    public function fetchAllByIdFaktura($id): array
+    {
+        $query = "SELECT " .
+            "faktura_polozka.nazev, dodatek, cena, sleva, dph.procent AS dph, jednotka.zkratka AS jednotka, " .
+            "(faktura_polozka.pocet_polozek * faktura_polozka.koeficient_cena) AS pocet_polozek, " .
+            "(faktura_polozka.cena * faktura_polozka.pocet_polozek * faktura_polozka.koeficient_cena * (1-(sleva*0.01))) AS cena_celkem, " .
+            "faktura_polozka_css.nazev AS cssclass " .
+            "FROM " . self::TABLE_NAME . " " .
+            "LEFT JOIN dph ON faktura_polozka.dph = dph.id " .
+            "LEFT JOIN jednotka ON faktura_polozka.jednotka = jednotka.id " .
+            "LEFT JOIN faktura_polozka_css ON faktura_polozka.cssclass = faktura_polozka_css.id " .
+            "WHERE faktura = ? " .
+            "ORDER BY faktura = faktura_polozka.id ";
+
+        return $this->connection->query($query, $id)->fetchAll();
+    }
+
 }

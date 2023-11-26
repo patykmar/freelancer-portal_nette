@@ -2,26 +2,22 @@
 
 namespace App\Model;
 
-use dibi;
-use DibiException;
+use Nette\Database\Context;
 
 /**
  * Description of TimeZoneModel
  *
  * @author Martin Patyk
  */
-final class TimeZoneModel extends BaseModel
+final class TimeZoneModel extends BaseNDbModel
 {
-    /** @var string nazev tabulky */
-    protected $name = 'time_zone';
+    use FetchPairsTrait;
 
-    /**
-     * Vrati nazev a primarni klic v paru k pouziti nacteni cizich klicu ve formulari
-     * @return string
-     * @throws DibiException
-     */
-    public static function fetchPairs()
+    public const TABLE_NAME = 'time_zone';
+
+    public function __construct(Context $context)
     {
-        return dibi::fetchPairs('SELECT [id], [nazev] FROM [time_zone] ORDER BY [nazev]');
+        parent::__construct(self::TABLE_NAME, $context);
     }
+
 }

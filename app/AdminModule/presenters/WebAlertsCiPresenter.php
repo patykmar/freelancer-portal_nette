@@ -15,7 +15,7 @@ use App\Form\Admin\Add\OdCiForm as AddOdCiForm;
 use App\Form\Admin\Edit\OdCiForm as EditOdCiForm;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
-use Nette\Diagnostics\Debugger;
+use Tracy\Debugger;
 use Nette\InvalidArgumentException;
 
 class WebAlertsCiPresenter extends AdminbasePresenter
@@ -89,7 +89,7 @@ class WebAlertsCiPresenter extends AdminbasePresenter
             $v = $this->odCiModel->fetch($id);
 
             //	odeberu idecko z pole
-            $v->offsetUnset('id');
+//            $v->offsetUnset('id');
 
             //	upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
