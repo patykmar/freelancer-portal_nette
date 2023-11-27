@@ -9,6 +9,7 @@
 namespace App\AdminModule\Presenters;
 
 use App\Components\MojeFaktura\MojeFakturaControl;
+use App\Config\AppParameterService;
 use App\Form\Admin\Add\FakturaForm;
 use App\Form\Admin\Add\SelectOdberatelDodavatelForm;
 use App\Grids\Admin\FakturaGrid;
@@ -19,7 +20,6 @@ use App\Model\FirmaModel;
 use App\Form\Admin\Edit\FakturaForm as FakturaFormAlias;
 use App\Model\FormaUhradyModel;
 use App\Model\OsobaModel;
-use DibiException;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Database\Context;
@@ -42,6 +42,7 @@ class FakturaPresenter extends AdminbasePresenter
     private $fakturaContext;
     private $osobaModel;
     private $formaUhradyModel;
+    private $appParameterService;
 
     public function __construct(
         FakturaModel        $fakturaModel,
@@ -49,7 +50,8 @@ class FakturaPresenter extends AdminbasePresenter
         FirmaModel          $modelFirma,
         Context             $fakturaContext,
         OsobaModel          $osobaModel,
-        FormaUhradyModel    $formaUhradyModel
+        FormaUhradyModel    $formaUhradyModel,
+        AppParameterService $appParameterService
     )
     {
         parent::__construct();
@@ -59,6 +61,12 @@ class FakturaPresenter extends AdminbasePresenter
         $this->fakturaContext = $fakturaContext;
         $this->osobaModel = $osobaModel;
         $this->formaUhradyModel = $formaUhradyModel;
+        $this->appParameterService = $appParameterService;
+    }
+
+    public function getAppParameterService(): AppParameterService
+    {
+        return $this->appParameterService;
     }
 
     /*************************************** DEFINE GRIDS **************************************/

@@ -11,46 +11,52 @@ parameters:
         host:
         port: 993
         ssl: true
+    email:
+        receiver: portal@patyk.cz
 
 php:
-	date.timezone: Europe/Prague
+    date.timezone: Europe/Prague
 
 application:
-	errorPresenter: Error
-	mapping:
-		*: App\*Module\Presenters\*Presenter
+    errorPresenter: Error
+    mapping:
+        *: App\*Module\Presenters\*Presenter
 session:
-		expiration: 14 days
+        expiration: 14 days
 
 services:
-	- App\Model\ChangeStavModel
-	- App\Model\CiModel
-	- App\Model\CiLogModel
-	- App\Model\FakturaModel
-	- App\Model\FakturaPolozkaModel
-	- App\Model\FirmaModel
-	- App\Model\FormatDatumModel
-	- App\Model\FormaUhradyModel
-	- App\Model\FrontaModel
-	- App\Model\FrontaOsobaModel
-	- App\Model\IncidentStavModel
-	- App\Model\IncidentModel
-	- App\Model\IncidentLogModel
-	- App\Model\OdCiModel
-	- App\Model\OvlivneniModel
-	- App\Model\OsobaModel
-	- App\Model\PrioritaModel
-	- App\Model\SlaModel
-	- App\Model\StavCiModel
-	- App\Model\TarifModel
-	- App\Model\TimeZoneModel
-	- App\Model\TypChangeModel
-	- App\Model\TypIncidentModel
-	- App\Model\TypOsobyModel
-	- App\Model\UkonModel
-	- App\Model\UserManager
-	- App\Model\ZemeModel
-	- App\Model\ZpusobUzavreniModel
-	- App\Factory\ImapDriverFactory(%imapDriver.user%, %imapDriver.password%, %imapDriver.host%, %imapDriver.port%, %imapDriver.ssl%)
-	- App\Factory\ConnectionFactory
-	router: App\RouterFactory::createRouter
+    - App\Components\SendMailService
+    - App\Model\ChangeStavModel
+    - App\Model\CiModel
+    - App\Model\CiLogModel
+    - App\Model\FakturaModel
+    - App\Model\FakturaPolozkaModel
+    - App\Model\FirmaModel
+    - App\Model\FormatDatumModel
+    - App\Model\FormaUhradyModel
+    - App\Model\FrontaModel
+    - App\Model\FrontaOsobaModel
+    - App\Model\IncidentStavModel
+    - App\Model\IncidentModel
+    - App\Model\IncidentLogModel
+    - App\Model\OdCiModel
+    - App\Model\OvlivneniModel
+    - App\Model\OsobaModel
+    - App\Model\PrioritaModel
+    - App\Model\SlaModel
+    - App\Model\StavCiModel
+    - App\Model\TarifModel
+    - App\Model\TimeZoneModel
+    - App\Model\TypChangeModel
+    - App\Model\TypIncidentModel
+    - App\Model\TypOsobyModel
+    - App\Model\UkonModel
+    - App\Model\UserManager
+    - App\Model\ZemeModel
+    - App\Model\ZpusobUzavreniModel
+    - App\Config\AppParameterService(%wwwDir%)
+    - App\Factory\ImapDriverFactory(%imapDriver.user%, %imapDriver.password%, %imapDriver.host%, %imapDriver.port%, %imapDriver.ssl%)
+    - App\Factory\ConnectionFactory
+    - App\Factory\SmtpMailerFactory(%sendMail%, %email.receiver%)
+    - Nette\Latte\Engine
+    router: App\RouterFactory::createRouter

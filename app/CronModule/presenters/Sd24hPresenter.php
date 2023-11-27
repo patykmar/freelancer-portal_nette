@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * Virtualni Service Desk prostredi
  *
@@ -9,43 +8,32 @@
 
 namespace App\CronModule;
 
-use greeny\MailLibrary;
-use greeny\MailLibrary\Drivers\ImapDriver;
+use App\Components\SendMailService;
+use App\Model\IncidentModel;
+use Nette\Application\AbortException;
+use Nette\Application\UI\InvalidLinkException;
 use Nette\ArrayHash;
-use Nette\Database\Table\Selection;
-use Nette\Utils\Strings;
-use App\Model;
 
 class Sd24hPresenter extends CronBasePresenter
 {
-    /** @var ImapDriver */
-    private $driver;
+    private const IDENTITY_SD24 = 8;
+    private const INCIDENT_STAV_UZAVREN = 5;
+    private const INCIDENT_STAV_CEKAM_NA_VYJADRENI_ZAKAZNIKA = 6;
+    private $incidentModel;
+    private $sendMailService;
 
-    /** @var Selection databaze tasku k incidentu */
-    private $modelIncident;
-
-    /** @var int identifikator identiy uzivatele */
-    private $identity;
-
-    public function __construct()
+    public function __construct(IncidentModel $incidentModel, SendMailService $sendMailService)
     {
         parent::__construct();
-
-        #$this->driver = new MailLibrary\Drivers\ImapDriver('webalerts@patyk.cz', 'Zu7tp0ic32vSeiUa8DUt', 'mail.patyk.cz', 143, FALSE);
-        #$this->modelIncident = $this->context->database->context->table('incident');
-        $this->modelIncident = new Model\IncidentModel;
-
-        //	fronta-osoba, TIER1-SD24
-        #$this->identity = 2;
-        // SD24H
-        $this->identity = 8;
+        $this->incidentModel = $incidentModel;
+        $this->sendMailService = $sendMailService;
     }
-
 
     /**
      * Funkce ve ktere se zaviraji tikety podle ruznych scenaru
+     * @throws AbortException
      */
-    public function actionZaviraniTiketu()
+    public function actionZaviraniTiketu(): void
     {
         $this->zavriTiketyVytvoreneSystemem();
         $this->zavriUkoloveTikety();
@@ -54,7 +42,7 @@ class Sd24hPresenter extends CronBasePresenter
         //aktualne neposilej maily
         //$this->odesliVyzvyKeZpetneVazbe();
 
-        //	hotovo dvacet vybavene :)
+        // hotovo dvacet vybavene :)
         $this->terminate();
     }
 
@@ -63,20 +51,17 @@ class Sd24hPresenter extends CronBasePresenter
      */
     public function zavriTiketyVytvoreneSystemem()
     {
-        $model = $this->modelIncident->fetchFactory();
-        $model->leftJoin('osoba')->on('[incident].[osoba_vytvoril] = [osoba].[id]')
-            ->where('incident_stav = %i', 6)    // cekam na vyjadreni zakaznika
-            ->and('typ_osoby')->in('(3)'); // tikety co vytvoril system
+        $tickets = $this->incidentModel->retrieveAllTicketForWaitingFeedback();
 
-        foreach ($model->fetchAll() as $item) {
+        foreach ($tickets as $item) {
             $update = new ArrayHash;
-            $update->offsetSet('incident_stav', 5);  // nastaven stav uzavreno
-            $update->offsetSet('identity', $this->identity); // identita uzivattele
-            $update->offsetSet('odezva_cekam', NULL); // neumoznim odeslat feedback
-            $this->modelIncident->update($update, $item['id']);
+            $update->offsetSet('incident_stav', self::INCIDENT_STAV_UZAVREN);  // nastaven stav uzavreno
+            $update->offsetSet('identity', self::IDENTITY_SD24); // identita uzivattele
+            $update->offsetSet('odezva_cekam', null); // neumoznim odeslat feedback
+            $this->incidentModel->update($update, $item['id']);
             unset($update);
         }
-        unset($model);
+        unset($tickets);
     }
 
     /**
@@ -85,42 +70,36 @@ class Sd24hPresenter extends CronBasePresenter
      */
     public function zavriTiketyStarsi14Dni()
     {
-        $model = $this->modelIncident->fetchFactory();
-        $model->leftJoin('osoba')
-            ->on('[incident].[osoba_vytvoril] = [osoba].[id]')
-            ->where('incident_stav = %i', 6)    // cekam na vyjadreni zakaznika
-            ->and('DATEDIFF(now(),datum_uzavreni) > %i', 5); //	tikety co jsou starsi 14 dni
+        $tickets = $this->incidentModel->closeAllTicketAfter14DaysWithNoFeedBack();
 
-        foreach ($model->fetchAll() as $item) {
+        foreach ($tickets as $item) {
             $update = new ArrayHash;
-            $update->offsetSet('incident_stav', 5);  // nastaven stav uzavreno
-            $update->offsetSet('identity', $this->identity); // identita uzivattele
-            $update->offsetSet('odezva_cekam', FALSE); // neumoznim odeslat feedback
-            $this->modelIncident->update($update, $item['id']);
+            $update->offsetSet('incident_stav', self::INCIDENT_STAV_UZAVREN);  // nastaven stav uzavreno
+            $update->offsetSet('identity', self::IDENTITY_SD24); // identita uzivattele
+            $update->offsetSet('odezva_cekam', false); // neumoznim odeslat feedback
+            $this->incidentModel->update($update, $item['id']);
             unset($update);
         }
-        unset($model);
+        unset($tickets);
     }
 
     /**
      * K ukolum neni potreba posilat zpetnou vazbu
      */
-    public function zavriUkoloveTikety()
+    public function zavriUkoloveTikety(): void
     {
-        $model = $this->modelIncident->fetchFactory();
-        $model->where('incident_stav = %i', 6) // cekam na vyjadreni zakaznika
         /*
          * do budoucna muze byt problem s tim ze to bude zavirat i incidenty pricleneny
          * k problemu, nebo change az se dodela change a problem management
          */
-        ->and('incident')->isNot(NULL); // tikety co maji predka -> ukoly
+        $subTickets = $this->incidentModel->retrieveAllSubTickets();
 
-        foreach ($model->fetchAll() as $item) {
+        foreach ($subTickets as $item) {
             $update = new ArrayHash;
-            $update->offsetSet('incident_stav', 5);  // nastaven stav uzavreno
-            $update->offsetSet('identity', $this->identity); // identita uzivattele
-            $update->offsetSet('odezva_cekam', FALSE); // neumoznim odeslat feedback
-            $this->modelIncident->update($update, $item['id']);
+            $update->offsetSet('incident_stav', self::INCIDENT_STAV_UZAVREN);
+            $update->offsetSet('identity', self::IDENTITY_SD24);
+            $update->offsetSet('odezva_cekam', false); // neumoznim odeslat feedback
+            $this->incidentModel->update($update, $item['id']);
             unset($update);
         }
         unset($model);
@@ -131,11 +110,11 @@ class Sd24hPresenter extends CronBasePresenter
      * Nactu si tikety ktere cekaji na zpetnou vazbu a pokud nebyl mail jeste
      * odeslan tak cloveku ktery vytvoril tiket posli mail s moznosti se vyjadrit.
      * U techto tiketu zmenim polozku odezva_odeslan_pozadavek na true.
+     * @throws InvalidLinkException
      */
     public function odesliVyzvyKeZpetneVazbe()
     {
-        $mail = new \SendMail\SendMailControler();
-        $model = $this->modelIncident->fetchFactory();
+        $model = $this->incidentModel->fetchFactory();
         $model->select('CONCAT([typ_incident].[zkratka],[incident].[id])')->as('idTxt')
             ->select('maly_popis, incident.obsah, obsah_uzavreni')
             ->select('incident.datum_ukonceni, incident.datum_vytvoreni')
@@ -149,34 +128,34 @@ class Sd24hPresenter extends CronBasePresenter
             ->innerJoin('zpusob_uzavreni')->on('[incident].[zpusob_uzavreni] = [zpusob_uzavreni].[id]')
             ->innerJoin('ci')->on('[incident].[ci] = [ci].[id]')
             ->innerJoin('firma')->on('[ci].[firma] = [firma].[id]')
-            ->where('incident_stav = %i', 6)  // tikety ve stavu cekajici na vyjadreni
-            ->and('odezva_cekam = %b', TRUE) // tikety kde se ceka na odezvu
-            ->and('odezva_odeslan_pozadavek')->is(NULL) // tikety kde se nebyla jeste odeslan pozadavek na feedback
-            ->and('incident')->is(NULL) // tikety ktere nemaji predka
+            ->where('incident_stav = %i', self::INCIDENT_STAV_CEKAM_NA_VYJADRENI_ZAKAZNIKA)  // tikety ve stavu cekajici na vyjadreni
+            ->and('odezva_cekam = %b', true) // tikety kde se ceka na odezvu
+            ->and('odezva_odeslan_pozadavek')->is(null) // tikety kde se nebyla jeste odeslan pozadavek na feedback
+            ->and('incident')->is(null) // tikety ktere nemaji predka
             ->and('typ_osoby')->notIn('(3)');  // maily neposilam na systemove emaily
 
 
-        //	zapnu absolutni URL z duvodu potreby vegenerovani URL do mailu
-        $this->absoluteUrls = TRUE;
+        // zapnu absolutni URL z duvodu potreby vegenerovani URL do mailu
+        $this->absoluteUrls = true;
         foreach ($model->fetchAll() as $value) {
 
-            //	vlozim URL k odkazum na vyjadreni zpetne vazby
+            // vlozim URL k odkazum na vyjadreni zpetne vazby
             $value->offsetSet('positiveLink', $this->link(':Front:FeedBack:Positive', $value['id']));
             $value->offsetSet('negativeLink', $this->link(':Front:FeedBack:Negative', $value['id']));
 
             // odeslu mail
-            $mail->odesliPozadavekNaZpetnoutVazbu($value);
+            $this->sendMailService->odesliPozadavekNaZpetnoutVazbu($value);
 
             // nastavim hodnotu v DB ze byl odeslan pozadavek
             $change = new ArrayHash;
-            $change->offsetSet('odezva_odeslan_pozadavek', TRUE);
-            $this->modelIncident->update($change, $value['id']);
+            $change->offsetSet('odezva_odeslan_pozadavek', true);
+            $this->incidentModel->update($change, $value['id']);
 
             unset($change);
         }
 
-        //	vypnu absolutni URL
-        $this->absoluteUrls = FALSE;
+        // vypnu absolutni URL
+        $this->absoluteUrls = false;
 
 //        dump($Model->fetchAll());
 //        dump($Model->fetchAssoc('email,id'));

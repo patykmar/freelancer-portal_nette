@@ -77,7 +77,8 @@ class FakturaForm extends UIForm
         //Obrana před Cross-Site Request Forgery (CSRF)
         $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
         //Tlacitko odeslat
-        $this->addSubmit('btSbmt', 'Ulož');
+        $this->addSubmit('btSbmt', 'Ulož')
+            ->setHtmlAttribute('class', 'btn btn-success');
         return $this;
     }
 }

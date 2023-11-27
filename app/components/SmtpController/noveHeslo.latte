@@ -1,0 +1,26 @@
+<style type="text/css" lang="cs">
+    body{
+        font-family: Arial, sans-serif;
+    }
+</style>
+
+{*	Informační systém sedko.cz nový zákazník	*}
+<h1>Informační systém portal.patyk.cz</h1>
+
+{*	Ahoj,
+	Chcete-li zadat informační systém sedko.cz využít tyto údaje	*}
+<p>
+    Dobrý den, <br />
+    na základě Vašeho požadavku bylo vygenerováno nove heslo.
+</p>
+
+<table>
+    <tr>{*	Uživatel číslo	*}
+        <th style="text-align: right">Uživatelské jméno:</th>
+        <td>{$items->email}</td>
+    </tr>
+    <tr>{*	heslo	*}
+        <th style="text-align: right">Vaše nové heslo:</th>
+        <td>{$items->password}</td>
+    </tr>
+</table>

@@ -1,0 +1,84 @@
+<style type="text/css" lang="cs">
+    body{
+        font-family: Arial, sans-serif;
+        font-size: 11pt;
+    }
+    table tr th{
+        vertical-align: top;
+    }
+    .maly_popis{
+        font-weight: bold;
+    }
+    .obsah{
+        font-family: Courier New, Courier;
+    }
+    #feedBackQuestion{
+        font-weight: bold;
+    }
+    #feedBackLikns a{
+        font-size: 200%;
+    }
+</style>
+
+{*	Informační systém sedko.cz nový zákazník	*}
+<h1>Informační systém portal.patyk.cz - Tiket {$items['idTxt']} byl vyřešen</h1>
+
+<p>
+    Dobrý den, <br />
+    tiket evidovaný pod číslem <strong>{$items['idTxt']}</strong> byl vyřešen.
+    Pokud nesouhlasíte s řešením tohoto tiketu, předejte nám Váš názor pomocí
+    formuláře. Tiket bude poté znova otevřen a přiřazený specialistovi.
+</p>
+
+<p>
+    Na e-mail není nutné reagovat po uplynutí 5 dní se tiket
+    <strong>{$items['idTxt']}</strong> uzavře automaticky.
+</p>
+
+<div id="tiket">
+
+    <h2>Zadání tiketu</h2>
+
+    <div class="maly_popis">{$items['maly_popis']}</div>
+    <pre class="obsah">{$items['obsah']}</pre>
+
+    <h2>Informace z tiketu</h2>
+
+    <table>
+        <tr>
+            <th style="text-align: right">Tiket číslo:</th>
+            <td>{$items['idTxt']}</td>
+        </tr>
+        <tr>
+            <th style="text-align: right">Zákaznik:</th>
+            <td>{$items['firma']}</td>
+        </tr>
+        <tr>
+            <th style="text-align: right">Produkt:</th>
+            <td>{$items['ci']}</td>
+        </tr>
+        <tr>
+            <th style="text-align: right">Datum vytvoření:</th>
+            <td>{$items['datum_vytvoreni']|date:'j. n. Y H:i:s'}</td>
+        </tr>
+        <tr>
+            <th style="text-align: right">Datum ukončení:</th>
+            <td>{$items['datum_ukonceni']|date:'j. n. Y H:i:s'}</td>
+        </tr>
+        <tr>
+            <th style="text-align: right">Způsob uzavření:</th>
+            <td>{$items['zpusob_uzavreni']}</td>
+        </tr>
+        <tr>
+            <th style="text-align: right">Obsah uzavření:</th>
+            <td><pre>{$items['obsah_uzavreni']}</pre></td>
+        </tr>
+    </table>
+
+    <p id="feedBackQuestion">Souhlasíte s řešením tiketu {$items['idTxt']}?</p>
+
+    <div id="feedBackLikns">
+        <a href="{$items['positiveLink']}">ANO</a> | <a href="{$items['negativeLink']}">NE</a>
+    </div>
+    <small>E-mail je vygenerovan automaticky. Neodpovidejte na nej.</small>
+</div>

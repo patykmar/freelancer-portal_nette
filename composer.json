@@ -1,21 +1,7 @@
 {
-    "name": "nette/sandbox",
-    "description": "The sandbox is a pre-packaged Nette Framework project, basic configured structure for your application.",
-    "homepage": "http://nette.org",
+    "description": "Application portal based on nette framework",
     "type": "project",
-    "license": [
-        "Unlicense"
-    ],
-    "authors": [
-        {
-            "name": "David Grudl",
-            "homepage": "http://davidgrudl.com"
-        },
-        {
-            "name": "Nette Community",
-            "homepage": "http://nette.org/contributors"
-        }
-    ],
+    "license": "MIT",
     "require": {
         "php": ">= 7.1",
         "nette/application": "v2.3.*",
@@ -33,13 +19,9 @@
         "nette/utils": "v2.3.*",
         "latte/latte": "v2.3.*",
         "tracy/tracy": "v2.3.*",
-        "dg/adminer-custom": "~1.5",
         "greeny/maillibrary": "^3.2",
         "mpdf/mpdf": "v5.7.1",
-        "voda/date-input": "v1.0.8",
-        "janmarek/webloader": "v2.5.0",
         "texy/texy": "v2.3",
-        "natxet/cssmin": "v3.0.6",
         "miloslavkostir/datagrid": "v2.0.2",
         "ondrejbrejla/eciovni": "1.1"
     },

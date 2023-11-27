@@ -8,7 +8,7 @@
     <table>
         <tr>
             <td colspan="4" style="text-align: right">
-                <a n:href="Faktura:GeneratePdf, $faktura">Generuj PDF</a>
+                <a  type="button" class="btn btn-info" n:href="Faktura:GeneratePdf, $faktura">Generuj PDF</a>
                 {input btSbmt}
             </td>
         </tr>
@@ -100,6 +100,6 @@
 {control gridPolozkyFaktury}
 
 <p>
-    <a n:href="FakturaPolozka:add, $faktura">Přidej nový záznam</a>
+    <a  type="button" class="btn btn-success" n:href="FakturaPolozka:add, $faktura">Přidej nový záznam</a>
 </p>
 
