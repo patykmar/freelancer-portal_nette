@@ -31,22 +31,11 @@ use SendMail\SendMailControler;
 
 class OsobaPresenter extends AdminbasePresenter
 {
-    /** @var OsobaModel */
     private $osobaModel;
-
-    /** @var Context */
     private $osobaContext;
-
-    /** @var TypOsobyModel $typOsobyModel */
     private $typOsobyModel;
-
-    /** @var FirmaModel $firmaModel */
     private $firmaModel;
-
-    /** @var TimeZoneModel $timeZoneModel */
     private $timeZoneModel;
-
-    /** @var FormatDatumModel $formatDatumModel */
     private $formatDatumModel;
 
     public function __construct(
@@ -65,6 +54,7 @@ class OsobaPresenter extends AdminbasePresenter
         $this->firmaModel = $firmaModel;
         $this->timeZoneModel = $timeZoneModel;
         $this->formatDatumModel = $formatDatumModel;
+
     }
 
     /**

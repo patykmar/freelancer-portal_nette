@@ -10,9 +10,9 @@ namespace App\AdminModule\Presenters;
 
 use App\Grids\Admin\OdCiGrid;
 use App\Model\OdCiModel;
-use DibiException;
 use App\Form\Admin\Add\OdCiForm as AddOdCiForm;
 use App\Form\Admin\Edit\OdCiForm as EditOdCiForm;
+use Exception;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
 use Tracy\Debugger;
@@ -20,10 +20,7 @@ use Nette\InvalidArgumentException;
 
 class WebAlertsCiPresenter extends AdminbasePresenter
 {
-    /** @var OdCiModel */
     private $odCiModel;
-
-    /** @var Context */
     private $odCiContext;
 
     public function __construct(OdCiModel $odCiModel, Context $odCiContext)
@@ -35,7 +32,7 @@ class WebAlertsCiPresenter extends AdminbasePresenter
 
     /*************************************** PART DEFINE GRIDS **************************************/
 
-    protected function createComponentGrid()
+    protected function createComponentGrid(): OdCiGrid
     {
         return new OdCiGrid($this->odCiContext->table('od_ci'));
     }
@@ -52,7 +49,7 @@ class WebAlertsCiPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd()
+    public function createComponentAdd(): AddOdCiForm
     {
         $form = new AddOdCiForm();
         $form->onSuccess[] = callback($this, 'add');
@@ -67,7 +64,7 @@ class WebAlertsCiPresenter extends AdminbasePresenter
         try {
             $v = $form->getValues();
             $this->odCiModel->insert($v);
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
         }
@@ -81,17 +78,17 @@ class WebAlertsCiPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function renderEdit($id)
+    public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
-            //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
+            // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
             $v = $this->odCiModel->fetch($id);
 
-            //	odeberu idecko z pole
+            // odeberu idecko z pole
 //            $v->offsetUnset('id');
 
-            //	upravene hodnoty odeslu do formulare
+            // upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
@@ -99,7 +96,7 @@ class WebAlertsCiPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit()
+    public function createComponentEdit(): EditOdCiForm
     {
         $form = new EditOdCiForm();
         $form->onSuccess[] = callback($this, 'edit');
@@ -114,7 +111,7 @@ class WebAlertsCiPresenter extends AdminbasePresenter
         try {
             $v = $form->getValues();
             $this->odCiModel->update($v['new'], $v['id']);
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
         }
@@ -132,15 +129,15 @@ class WebAlertsCiPresenter extends AdminbasePresenter
     {
         try {
             $this->odCiModel->fetch($id);
-            $this->odCiModel->remove($id);
+            $this->odCiModel->removeItem($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
-            $this->redirect('WebAlertsCi:default');    //	change it !!!
+            $this->redirect('WebAlertsCi:default');    // change it !!!
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
-            $this->redirect('WebAlertsCi:default');    //	change it !!!
-        } catch (DibiException $exc) {
+            $this->redirect('WebAlertsCi:default');    // change it !!!
+        } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
-            $this->redirect('WebAlertsCi:default');    //	change it !!!
+            $this->redirect('WebAlertsCi:default');    // change it !!!
         }
     }
 }

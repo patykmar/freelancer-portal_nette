@@ -21,6 +21,8 @@ final class IncidentModel extends BaseNDbModel
 {
     public const TABLE_NAME = 'incident';
     private const INCIDENT_STAV_UZAVREN = 5;
+    private const INCIDENT_STAV_CEKAM_NA_VYJADRENI_ZAKAZNIKA = 6;
+    private const TYP_OSOBY_SYSTEM = 3;
     private const OSOBA_SS = 9;
 
     private $connection;
@@ -601,6 +603,9 @@ final class IncidentModel extends BaseNDbModel
         }
     }
 
+    /**
+     * @return array
+     */
     public function retrieveAllTicketWhichAreInStateOpenAndReOpened(): array
     {
         $query = "ci.fronta_tier_2, fronta_osoba.id AS fronta_osoba_id " .
@@ -611,5 +616,40 @@ final class IncidentModel extends BaseNDbModel
             "AND fronta_osoba.osoba = ?";
 
         return $this->connection->query($query, self::OSOBA_SS)->fetchAll();
+    }
+
+    /**
+     * @return array
+     */
+    public function closeAllTicketAfter14DaysWithNoFeedBack(): array
+    {
+        return $this->explorer->table(self::TABLE_NAME)
+            ->where('incident.osoba_vytvoril = osoba.id')
+            ->where('incident_stav', self::INCIDENT_STAV_CEKAM_NA_VYJADRENI_ZAKAZNIKA)
+            ->where('DATEDIFF(now(),datum_uzavreni) > ?', 5)
+            ->fetchAll();
+    }
+
+    /**
+     * @return array
+     */
+    public function retrieveAllTicketForWaitingFeedback(): array
+    {
+        return $this->explorer->table(self::TABLE_NAME)
+            ->where('incident.osoba_vytvoril = osoba.id')
+            ->where('incident_stav', self::INCIDENT_STAV_CEKAM_NA_VYJADRENI_ZAKAZNIKA)
+            ->where('typ_osoby', self::TYP_OSOBY_SYSTEM)
+            ->fetchAll();
+    }
+
+    /**
+     * @return array|IRow[]
+     */
+    public function retrieveAllSubTickets(): array
+    {
+        return $this->explorer->table(self::TABLE_NAME)
+            ->where('incident_stav', self::INCIDENT_STAV_CEKAM_NA_VYJADRENI_ZAKAZNIKA)
+            ->where('incident IS NOT null')
+            ->fetchAll();
     }
 }

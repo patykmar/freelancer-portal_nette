@@ -9,7 +9,6 @@
 namespace App\AdminModule\Presenters;
 
 use App\Grids\Admin\FormatDatumGrid;
-use DibiException;
 use Exception;
 use App\Form\Admin\Add\FormatDatumForm as AddFormatDatumForm;
 use App\Form\Admin\Edit\FormatDatumForm as EditFormatDatumForm;
@@ -84,12 +83,12 @@ class FormatDatumPresenter extends AdminbasePresenter
     {
         try {
             $this->setView('../_edit');
-            //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
+            // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
             $v = $this->formatDatumModel->fetch($id);
 
-            //	odeberu idecko z pole
+            // odeberu idecko z pole
 //            $v->offsetUnset('id');
-            //	upravene hodnoty odeslu do formulare
+            // upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
@@ -129,14 +128,14 @@ class FormatDatumPresenter extends AdminbasePresenter
                 $this->formatDatumModel->fetch($id);
                 $this->formatDatumModel->remove($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
-                $this->redirect('FormatDatum:default');    //	change it !!!
+                $this->redirect('FormatDatum:default');    // change it !!!
             } catch (InvalidArgumentException $exc) {
                 $this->flashMessage($exc->getMessage());
-                $this->redirect('FormatDatum:default');    //	change it !!!
+                $this->redirect('FormatDatum:default');    // change it !!!
             }
         } catch (DibiException $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
-            $this->redirect('FormatDatum:default');    //	change it !!!
+            $this->redirect('FormatDatum:default');    // change it !!!
         }
     }
 }
