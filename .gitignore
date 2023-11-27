@@ -5,7 +5,9 @@ log/*.log
 log/*.html
 temp/cache/
 temp/sessions/
+temp/*.dat
 vendor/
+app/config/*.local.neon
 
 www/adminer/
 www/webtemp/*.js
