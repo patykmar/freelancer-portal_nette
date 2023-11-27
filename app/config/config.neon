@@ -5,11 +5,15 @@
 # http://nette.org/security-warning
 #
 parameters:
-
+    imapDriver:
+        user:
+        password:
+        host:
+        port: 993
+        ssl: true
 
 php:
 	date.timezone: Europe/Prague
-
 
 application:
 	errorPresenter: Error
@@ -17,7 +21,6 @@ application:
 		*: App\*Module\Presenters\*Presenter
 session:
 		expiration: 14 days
-
 
 services:
 	- App\Model\ChangeStavModel
@@ -48,4 +51,6 @@ services:
 	- App\Model\UserManager
 	- App\Model\ZemeModel
 	- App\Model\ZpusobUzavreniModel
+	- App\Factory\ImapDriverFactory(%imapDriver.user%, %imapDriver.password%, %imapDriver.host%, %imapDriver.port%, %imapDriver.ssl%)
+	- App\Factory\ConnectionFactory
 	router: App\RouterFactory::createRouter

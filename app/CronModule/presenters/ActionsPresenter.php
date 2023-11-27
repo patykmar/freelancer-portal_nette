@@ -8,13 +8,12 @@
 
 namespace App\CronModule;
 
+use App\Factory\ConnectionFactory;
 use App\Model\IncidentModel;
 use App\Model\OdCiModel;
-use greeny\MailLibrary\Connection;
 use greeny\MailLibrary\ConnectionException;
 use greeny\MailLibrary\ContactList;
 use greeny\MailLibrary\DriverException;
-use greeny\MailLibrary\Drivers\ImapDriver;
 use greeny\MailLibrary\InvalidFilterValueException;
 use greeny\MailLibrary\Mail;
 use Nette\Application\AbortException;
@@ -25,14 +24,16 @@ use Nette\Utils\Strings;
 
 class ActionsPresenter extends CronBasePresenter
 {
-    private $driver;
     private $ciModel;
+    private $connectionFactory;
+    private $incidentModel;
 
-    public function __construct(OdCiModel $ciModel)
+    public function __construct(OdCiModel $ciModel, ConnectionFactory $connectionFactory, IncidentModel $incidentModel)
     {
         parent::__construct();
-        $this->driver = new ImapDriver('webalerts@patyk.cz', 'Zu7tp0ic32vSeiUa8DUt', 'mail.patyk.cz', 143, FALSE);
         $this->ciModel = $ciModel;
+        $this->connectionFactory = $connectionFactory;
+        $this->incidentModel = $incidentModel;
     }
 
     /**
@@ -42,13 +43,13 @@ class ActionsPresenter extends CronBasePresenter
     public function actionWebalerts()
     {
         try {
-            $connection = new Connection($this->driver);
+            $connection = $this->connectionFactory->create();
             $inbox = $connection->getMailbox('INBOX');
 
             //vyberu jen neprectene maily
             $mails = $inbox->getMails()
                 ->limit(10)
-                ->where(Mail::SEEN, FALSE);
+                ->where(Mail::SEEN, false);
 
 
             /** @var Mail $mail */
@@ -90,18 +91,14 @@ class ActionsPresenter extends CronBasePresenter
                 //zapisu data do databaze
                 #$newTicketModel = new \Portal\Incident\Models\IncidentModel();
 
-                $newTicketModel = new IncidentModel();
-                $newTicketModel->insert($newTicketValues);
+                $this->incidentModel->insert($newTicketValues);
 
                 // nastavim mail jako precteny
-                $mail->setFlags(array(Mail::FLAG_SEEN => TRUE));
+                $mail->setFlags(array(Mail::FLAG_SEEN => true));
                 //odeslu operace na server
                 $connection->flush();
             }
-        } catch (InvalidFilterValueException $exc) {
-            Debugger::log($exc->getMessage(), Debugger::ERROR);
-            $this->terminate();
-        } catch (ConnectionException $exc) {
+        } catch (InvalidFilterValueException|ConnectionException $exc) {
             Debugger::log($exc->getMessage(), Debugger::ERROR);
             $this->terminate();
         }
