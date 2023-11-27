@@ -7,7 +7,6 @@ use Nette\Application\UI\Presenter;
 use Nette\Forms\Controls\CsrfProtection;
 use Nette\Forms\Controls\SelectBox;
 use Nette\Forms\Controls\SubmitButton;
-use Vodacek\Forms\Controls\DateInput;
 
 /**
  * Base presenter for all application presenters.
@@ -21,7 +20,6 @@ abstract class BasePresenter extends Presenter
         if ($this->getSession()->isStarted()) {
             $this->getSession()->start();
         }
-        DateInput::register();
     }
 
     /**
