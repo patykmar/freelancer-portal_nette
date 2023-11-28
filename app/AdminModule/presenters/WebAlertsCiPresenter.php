@@ -52,7 +52,7 @@ class WebAlertsCiPresenter extends AdminbasePresenter
     public function createComponentAdd(): AddOdCiForm
     {
         $form = new AddOdCiForm();
-        $form->onSuccess[] = callback($this, 'add');
+        $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
@@ -99,7 +99,7 @@ class WebAlertsCiPresenter extends AdminbasePresenter
     public function createComponentEdit(): EditOdCiForm
     {
         $form = new EditOdCiForm();
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 

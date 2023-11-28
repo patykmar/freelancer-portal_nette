@@ -10,7 +10,6 @@ namespace App\AdminModule\Presenters;
 
 use App\Grids\Admin\FirmaGrid;
 use App\Model\ZemeModel;
-use DibiException;
 use Exception;
 use App\Form\Admin\Add;
 use App\Form\Admin\Edit;
@@ -59,7 +58,7 @@ class FirmaPresenter extends AdminbasePresenter
     public function createComponentAdd(): Add\FirmaForm
     {
         $form = new Add\FirmaForm($this->zemeModel);
-        $form->onSuccess[] = callback($this, 'add');
+        $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
@@ -107,7 +106,7 @@ class FirmaPresenter extends AdminbasePresenter
     public function createComponentEdit(): Edit\FirmaForm
     {
         $form = new Edit\FirmaForm($this->zemeModel);
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
@@ -142,7 +141,7 @@ class FirmaPresenter extends AdminbasePresenter
                 $this->flashMessage($exc->getMessage());
                 $this->redirect('Firma:default'); // change it !!!
             }
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
             $this->redirect('Firmas:default');    //change it !!!
         }

@@ -58,5 +58,5 @@ services:
     - App\Factory\ImapDriverFactory(%imapDriver.user%, %imapDriver.password%, %imapDriver.host%, %imapDriver.port%, %imapDriver.ssl%)
     - App\Factory\ConnectionFactory
     - App\Factory\SmtpMailerFactory(%sendMail%, %email.receiver%)
-    - Nette\Latte\Engine
+    - Latte\Engine
     router: App\RouterFactory::createRouter

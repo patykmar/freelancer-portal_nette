@@ -114,7 +114,7 @@ class FakturaPresenter extends AdminbasePresenter
     public function createComponentAdd(): FakturaForm
     {
         $form = new FakturaForm;
-        $form->onSuccess[] = callback($this, 'add');
+        $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
@@ -146,7 +146,7 @@ class FakturaPresenter extends AdminbasePresenter
     public function createComponentOdberatelDodavatel(): SelectOdberatelDodavatelForm
     {
         $form = new SelectOdberatelDodavatelForm();
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
@@ -167,7 +167,7 @@ class FakturaPresenter extends AdminbasePresenter
     public function createComponentEdit(): FakturaFormAlias
     {
         $form = new FakturaFormAlias($this->osobaModel, $this->formaUhradyModel);
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
@@ -327,7 +327,6 @@ class FakturaPresenter extends AdminbasePresenter
      * Cast DROP
      * @param int $id Identifikator polozky
      * @throws AbortException
-     * @throws DibiException
      */
     public function actionDrop(int $id)
     {

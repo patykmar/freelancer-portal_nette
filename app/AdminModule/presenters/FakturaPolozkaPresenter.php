@@ -10,7 +10,6 @@ namespace App\AdminModule\Presenters;
 
 use App\Model\FakturaPolozkaModel;
 use App\Model\FakturaModel;
-use DibiException;
 use App\Model;
 use Exception;
 use App\Form\Admin\Add\FakturaPolozkaForm as AddFakturaPolozkaForm;
@@ -71,7 +70,7 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
     public function createComponentAdd()
     {
         $form = new AddFakturaPolozkaForm;
-        $form->onSuccess[] = callback($this, 'add');
+        $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
@@ -130,7 +129,7 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
     public function createComponentEdit()
     {
         $form = new EditFakturaPolozkaForm;
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
@@ -174,7 +173,7 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
                 $this->flashMessage($exc->getMessage());
                 $this->redirect('FakturaPolozka:default');
             }
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
             $this->redirect('FakturaPolozka:default');
         }

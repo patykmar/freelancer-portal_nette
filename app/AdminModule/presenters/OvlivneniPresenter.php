@@ -10,7 +10,6 @@ namespace App\AdminModule\Presenters;
 
 use App\Grids\Admin\OvlivneniGrid;
 use App\Model\OvlivneniModel;
-use DibiException;
 use Exception;
 use App\Form\Admin\Edit\OvlivneniForm;
 use Nette\Application\AbortException;
@@ -56,7 +55,7 @@ class OvlivneniPresenter extends AdminbasePresenter
     public function createComponentAdd()
     {
         $form = new OvlivneniForm();
-        $form->onSuccess[] = callback($this, 'add');
+        $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
@@ -104,7 +103,7 @@ class OvlivneniPresenter extends AdminbasePresenter
     public function createComponentEdit()
     {
         $form = new OvlivneniForm;
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
@@ -140,7 +139,7 @@ class OvlivneniPresenter extends AdminbasePresenter
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
             $this->redirect('Ovlivneni:default');    //	change it !!!
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
             $this->redirect('Ovlivneni:default');    //	change it !!!
         }

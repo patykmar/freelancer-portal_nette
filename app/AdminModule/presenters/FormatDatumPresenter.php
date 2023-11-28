@@ -57,7 +57,7 @@ class FormatDatumPresenter extends AdminbasePresenter
     public function createComponentAdd()
     {
         $form = new AddFormatDatumForm;
-        $form->onSuccess[] = callback($this, 'add');
+        $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
@@ -99,7 +99,7 @@ class FormatDatumPresenter extends AdminbasePresenter
     public function createComponentEdit()
     {
         $form = new EditFormatDatumForm;
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
@@ -133,7 +133,7 @@ class FormatDatumPresenter extends AdminbasePresenter
                 $this->flashMessage($exc->getMessage());
                 $this->redirect('FormatDatum:default');    // change it !!!
             }
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
             $this->redirect('FormatDatum:default');    // change it !!!
         }

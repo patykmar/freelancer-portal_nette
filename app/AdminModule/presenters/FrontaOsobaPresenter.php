@@ -10,7 +10,6 @@ namespace App\AdminModule\Presenters;
 
 use App\Model\FrontaModel;
 use App\Model\OsobaModel;
-use DibiException;
 use Exception;
 use Gridy\FrontaOsobaGrid;
 use App\Form\Admin\Add\FrontaOsobaForm as AddFrontaOsobaForm;
@@ -66,7 +65,7 @@ class FrontaOsobaPresenter extends AdminbasePresenter
     public function createComponentAdd(): AddFrontaOsobaForm
     {
         $form = new AddFrontaOsobaForm($this->frontaModel, $this->osobaModel);
-        $form->onSuccess[] = callback($this, 'add');
+        $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
@@ -112,7 +111,7 @@ class FrontaOsobaPresenter extends AdminbasePresenter
     public function createComponentEdit(): EditFrontaOsobaForm
     {
         $form = new EditFrontaOsobaForm($this->frontaModel, $this->osobaModel);
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
@@ -146,7 +145,7 @@ class FrontaOsobaPresenter extends AdminbasePresenter
                 $this->flashMessage($exc->getMessage());
                 $this->redirect('FrontaOsobaPresenter:default');    //change it !!!
             }
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
             $this->redirect('FrontaOsobaPresenter:default');    //change it !!!
         }

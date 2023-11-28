@@ -10,9 +10,9 @@ namespace App\AdminModule\Presenters;
 
 use App\Grids\Admin\UkonGrid;
 use App\Model\UkonModel;
-use DibiException;
 use App\Form\Admin\Edit\UkonForm as EditUkonForm;
 use App\Form\Admin\Add\UkonForm as AddUkonForm;
+use Exception;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
 use Tracy\Debugger;
@@ -20,10 +20,7 @@ use Nette\InvalidArgumentException;
 
 class UkonPresenter extends AdminbasePresenter
 {
-    /** @var UkonModel */
     private $model;
-
-    /** @var Context */
     private $netteModel;
 
     public function __construct(Context $context, UkonModel $ukonModel)
@@ -36,7 +33,7 @@ class UkonPresenter extends AdminbasePresenter
     /**
      * Cast DEFAULT, definice Gridu
      */
-    protected function createComponentGrid()
+    protected function createComponentGrid(): UkonGrid
     {
         return new UkonGrid($this->netteModel->table('ukon'));
     }
@@ -60,10 +57,10 @@ class UkonPresenter extends AdminbasePresenter
         );
     }
 
-    public function createComponentAdd()
+    public function createComponentAdd(): AddUkonForm
     {
         $form = new AddUkonForm;
-        $form->onSuccess[] = callback($this, 'add');
+        $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
@@ -75,7 +72,7 @@ class UkonPresenter extends AdminbasePresenter
         try {
             $v = $form->getValues();
             $this->model->insert($v);
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
         }
@@ -89,7 +86,7 @@ class UkonPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function renderEdit($id)
+    public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
@@ -107,10 +104,10 @@ class UkonPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit()
+    public function createComponentEdit(): EditUkonForm
     {
         $form = new EditUkonForm;
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
@@ -122,7 +119,7 @@ class UkonPresenter extends AdminbasePresenter
         try {
             $v = $form->getValues();
             $this->model->update($v['new'], $v['id']);
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
         }
@@ -135,17 +132,17 @@ class UkonPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function actionDrop($id)
+    public function actionDrop(int $id)
     {
         try {
             $this->model->fetch($id);
-            $this->model->remove($id);
+            $this->model->removeItem($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('Ukon:default'); //	change it !!!
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
             $this->redirect('Ukon:default'); //	change it !!!
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
             $this->redirect('Ukon:default'); //	change it !!!
         }

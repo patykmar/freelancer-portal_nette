@@ -9,7 +9,6 @@
 namespace App\AdminModule\Presenters;
 
 use App\Grids\FkGrid;
-use DibiException;
 use Exception;
 use App\Form\Admin\Add\FkBaseForm as AddFkBaseForm;
 use App\Form\Admin\Edit\FkBaseForm as EditFkBaseForm;
@@ -37,7 +36,7 @@ class FrontaPresenter extends AdminbasePresenter
     /**
      * Cast DEFAULT, definice Gridu
      */
-    protected function createComponentGrid()
+    protected function createComponentGrid(): FkGrid
     {
         return new FkGrid($this->frontaContext->table('fronta'));
     }
@@ -55,13 +54,16 @@ class FrontaPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd()
+    public function createComponentAdd(): AddFkBaseForm
     {
         $form = new AddFkBaseForm;
-        $form->onSuccess[] = callback($this, 'add');
+        $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
+    /**
+     * @throws AbortExceptionAlias
+     */
     public function add(AddFkBaseForm $form)
     {
         try {
@@ -80,17 +82,17 @@ class FrontaPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortExceptionAlias
      */
-    public function renderEdit($id)
+    public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
-            //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
+            // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
             $v = $this->frontaModel->fetch($id);
 
-            //	odeberu idecko z pole
-//            $v->offsetUnset('id');
+            // odeberu idecko z pole
+            // $v->offsetUnset('id');
 
-            //	upravene hodnoty odeslu do formulare
+            // upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
@@ -98,10 +100,10 @@ class FrontaPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit()
+    public function createComponentEdit(): EditFkBaseForm
     {
         $form = new EditFkBaseForm;
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
@@ -121,22 +123,23 @@ class FrontaPresenter extends AdminbasePresenter
     /**
      * Cast DROP
      * @param int $id Identifikator polozky
+     * @throws AbortExceptionAlias
      */
-    public function actionDrop($id)
+    public function actionDrop(int $id)
     {
         try {
             try {
                 $this->frontaModel->fetch($id);
                 $this->frontaModel->remove($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
-                $this->redirect('Fronta:default');    //	change it !!!
+                $this->redirect('Fronta:default');    // change it !!!
             } catch (InvalidArgumentException $exc) {
                 $this->flashMessage($exc->getMessage());
-                $this->redirect('Fronta:default');    //	change it !!!
+                $this->redirect('Fronta:default');    // change it !!!
             }
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
-            $this->redirect('Fronta:default');    //	change it !!!
+            $this->redirect('Fronta:default');    // change it !!!
         }
     }
 }

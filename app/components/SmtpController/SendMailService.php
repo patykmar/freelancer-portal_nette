@@ -5,7 +5,7 @@ namespace App\Components;
 use App\Factory\SmtpMailerFactory;
 use Nette\Application\UI\Control;
 use Nette\ComponentModel\IContainer;
-use Nette\Latte\Engine;
+use Latte\Engine;
 use Nette\Mail\Message;
 use Nette\NotImplementedException;
 use Nette\Utils\ArrayHash;
