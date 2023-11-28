@@ -13,21 +13,18 @@ use App\Model\FirmaModel;
 use App\Model\FrontaModel;
 use App\Model\StavCiModel;
 use App\Model\TarifModel;
-use DibiException;
 use Nette\Application\UI\Form as UIForm;
 use Nette\ComponentModel\IContainer;
 use Nette\Forms\Form;
 
 class FormFactoryAdd extends UIForm
 {
-    /** @var FrontaModel $frontaModel */
     private $frontaModel;
 
     /**
      * @param FrontaModel $frontaModel
      * @param IContainer|null $parent
      * @param null $name
-     * @throws DibiException
      */
     public function __construct(
         FrontaModel $frontaModel,

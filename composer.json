@@ -4,28 +4,29 @@
     "license": "MIT",
     "require": {
         "php": ">= 7.1",
-        "nette/application": "v2.3.*",
-        "nette/bootstrap": "v2.3.*",
-        "nette/caching": "v2.3.*",
-        "nette/database": "v2.3.*",
-        "nette/di": "v2.3.*",
-        "nette/finder": "v2.3.*",
-        "nette/forms": "v2.3.*",
-        "nette/http": "v2.3.*",
-        "nette/mail": "v2.3.*",
-        "nette/robot-loader": "v2.3.*",
-        "nette/safe-stream": "v2.3.*",
-        "nette/security": "v2.3.*",
-        "nette/utils": "v2.3.*",
-        "latte/latte": "v2.3.*",
-        "tracy/tracy": "v2.3.*",
+        "nette/application": "v2.4.*",
+        "nette/bootstrap": "v2.4.*",
+        "nette/caching": "v2.5.*",
+        "nette/database": "v2.4.*",
+        "nette/di": "v2.4.*",
+        "nette/finder": "v2.4.*",
+        "nette/forms": "v2.4.*",
+        "nette/http": "v2.4.*",
+        "nette/mail": "v2.4.*",
+        "nette/robot-loader": "v2.4.*",
+        "nette/safe-stream": "v2.4.*",
+        "nette/security": "v2.4.*",
+        "nette/utils": "v2.4.*",
+        "latte/latte": "~2.4",
+        "tracy/tracy": "^2.4",
         "greeny/maillibrary": "^3.2",
         "mpdf/mpdf": "v5.7.1",
         "texy/texy": "v2.3",
         "miloslavkostir/datagrid": "v2.0.2",
-        "ondrejbrejla/eciovni": "1.1"
+        "ondrejbrejla/eciovni": "1.1",
+        "ext-mysql_xdevapi": "*"
     },
     "require-dev": {
-        "nette/tester": "~1.4"
+        "nette/tester": "~2.0"
     }
 }

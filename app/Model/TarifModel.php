@@ -2,7 +2,6 @@
 
 namespace App\Model;
 
-use DibiException;
 use LogicException;
 use Nette\Database\Context;
 use Nette\Utils\ArrayHash;
@@ -20,7 +19,6 @@ final class TarifModel extends BaseNDbModel
 
     public const TABLE_NAME = 'tarif';
 
-    /** @var SlaModel $slaModel */
     private $slaModel;
 
     public function __construct(Context $context, SlaModel $slaModel)
@@ -34,7 +32,6 @@ final class TarifModel extends BaseNDbModel
      * Vklada data do tabulky tarif a k tomu vytvari vychozi hodnoty SLAcek
      * @param ArrayHash $values
      * @return void
-     * @throws DibiException
      */
     public function insert(ArrayHash $values)
     {
