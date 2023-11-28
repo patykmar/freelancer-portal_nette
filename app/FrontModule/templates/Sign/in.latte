@@ -1,6 +1,27 @@
 {block content}
-<h1 n:block=title>Sign in</h1>
 
-{control signInForm}
+{*{control signInForm}*}
+
+<main class="form-signin w-30 m-auto">
+    <form n:name="signInForm">
+        <h1 n:block=title class="h1">Sign in</h1>
+        <div class="mb-3">
+            <label for="floatingInput" class="form-label" n:name="username" />
+            <input type="email" class="form-control" id="floatingInput"
+                   placeholder="name@example.com" n:name="username">
+        </div>
+        <div class="mb-3">
+            <label for="floatingPassword" class="form-label" n:name="password" />
+            <input type="password" class="form-control" id="floatingPassword" placeholder="Password" n:name="password">
+        </div>
+
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" value="remember-me"
+                   id="flexCheckDefault" n:name="remember" />
+            <label class="form-check-label" for="flexCheckDefault" n:name="remember" />
+        </div>
+        <button class="btn btn-primary w-100 py-2" type="submit" n:name="send"/>
+    </form>
+</main>
 
 {* or use {include '../components/form.latte', form => signInForm} *}

@@ -16,9 +16,10 @@ class SignPresenter extends BasePresenter
      * Sign-in form factory.
      * @return Form
      */
-    protected function createComponentSignInForm()
+    protected function createComponentSignInForm(): Form
     {
         $form = new Form;
+
         $form->addText('username', 'Username:')
             ->setRequired('Please enter your username.');
         $form->addPassword('password', 'Password:')
