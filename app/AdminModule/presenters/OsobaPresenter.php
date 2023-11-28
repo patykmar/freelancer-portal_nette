@@ -14,8 +14,6 @@ use App\Model\FormatDatumModel;
 use App\Model\TimeZoneModel;
 use App\Model\TypOsobyModel;
 use App\Model\UserManager;
-use DibiException;
-use DibiRow;
 use Exception;
 use App\Form\Admin\Add\OsobaForm as AddOsobaForm;
 use App\Form\Admin\Edit\OsobaForm as EditOsobaForm;
@@ -86,7 +84,7 @@ class OsobaPresenter extends AdminbasePresenter
             $this->timeZoneModel,
             $this->formatDatumModel
         );
-        $form->onSuccess[] = callback($this, 'add');
+        $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
@@ -154,7 +152,7 @@ class OsobaPresenter extends AdminbasePresenter
             $this->timeZoneModel,
             $this->formatDatumModel
         );
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
@@ -188,7 +186,7 @@ class OsobaPresenter extends AdminbasePresenter
                 $this->flashMessage($exc->getMessage());
                 $this->redirect('Osoba:default'); //change it !!!
             }
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
             $this->redirect('Osoba:default'); //change it !!!
         }
@@ -202,7 +200,7 @@ class OsobaPresenter extends AdminbasePresenter
     public function actionGenerujNoveHeslo($id)
     {
         try {
-            /** @var DibiRow|FALSE Informace o uzivateli nactene z databaze */
+            // Informace o uzivateli nactene z databaze
             $item = $this->osobaModel->fetch($id);
 
             //necham si vygenerovat nove heslo

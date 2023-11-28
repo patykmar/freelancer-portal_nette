@@ -16,7 +16,6 @@ use App\Model\FirmaModel;
 use App\Model\FrontaModel;
 use App\Model\StavCiModel;
 use App\Model\TarifModel;
-use DibiException;
 use Exception;
 use App\Form\Admin\Add\CiForm;
 use App\Form\Admin\Edit;
@@ -28,25 +27,12 @@ use Nette\InvalidArgumentException;
 
 class CiPresenter extends AdminbasePresenter
 {
-    /** @var CiModel */
     private $ciModel;
-
-    /** @var StavCiModel $stavCiModel */
     private $stavCiModel;
-
-    /** @var CiLogModel */
     private $ciLogModel;
-
-    /** @var Context */
     private $ciContext;
-
-    /** @var FrontaModel $frontaModel */
     private $frontaModel;
-
-    /** @var FirmaModel $firmaModel */
     private $firmaModel;
-
-    /** @var TarifModel $tarifModel , */
     private $tarifModel;
 
     public function __construct(
@@ -107,7 +93,7 @@ class CiPresenter extends AdminbasePresenter
             $this['add']->offsetUnset('firma');
             $this['add']->offsetUnset('tarif');
 
-            $this['add']->onSuccess[] = callback($this, 'add');
+            $this['add']->onSuccess[] = [$this, 'add'];
             $this['add']->setDefaults(array('ci' => $id));
         } catch (BadRequestException $exc) {
             // zapisu chybu do logy
@@ -127,7 +113,7 @@ class CiPresenter extends AdminbasePresenter
             $this->firmaModel,
             $this->tarifModel
         );
-        $form->onSuccess[] = callback($this, 'add');
+        $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
@@ -191,7 +177,7 @@ class CiPresenter extends AdminbasePresenter
             $this->firmaModel,
             $this->tarifModel
         );
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
@@ -228,7 +214,7 @@ class CiPresenter extends AdminbasePresenter
                 $this->flashMessage($exc->getMessage());
                 $this->redirect('Ci:default'); //change it !!!
             }
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
             $this->redirect('Ci:default'); //change it !!!
         }

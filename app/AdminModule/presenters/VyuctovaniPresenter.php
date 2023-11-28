@@ -12,9 +12,9 @@ use App\Grids\Admin\VyuctovaniGrid;
 use App\Model\FakturaModel;
 use App\Model\FirmaModel;
 use App\Model\IncidentModel;
-use DibiException;
 use App\Form\Admin\Add\FkBaseForm as AddFkBaseForm;
 use App\Form\Admin\Edit\FkBaseForm as EditFkBaseForm;
+use Exception;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
 use Nette\DateTime;
@@ -85,7 +85,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
      * Vygeneruje fakturu pro firmu dle $id.
      * Nacte si vsechny tikety, ktere jsou uzavrene od firmy
      * @param int $id Identifikator firma, odberatel pro kterou se generuje faktura
-     * @throws DibiException|AbortException
+     * @throws AbortException
      */
     public function actionGenerujFakturu(int $id)
     {
@@ -131,7 +131,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
     public function createComponentAdd(): AddFkBaseForm
     {
         $form = new AddFkBaseForm;
-        $form->onSuccess[] = callback($this, 'add');
+        $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
@@ -143,7 +143,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
         try {
             $v = $form->getValues();
             $this->fakturaModel->insert($v);
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
         }
@@ -176,7 +176,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
     public function createComponentEdit(): EditFkBaseForm
     {
         $form = new EditFkBaseForm;
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
@@ -188,7 +188,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
         try {
             $v = $form->getValues();
             $this->fakturaModel->update($v['new'], $v['id']);
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
         }
@@ -209,7 +209,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
             $this->fakturaModel->remove($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('VyuctovaniPresenter:default'); //change it !!!
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             $this->flashMessage($exc->getMessage());
             $this->redirect('VyuctovaniPresenter:default'); //change it !!!
         }

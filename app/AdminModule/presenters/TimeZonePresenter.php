@@ -10,7 +10,6 @@ namespace App\AdminModule\Presenters;
 
 use App\Grids\Admin\TimeZoneGrid;
 use App\Model\TimeZoneModel;
-use DibiException;
 use Exception;
 use App\Form\Admin\Edit\TimeZoneForm as EditTimeZoneForm;
 use App\Form\Admin\Add\TimeZoneForm as AddTimeZoneForm;
@@ -57,7 +56,7 @@ class TimeZonePresenter extends AdminbasePresenter
     public function createComponentAdd()
     {
         $form = new AddTimeZoneForm();
-        $form->onSuccess[] = callback($this, 'add');
+        $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
@@ -104,7 +103,7 @@ class TimeZonePresenter extends AdminbasePresenter
     public function createComponentEdit()
     {
         $form = new EditTimeZoneForm();
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
@@ -140,7 +139,7 @@ class TimeZonePresenter extends AdminbasePresenter
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
             $this->redirect('TimeZone:default');    //	change it !!!
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
             $this->redirect('TimeZone:default');    //	change it !!!
         }

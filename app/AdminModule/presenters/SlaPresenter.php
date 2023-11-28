@@ -76,7 +76,7 @@ class SlaPresenter extends AdminbasePresenter
     public function createComponentEdit(): Edit\SlaForm
     {
         $form = new Edit\SlaForm();
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 

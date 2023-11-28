@@ -10,7 +10,6 @@ namespace App\AdminModule\Presenters;
 
 use App\Grids\FkGrid;
 use App\Model\PrioritaModel;
-use DibiException;
 use Exception;
 use App\Form\Admin\Add\FkBaseForm as AddFkBaseForm;
 use App\Form\Admin\Edit\FkBaseForm as EditFkBaseForm;
@@ -58,7 +57,7 @@ class PrioritaPresenter extends AdminbasePresenter
     public function createComponentAdd()
     {
         $form = new AddFkBaseForm;
-        $form->onSuccess[] = callback($this, 'add');
+        $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
@@ -104,7 +103,7 @@ class PrioritaPresenter extends AdminbasePresenter
     public function createComponentEdit()
     {
         $form = new EditFkBaseForm;
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
@@ -140,7 +139,7 @@ class PrioritaPresenter extends AdminbasePresenter
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
             $this->redirect('Priorita:default');    //	change it !!!
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
             $this->redirect('Priorita:default');    //	change it !!!
         }

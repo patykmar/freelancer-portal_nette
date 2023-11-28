@@ -21,9 +21,9 @@ use App\Model\PrioritaModel;
 use App\Model\TypIncidentModel;
 use App\Model\UkonModel;
 use App\Model\ZpusobUzavreniModel;
-use DibiException;
 use App\Form\Admin\Add;
 use App\Form\Admin\Edit;
+use Exception;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Database\Context;
@@ -107,7 +107,7 @@ class TicketsPresenter extends AdminbasePresenter
         $form['ovlivneni']->setItems($this->ovlivneniModel->fetchPairs());
         $form['ci']->setItems($this->ciModel->fetchPairs());
         $form['ukon']->setItems($this->ukonModel->fetchPairs());
-        $form->onSuccess[] = callback($this, 'add');
+        $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
@@ -127,7 +127,6 @@ class TicketsPresenter extends AdminbasePresenter
 
     /**
      * @throws AbortException
-     * @throws DibiException
      */
     public function add(Add\IncidentForm $form)
     {
@@ -157,7 +156,7 @@ class TicketsPresenter extends AdminbasePresenter
     protected function createComponentEditTiket(): Edit\IncidentForm
     {
         $form = new Edit\IncidentForm;
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
@@ -170,7 +169,7 @@ class TicketsPresenter extends AdminbasePresenter
 
     /**
      * @param int $id cislo tiketu
-     * @throws BadRequestException|DibiException
+     * @throws BadRequestException
      */
     public function actionEdit(int $id)
     {
@@ -296,7 +295,7 @@ class TicketsPresenter extends AdminbasePresenter
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
             $this->redirect('Tickets:default'); //change it !!!
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
             $this->redirect('Tickets:default'); //change it !!!
         }

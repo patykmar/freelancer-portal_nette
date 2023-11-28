@@ -26,9 +26,11 @@ class TypIncidentForm extends UIForm
             ->addRule(Form::FILLED);
         $new->addText('koeficient_cena', 'Koeficient cena:', null, 10)
             ->setType('number')
+            ->setRequired()
             ->addRule(Form::FLOAT);
         $new->addText('koeficient_cas', 'Koeficient čas:', null, 10)
             ->setType('number')
+            ->setRequired()
             ->addRule(Form::FLOAT);
         $new->addSelect('typ_incident', 'Typ incidentu - rodič:', $typIncidentModel->fetchPairsMain())
             ->setPrompt(' - - - ');

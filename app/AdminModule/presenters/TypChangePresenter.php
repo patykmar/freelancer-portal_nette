@@ -10,7 +10,6 @@ namespace App\AdminModule\Presenters;
 
 use App\Grids\FkGrid;
 use App\Model\TypChangeModel;
-use DibiException;
 use Exception;
 use App\Form\Admin\Add\FkBaseForm as AddFkBaseForm;
 use App\Form\Admin\Edit\FkBaseForm as EditFkBaseForm;
@@ -57,7 +56,7 @@ class TypChangePresenter extends AdminbasePresenter
     public function createComponentAdd()
     {
         $form = new AddFkBaseForm;
-        $form->onSuccess[] = callback($this, 'add');
+        $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
@@ -104,7 +103,7 @@ class TypChangePresenter extends AdminbasePresenter
     public function createComponentEdit()
     {
         $form = new EditFkBaseForm;
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
@@ -116,7 +115,7 @@ class TypChangePresenter extends AdminbasePresenter
         try {
             $v = $form->getValues();
             $this->typChangeModel->update($v['new'], $v['id']);
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
         }
@@ -140,7 +139,7 @@ class TypChangePresenter extends AdminbasePresenter
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
             $this->redirect('TypChange:default');    //	change it !!!
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
             $this->redirect('TypChange:default');    //	change it !!!
         }

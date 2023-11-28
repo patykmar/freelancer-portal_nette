@@ -10,7 +10,6 @@ namespace App\AdminModule\Presenters;
 
 use App\Grids\Admin\TypIncidentGrid;
 use App\Model\TypIncidentModel;
-use DibiException;
 use Exception;
 use App\Form\Admin\Add\TypIncidentForm as AddTypIncidentForm;
 use App\Form\Admin\Edit\TypIncidentForm as EditTypIncidentForm;
@@ -52,7 +51,7 @@ class TypIncidentPresenter extends AdminbasePresenter
     {
         $form = new AddTypIncidentForm();
         $form['typ_incident']->setItems($this->typIncidentModel->fetchPairs());
-        $form->onSuccess[] = callback($this, 'add');
+        $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
@@ -99,7 +98,7 @@ class TypIncidentPresenter extends AdminbasePresenter
     public function createComponentEdit(): EditTypIncidentForm
     {
         $form = new EditTypIncidentForm($this->typIncidentModel);
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
@@ -135,7 +134,7 @@ class TypIncidentPresenter extends AdminbasePresenter
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
             $this->redirect('TypIncident:default');    //change it !!!
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
             $this->redirect('TypIncident:default');    //change it !!!
         }

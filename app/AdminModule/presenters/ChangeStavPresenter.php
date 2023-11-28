@@ -15,6 +15,7 @@ use Exception;
 use App\Form\Admin\Add;
 use App\Form\Admin\Edit;
 use App\Model\ChangeStavModel;
+use InvalidArgumentException;
 use Nette\Application\AbortException as AbortExceptionAlias;
 use Nette\Database\Context;
 use Tracy\Debugger;
@@ -22,10 +23,7 @@ use Tracy\Debugger;
 
 class ChangeStavPresenter extends AdminbasePresenter
 {
-    /** @var ChangeStavModel */
     private $changeStavModel;
-
-    /** @var Context */
     private $changeStavContext;
 
     public function __construct(
@@ -41,7 +39,7 @@ class ChangeStavPresenter extends AdminbasePresenter
     /**
      * Cast DEFAULT, definice Gridu
      */
-    protected function createComponentGrid()
+    protected function createComponentGrid(): FkGrid
     {
         return new FkGrid($this->changeStavContext->table('change_stav'));
     }
@@ -59,10 +57,10 @@ class ChangeStavPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd()
+    public function createComponentAdd(): Add\FkBaseForm
     {
         $form = new Add\FkBaseForm;
-        $form->onSuccess[] = callback($this, 'add');
+        $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
@@ -82,8 +80,9 @@ class ChangeStavPresenter extends AdminbasePresenter
     /**
      * Cast EDIT
      * @param int $id Identifikator polozky
+     * @throws AbortExceptionAlias
      */
-    public function renderEdit($id)
+    public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
@@ -93,19 +92,22 @@ class ChangeStavPresenter extends AdminbasePresenter
 //            $v->offsetUnset('id');
             //	upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
-        } catch (\Nette\InvalidArgumentException $exc) {
+        } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
             $this->redirect('default');
         }
     }
 
-    public function createComponentEdit()
+    public function createComponentEdit(): Edit\FkBaseForm
     {
         $form = new Edit\FkBaseForm;
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
+    /**
+     * @throws AbortExceptionAlias
+     */
     public function edit(Edit\FkBaseForm $form)
     {
         try {
@@ -124,19 +126,19 @@ class ChangeStavPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortExceptionAlias
      */
-    public function actionDrop($id)
+    public function actionDrop(int $id)
     {
         try {
             try {
                 $this->changeStavModel->fetch($id);
-                $this->changeStavModel->remove($id);
+                $this->changeStavModel->removeItem($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
                 $this->redirect('ChangeStav:default');    //	change it !!!
-            } catch (\Nette\InvalidArgumentException $exc) {
+            } catch (InvalidArgumentException $exc) {
                 $this->flashMessage($exc->getMessage());
                 $this->redirect('ChangeStav:default');    //	change it !!!
             }
-        } catch (\DibiException $exc) {
+        } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
             $this->redirect('ChangeStav:default');    //	change it !!!
         }

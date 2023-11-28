@@ -10,9 +10,9 @@ namespace App\AdminModule\Presenters;
 
 use App\Grids\Admin\TarifGrid;
 use App\Model\TarifModel;
-use DibiException;
 use App\Form\Admin\Add\TarifForm as AddTarifForm;
 use App\Form\Admin\Edit\TarifForm as EditTarifForm;
+use Exception;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
 use Tracy\Debugger;
@@ -54,14 +54,13 @@ class TarifPresenter extends AdminbasePresenter
     public function createComponentAdd(): AddTarifForm
     {
         $form = new AddTarifForm();
-        $form->onSuccess[] = callback($this, 'add');
+        $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
     /**
      * @param AddTarifForm $form
      * @throws AbortException
-     * @throws DibiException
      */
     public function add(AddTarifForm $form)
     {
@@ -102,7 +101,7 @@ class TarifPresenter extends AdminbasePresenter
     public function createComponentEdit(): EditTarifForm
     {
         $form = new EditTarifForm();
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
@@ -116,7 +115,7 @@ class TarifPresenter extends AdminbasePresenter
             $this->tarifModel->update($v['new'], $v['id']);
             $this->flashMessage('Záznam byl úspěšně změněn');
             $this->redirect('default');
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
         }
@@ -139,7 +138,7 @@ class TarifPresenter extends AdminbasePresenter
             $this->flashMessage($exc->getMessage());
             $this->redirect('Tarif:default'); //change it !!!
 
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
             $this->redirect('Tarif:default'); //change it !!!
         }

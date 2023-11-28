@@ -10,7 +10,6 @@ namespace App\AdminModule\Presenters;
 
 use App\Grids\FkGrid;
 use App\Model\IncidentStavModel;
-use DibiException;
 use Exception;
 use App\Form\Admin\Add\FkBaseForm as AddFkBaseForm;
 use App\Form\Admin\Edit\FkBaseForm as EditFkBaseForm;
@@ -65,7 +64,7 @@ class IncidentStavPresenter extends AdminbasePresenter
     public function createComponentAdd(): AddFkBaseForm
     {
         $form = new AddFkBaseForm;
-        $form->onSuccess[] = callback($this, 'add');
+        $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
@@ -109,7 +108,7 @@ class IncidentStavPresenter extends AdminbasePresenter
     public function createComponentEdit(): EditFkBaseForm
     {
         $form = new EditFkBaseForm;
-        $form->onSuccess[] = callback($this, 'edit');
+        $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
@@ -147,7 +146,7 @@ class IncidentStavPresenter extends AdminbasePresenter
                 $this->flashMessage($exc->getMessage());
                 $this->redirect('IncidentStav:default');    // change it !!!
             }
-        } catch (DibiException $exc) {
+        } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
             $this->redirect('IncidentStav:default');    // change it !!!
         }

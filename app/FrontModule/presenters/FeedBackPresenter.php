@@ -80,7 +80,7 @@ class FeedBackPresenter extends BasePresenter
     public function createComponentNegative($name): FeedBackNegativeForm
     {
         $form = new FeedBackNegativeForm();
-        $form->onSuccess[] = callback($this, 'negative');
+        $form->onSuccess[] = [$this, 'negative'];
         return $form;
     }
 

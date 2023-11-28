@@ -58,7 +58,7 @@ class TiketTaskPresenter extends AdminbasePresenter
     public function createComponentAdd()
     {
         $form = new TaskForm();
-        $form->onSuccess[] = callback($this, 'add');
+        $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
