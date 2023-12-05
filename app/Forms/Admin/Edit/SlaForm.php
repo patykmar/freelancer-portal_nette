@@ -15,7 +15,7 @@ use Nette\Forms\Form;
 
 class SlaForm extends UIForm
 {
-    public function __construct(IContainer $parent = NULL, $name = NULL)
+    public function __construct(IContainer $parent = null, $name = null)
     {
         parent::__construct($parent, $name);
         $this->addHidden('id');
@@ -24,10 +24,10 @@ class SlaForm extends UIForm
             ->setDisabled();
         $new->addText('priorita', 'Priorita')
             ->setDisabled();
-        $new->addText('cena_koeficient', 'Koeficient', NULL, 5)
+        $new->addText('cena_koeficient', 'Koeficient', null, 5)
             ->addRule(Form::FILLED)
             ->addRule(Form::FLOAT);
-        //	casy reakce
+        // casy reakce
         $new->addSelect('reakce_mesic', 'Měsíců:', AddSlaForm::getTimeValue(AddSlaForm::MONTHS))
             ->addRule(Form::FILLED);
         $new->addSelect('reakce_den', 'Dnů', AddSlaForm::getTimeValue(AddSlaForm::DAYS))
@@ -44,9 +44,9 @@ class SlaForm extends UIForm
             ->addRule(Form::FILLED);
         $new->addSelect('hotovo_min', 'Minut:', AddSlaForm::getTimeValue(AddSlaForm::MINUTES))
             ->addRule(Form::FILLED);
-        //	Obrana před Cross-Site Request Forgery (CSRF)
+        // Obrana před Cross-Site Request Forgery (CSRF)
         $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
-        //	Tlacitko odeslat
+        // Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;
     }

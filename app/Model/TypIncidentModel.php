@@ -29,11 +29,11 @@ final class TypIncidentModel extends BaseNDbModel
     {
         if ($rodice) {
             return $this->explorer->table($this->tableName)
-                ->where('typ_incident IS NULL')
+                ->where('typ_incident IS null')
                 ->fetchPairs('id', 'nazev');
         } else {
             return $this->explorer->table($this->tableName)
-                ->where('typ_incident IS NOT NULL')
+                ->where('typ_incident IS NOT null')
                 ->fetchPairs('id', 'nazev');
         }
     }

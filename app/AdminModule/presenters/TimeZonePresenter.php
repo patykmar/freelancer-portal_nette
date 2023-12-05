@@ -86,13 +86,13 @@ class TimeZonePresenter extends AdminbasePresenter
     {
         try {
             $this->setView('../_edit');
-            //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
+            // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
             $v = $this->timeZoneModel->fetch($id);
 
-            //	odeberu idecko z pole
+            // odeberu idecko z pole
 //            $v->offsetUnset('id');
 
-            //	upravene hodnoty odeslu do formulare
+            // upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
@@ -135,13 +135,13 @@ class TimeZonePresenter extends AdminbasePresenter
             $this->timeZoneModel->fetch($id);
             $this->timeZoneModel->remove($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
-            $this->redirect('TimeZone:default');    //	change it !!!
+            $this->redirect('TimeZone:default');    // change it !!!
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
-            $this->redirect('TimeZone:default');    //	change it !!!
+            $this->redirect('TimeZone:default');    // change it !!!
         } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
-            $this->redirect('TimeZone:default');    //	change it !!!
+            $this->redirect('TimeZone:default');    // change it !!!
         }
     }
 }

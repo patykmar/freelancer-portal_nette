@@ -13,7 +13,7 @@ use App\Form\Admin\Add;
 
 class IncidentForm extends Add\IncidentForm
 {
-    public function __construct(IContainer $parent = NULL, $name = NULL)
+    public function __construct(IContainer $parent = null, $name = null)
     {
         parent::__construct($parent, $name);
         dump($this->presenter->userId);

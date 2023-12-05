@@ -3,12 +3,12 @@
     "type": "project",
     "license": "MIT",
     "require": {
-        "php": ">= 7.1",
+        "php": ">= 7.4",
         "nette/application": "v2.4.*",
         "nette/bootstrap": "v2.4.*",
         "nette/caching": "v2.5.*",
         "nette/database": "v2.4.*",
-        "nette/di": "v2.4.*",
+        "nette/di": "^2.4",
         "nette/finder": "v2.4.*",
         "nette/forms": "v2.4.*",
         "nette/http": "v2.4.*",
@@ -26,6 +26,6 @@
         "ondrejbrejla/eciovni": "1.1"
     },
     "require-dev": {
-        "nette/tester": "~2.0"
+        "nette/tester": "^2.0"
     }
 }

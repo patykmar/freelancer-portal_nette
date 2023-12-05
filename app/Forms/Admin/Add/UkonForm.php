@@ -14,7 +14,7 @@ use Nette\Forms\Form;
 
 class UkonForm extends UIForm
 {
-    public function __construct(IContainer $parent = NULL, $name = NULL)
+    public function __construct(IContainer $parent = null, $name = null)
     {
         parent::__construct($parent, $name);
         $this->addText('nazev', 'Název:', null, 255)
@@ -30,9 +30,9 @@ class UkonForm extends UIForm
             ->addRule(Form::FILLED);
         $this->addTextArea('popis', 'Popis:')
             ->addRule(Form::FILLED);
-        //	Obrana před Cross-Site Request Forgery (CSRF)
+        // Obrana před Cross-Site Request Forgery (CSRF)
         $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
-        //	Tlacitko odeslat
+        // Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;
     }

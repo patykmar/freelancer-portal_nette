@@ -13,33 +13,46 @@ use App\Model\FakturaPolozkaCssModel;
 use App\Model\JednotkaModel;
 use Nette\Application\UI\Form as UIForm;
 use Nette\ComponentModel\IContainer;
-use Nette\Forms\Container;
 
 class FakturaPolozkaForm extends UIForm
 {
-    public function __construct(IContainer $parent = NULL, $name = NULL)
+    const EMPTY_PROMPT = ' - - - ';
+    private JednotkaModel $jednotkaModel;
+    private DphModel $dphModel;
+    private FakturaPolozkaCssModel $fakturaPolozkaCssModel;
+
+    public function __construct(
+        JednotkaModel          $jednotkaModel,
+        DphModel               $dphModel,
+        FakturaPolozkaCssModel $fakturaPolozkaCssModel,
+        IContainer             $parent = null,
+                               $name = null)
     {
+        $this->jednotkaModel = $jednotkaModel;
+        $this->dphModel = $dphModel;
+        $this->fakturaPolozkaCssModel = $fakturaPolozkaCssModel;
+
         parent::__construct($parent, $name);
         $this->addHidden('id');
-        /** @var Container */
         $new = $this->addContainer('new');
         $new->addHidden('faktura');
-        $new->addText('nazev', 'Nazev:', NULL, 250);
-        $new->addText('dodatek', 'Dodatek:', NULL, 250);
-        $new->addText('pocet_polozek', 'Pocet polozek:', NULL, 5);
-        $new->addText('koeficient_cena', 'Koeficient cena:', NULL, 5);
-        $new->addText('sleva', 'Sleva:', NULL, 5);
-        $new->addSelect('jednotka', 'Jednotka:', JednotkaModel::fetchPairs())
-            ->setPrompt(' - - - ');
-        $new->addSelect('dph', 'DPH:', DphModel::fetchPairs())
-            ->setPrompt(' - - - ');
-        $new->addSelect('cssclass', 'css:', FakturaPolozkaCssModel::fetchPairs())
-            ->setPrompt(' - - - ');
-        $new->addText('cena', 'Cena:', NULL, 10);
-        //	Obrana před Cross-Site Request Forgery (CSRF)
+        $new->addText('nazev', 'Nazev:', null, 250);
+        $new->addText('dodatek', 'Dodatek:', null, 250);
+        $new->addText('pocet_polozek', 'Pocet polozek:', null, 5);
+        $new->addText('koeficient_cena', 'Koeficient cena:', null, 5);
+        $new->addText('sleva', 'Sleva:', null, 5);
+        $new->addSelect('jednotka', 'Jednotka:', $this->jednotkaModel->fetchPairs())
+            ->setPrompt(self::EMPTY_PROMPT);
+        $new->addSelect('dph', 'DPH:', $this->dphModel->fetchPairs())
+            ->setPrompt(self::EMPTY_PROMPT);
+        $new->addSelect('cssclass', 'css:', $this->fakturaPolozkaCssModel->fetchPairs())
+            ->setPrompt(self::EMPTY_PROMPT);
+        $new->addText('cena', 'Cena:', null, 10);
+        // Obrana před Cross-Site Request Forgery (CSRF)
         $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
-        //	Tlacitko odeslat
+        // Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;
+
     }
 }

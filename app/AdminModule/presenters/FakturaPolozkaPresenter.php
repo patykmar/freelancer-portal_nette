@@ -56,7 +56,7 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
     {
         try {
             $this->setView('../_add');
-            //	overim ze je v systemu evidovana faktura s timto cislem
+            // overim ze je v systemu evidovana faktura s timto cislem
             $this->modelFaktura->fetch($id);
 
             // do vytvorene komponenty vlozim cislo faktury do ktere chci vlozit polozku
@@ -100,7 +100,7 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
     {
         try {
             $this->setView('../_edit');
-            //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
+            // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
             $v = $this->model->fetch($id);
 
             // pravidla pro formular
@@ -110,15 +110,15 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
             $this['edit']['new']['pocet_polozek']
                 ->setType('number')
                 ->addRule(Form::FLOAT)
-                ->addRule(Form::RANGE, NULL, array(0, 999));
+                ->addRule(Form::RANGE, null, array(0, 999));
 
             $this['edit']['new']['cena']
                 ->addRule(Form::FLOAT);
 
-            //	odeberu idecko z pole
+            // odeberu idecko z pole
 //            $v->offsetUnset('id');
 
-            //	upravene hodnoty odeslu do formulare
+            // upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
@@ -143,7 +143,7 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
             $v = $form->getValues();
             $this->model->update($v['new'], $v['id']);
 
-            //	fresmeruji zpet na editovani faktury
+            // fresmeruji zpet na editovani faktury
             $this->flashMessage('Záznam byl úspěšně změněn');
             $this->redirect('Faktura:edit', $v['new']['faktura']);
         } catch (Exception $exc) {
@@ -161,13 +161,13 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
     {
         try {
             try {
-                //	overim ze polozka existuje a zaroven si nactu jake fakture patri
+                // overim ze polozka existuje a zaroven si nactu jake fakture patri
                 $v = $this->model->fetch($id);
                 $this->model->remove($id);
 
                 $this->flashMessage('Položka byla odebrána');
 
-                //	presmeruji na editovani faktury
+                // presmeruji na editovani faktury
                 $this->redirect('Faktura:edit', $v['faktura']);
             } catch (InvalidArgumentException $exc) {
                 $this->flashMessage($exc->getMessage());

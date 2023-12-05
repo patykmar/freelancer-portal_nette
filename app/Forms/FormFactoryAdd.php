@@ -19,53 +19,68 @@ use Nette\Forms\Form;
 
 class FormFactoryAdd extends UIForm
 {
-    private $frontaModel;
+    const EMPTY_PROMPT = ' - - - ';
+    private CiModel $ciModel;
+    private FrontaModel $frontaModel;
+    private FirmaModel $firmaModel;
+    private TarifModel $tarifModel;
+    private StavCiModel $stavCiModel;
 
     /**
+     * @param CiModel $ciModel
      * @param FrontaModel $frontaModel
+     * @param FirmaModel $firmaModel
+     * @param TarifModel $tarifModel
+     * @param StavCiModel $stavCiModel
      * @param IContainer|null $parent
      * @param null $name
      */
-    public function __construct(
-        FrontaModel $frontaModel,
-        IContainer  $parent = null,
-                    $name = null
-    )
+    public function __construct(CiModel     $ciModel,
+                                FrontaModel $frontaModel,
+                                FirmaModel  $firmaModel,
+                                TarifModel  $tarifModel,
+                                StavCiModel $stavCiModel,
+                                IContainer  $parent = null,
+                                            $name = null)
     {
         parent::__construct($parent, $name);
 
+        $this->ciModel = $ciModel;
         $this->frontaModel = $frontaModel;
+        $this->firmaModel = $firmaModel;
+        $this->tarifModel = $tarifModel;
+        $this->stavCiModel = $stavCiModel;
 
         $this->addText('nazev', 'Název:', null, 250)
             ->addRule(Form::FILLED);
-        $this->addSelect('ci', 'Předek:', CiModel::fetchPairs())
-            ->setPrompt(' - - - ');
-        $this->addSelect('stav_ci', 'Stav:', StavCiModel::fetchPairs())
-            ->setPrompt(' - - - ')
+        $this->addSelect('ci', 'Předek:', $this->ciModel->fetchPairs())
+            ->setPrompt(self::EMPTY_PROMPT);
+        $this->addSelect('stav_ci', 'Stav:', $this->stavCiModel->fetchPairs())
+            ->setPrompt(self::EMPTY_PROMPT)
             ->addConditionOn($this['ci'], Form::EQUAL, false)
             ->addRule(Form::FILLED);
         $this->addSelect('fronta_tier_1', 'Výchozí fronta TIER 1:', $this->frontaModel->fetchPairs())
-            ->setPrompt(' - - - ')
+            ->setPrompt(self::EMPTY_PROMPT)
             //pokud je stav nasazen je potreba vybrat i frontu
             ->addConditionOn($this['stav_ci'], Form::EQUAL, 3)
             ->addRule(Form::FILLED);
         $this->addSelect('fronta_tier_2', 'Výchozí fronta TIER 2:', $this->frontaModel->fetchPairs())
-            ->setPrompt(' - - - ')
+            ->setPrompt(self::EMPTY_PROMPT)
             //pokud je stav nasazen je potreba vybrat i frontu
             ->addConditionOn($this['stav_ci'], Form::EQUAL, 3)
             ->addRule(Form::FILLED);
         $this->addSelect('fronta_tier_3', 'Výchozí fronta TIER 3:', $this->frontaModel->fetchPairs())
-            ->setPrompt(' - - - ')
+            ->setPrompt(self::EMPTY_PROMPT)
             //pokud je stav nasazen je potreba vybrat i frontu
             ->addConditionOn($this['stav_ci'], Form::EQUAL, 3)
             ->addRule(Form::FILLED);
-        $this->addSelect('firma', 'Firma:', FirmaModel::fetchPairs())
-            ->setPrompt(' - - - ')
+        $this->addSelect('firma', 'Firma:', $this->firmaModel->fetchPairs())
+            ->setPrompt(self::EMPTY_PROMPT)
             //pokud neni vybran predek je potreba vyplnit toto pole
             ->addConditionOn($this['ci'], Form::EQUAL, false)
             ->addRule(Form::FILLED);
-        $this->addSelect('tarif', 'Tarif:', TarifModel::fetchPairs())
-            ->setPrompt(' - - - ')
+        $this->addSelect('tarif', 'Tarif:', $this->tarifModel->fetchPairs())
+            ->setPrompt(self::EMPTY_PROMPT)
             //pokud neni vybran predek je potreba vyplnit toto pole
             ->addConditionOn($this['ci'], Form::EQUAL, false)
             ->addRule(Form::FILLED);

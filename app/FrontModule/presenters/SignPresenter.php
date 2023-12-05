@@ -39,7 +39,7 @@ class SignPresenter extends BasePresenter
     {
         $values = $form->getValues();
         if ($values->remember) {
-            $this->getUser()->setExpiration('14 days', FALSE);
+            $this->getUser()->setExpiration('14 days', false);
         } else {
             $this->getUser()->setExpiration('20 minutes', TRUE);
         }

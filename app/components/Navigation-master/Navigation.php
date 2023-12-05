@@ -83,7 +83,7 @@ class Navigation extends Control
      * @param NavigationNode $base
      * @param bool $renderHomepage
      */
-    public function renderMenu($renderChildren = TRUE, $base = NULL, $renderHomepage = TRUE)
+    public function renderMenu($renderChildren = TRUE, $base = null, $renderHomepage = TRUE)
     {
         $template = $this->createTemplate()
             ->setFile($this->menuTemplate ?: __DIR__ . '/menu.phtml');
@@ -107,7 +107,7 @@ class Navigation extends Control
      */
     public function renderMainMenu()
     {
-        $this->renderMenu(FALSE);
+        $this->renderMenu(false);
     }
 
     /**
