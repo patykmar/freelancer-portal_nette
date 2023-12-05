@@ -5,18 +5,20 @@ namespace App\Model;
 use App\Passwords;
 use Nette\Database\Context;
 use Nette\InvalidArgumentException;
-use Nette\Object;
 use Nette\Security\AuthenticationException;
 use Nette\Security\IAuthenticator;
 use Nette\Security\Identity;
+use Nette\SmartObject;
 use Nette\Utils\Strings;
 
 
 /**
  * Users management.
  */
-class UserManager extends Object implements IAuthenticator
+class UserManager implements IAuthenticator
 {
+    use SmartObject;
+
     const TABLE_NAME = 'osoba';
     const COLUMN_ID = 'id';
     const COLUMN_NAME = 'email';
@@ -71,7 +73,7 @@ class UserManager extends Object implements IAuthenticator
      * @param string $password
      * @return void
      */
-    public function add($username, $password)
+    public function add(string $username, string $password)
     {
         $this->database->table(self::TABLE_NAME)->insert(array(
             self::COLUMN_NAME => $username,
@@ -81,11 +83,11 @@ class UserManager extends Object implements IAuthenticator
 
     /**
      * Computes salted password hash.
-     * @param $password
-     * @param null $options
+     * @param string $password
+     * @param array|null $options
      * @return string
      */
-    public static function hashPassword($password, $options = NULL)
+    public static function hashPassword(string $password, array $options = null): string
     {
         if ($password === Strings::upper($password)) { // perhaps caps lock is on
             $password = Strings::lower($password);
@@ -103,7 +105,7 @@ class UserManager extends Object implements IAuthenticator
      * Function generate new password in clear type
      * @param int $count new password length
      */
-    public static function generateNewPassword($count = 16)
+    public static function generateNewPassword(int $count = 16): string
     {
         //TODO: migrate to service layer
 
@@ -116,9 +118,11 @@ class UserManager extends Object implements IAuthenticator
 
     /**
      * Verifies that a password matches a hash.
+     * @param string $password
+     * @param array|null $hash
      * @return bool
      */
-    public static function verifyPassword($password, $hash)
+    public static function verifyPassword(string $password, array $hash = null): bool
     {
         return self::hashPassword($password, $hash) === $hash
 
