@@ -8,13 +8,15 @@
 
 namespace App\Model;
 
-use Nette\Object;
 use Nette\Database\Context;
 use Nette\Database\Table\IRow;
+use Nette\SmartObject;
 use Nette\Utils\ArrayHash;
 
-abstract class BaseNDbModel extends Object
+abstract class BaseNDbModel
 {
+    use SmartObject;
+
     protected $tableName;
     protected $explorer;
 

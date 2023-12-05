@@ -23,8 +23,7 @@
         "mpdf/mpdf": "v5.7.1",
         "texy/texy": "v2.3",
         "miloslavkostir/datagrid": "v2.0.2",
-        "ondrejbrejla/eciovni": "1.1",
-        "ext-mysql_xdevapi": "*"
+        "ondrejbrejla/eciovni": "1.1"
     },
     "require-dev": {
         "nette/tester": "~2.0"

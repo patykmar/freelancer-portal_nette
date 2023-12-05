@@ -35,8 +35,8 @@ services:
       - APP_KEY=SomeRandomStringToAddSecurity123
       - APP_ENV=development
       - APP_DEBUG=true
-      - APACHE_RUN_USER=apache-www-volume
-      - APACHE_RUN_GROUP=apache-www-volume
+#      - APACHE_RUN_USER=apache-www-volume
+#      - APACHE_RUN_GROUP=apache-www-volume
       - PHP_IDE_CONFIG=serverName=nette_freelancer-portal
 #      - XDEBUG_CONFIG=remote_host=172.20.0.1 remote_port=9001
       - XDEBUG_MODE = DEBUG
