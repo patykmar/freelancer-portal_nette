@@ -36,7 +36,7 @@ trait AdminGridButtonTrait
             ->setConfirmationDialog(function ($row) {
                 return "Opravdu chcete smazat $row[id] ?";
             })
-            ->setAjax(FALSE);
+            ->setAjax(false);
     }
 
     /**

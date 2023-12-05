@@ -13,13 +13,13 @@ use Nette\Forms\Form;
 
 class TaskForm extends IncidentForm
 {
-    public function __construct(IContainer $parent = NULL, $name = NULL)
+    public function __construct(IContainer $parent = null, $name = null)
     {
         parent::__construct($parent, $name);
-        //	rodic I tasku
+        // rodic I tasku
         $this->addHidden('incident')
             ->addRule(Form::FILLED);
-        //	neni treba vybirat typ incidentu
+        // neni treba vybirat typ incidentu
         $this->offsetUnset('typ_incident');
     }
 }

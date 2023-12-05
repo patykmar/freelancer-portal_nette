@@ -40,8 +40,8 @@ class CiForm extends UIForm
         FrontaModel $frontaModel,
         FirmaModel  $firmaModel,
         TarifModel  $tarifModel,
-        IContainer  $parent = NULL,
-                    $name = NULL
+        IContainer  $parent = null,
+                    $name = null
     )
     {
         $this->ciModel = $ciModel;
@@ -57,7 +57,7 @@ class CiForm extends UIForm
             ->setPrompt(' - - - ');
         $this->addSelect('stav_ci', 'Stav:', $this->stavCiModel->fetchPairs())
             ->setPrompt(' - - - ')
-            ->addConditionOn($this['ci'], NetteForm::EQUAL, FALSE)
+            ->addConditionOn($this['ci'], NetteForm::EQUAL, false)
             ->addRule(NetteForm::FILLED);
         $this->addSelect('fronta_tier_1', 'Výchozí fronta TIER 1:', $this->frontaModel->fetchPairs())
             ->setPrompt(' - - - ')
@@ -77,12 +77,12 @@ class CiForm extends UIForm
         $this->addSelect('firma', 'Firma:', $this->firmaModel->fetchPairs())
             ->setPrompt(' - - - ')
             //pokud neni vybran predek je potreba vyplnit toto pole
-            ->addConditionOn($this['ci'], NetteForm::EQUAL, FALSE)
+            ->addConditionOn($this['ci'], NetteForm::EQUAL, false)
             ->addRule(NetteForm::FILLED);
         $this->addSelect('tarif', 'Tarif:', $this->tarifModel->fetchPairs())
             ->setPrompt(' - - - ')
             //pokud neni vybran predek je potreba vyplnit toto pole
-            ->addConditionOn($this['ci'], NetteForm::EQUAL, FALSE)
+            ->addConditionOn($this['ci'], NetteForm::EQUAL, false)
             ->addRule(NetteForm::FILLED);
         $this->addCheckbox('zobrazit', 'Zobrazit ?');
         $this->addTextArea('obsah', 'Obsah:')

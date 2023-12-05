@@ -14,15 +14,15 @@ use Nette\Forms\Form;
 
 class FeedBackNegativeForm extends UIForm
 {
-    public function __construct(IContainer $parent = NULL, $name = NULL)
+    public function __construct(IContainer $parent = null, $name = null)
     {
         parent::__construct($parent, $name);
         $this->addHidden('id');
         $this->addTextArea('wl', 'Důvod zamítnutí:')
             ->addRule(Form::FILLED);
-        //	Obrana před Cross-Site Request Forgery (CSRF)
+        // Obrana před Cross-Site Request Forgery (CSRF)
         $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
-        //	Tlacitko odeslat
+        // Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;
     }

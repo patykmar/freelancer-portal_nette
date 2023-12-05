@@ -11,20 +11,25 @@ namespace App\Form\Admin\Add;
 use App\Model\FirmaModel;
 use Nette\Application\UI\Form as UIForm;
 use Nette\ComponentModel\IContainer;
-use App\Model;
 
 class SelectOdberatelDodavatelForm extends UIForm
 {
-    public function __construct(IContainer $parent = NULL, $name = NULL)
+    const EMPTY_PROMPT = ' - - - ';
+    private FirmaModel $firmaModel;
+
+    public function __construct(FirmaModel $firmaModel, IContainer $parent = null, $name = null)
     {
+        $this->firmaModel = $firmaModel;
+
+
         parent::__construct($parent, $name);
-        $this->addSelect('dodvatel', 'Dodavatel:', FirmaModel::fetchPairs())
-            ->setPrompt(' - - - ');
-        $this->addSelect('odberatel', 'Odberatel:', FirmaModel::fetchPairs())
-            ->setPrompt(' - - - ');
-        //	Obrana před Cross-Site Request Forgery (CSRF)
+        $this->addSelect('dodvatel', 'Dodavatel:', $this->firmaModel->fetchPairs())
+            ->setPrompt(self::EMPTY_PROMPT);
+        $this->addSelect('odberatel', 'Odberatel:', $this->firmaModel->fetchPairs())
+            ->setPrompt(self::EMPTY_PROMPT);
+        // Obrana před Cross-Site Request Forgery (CSRF)
         $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
-        //	Tlacitko odeslat
+        // Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;
     }

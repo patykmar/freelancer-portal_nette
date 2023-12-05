@@ -48,7 +48,7 @@ class FeedBackPresenter extends BasePresenter
             $change = new ArrayHash;
             $change->offsetSet('incident_stav', 5); // nastavim stav uzavreno
             $change->offsetSet('identity', $v['osoba_vytvoril']); // predpoklada se, ze na odkaz klikne prijemce mailu
-            $change->offsetSet('odezva_cekam', NULL); // neumoznim odeslat feedback
+            $change->offsetSet('odezva_cekam', null); // neumoznim odeslat feedback
             $this->model->update($change, $id);
             unset($change, $v); // uvolnim prostredky
         } catch (InvalidArgumentException $exc) {
@@ -96,12 +96,12 @@ class FeedBackPresenter extends BasePresenter
             $dbVal = $this->model->fetchForFeedBack($v['id']);
             $change = new ArrayHash;
             $change->offsetSet('incident_stav', 7); // znovu otevren
-            $change->offsetSet('datum_uzavreni', NULL); // zrusim datum uzavreni
-            $change->offsetSet('zpusob_uzavreni', NULL); // zrusim zpusob uzavreni
-            $change->offsetSet('obsah_uzavreni', NULL); // zrusim text uzavreni
-            $change->offsetSet('obsah_uzavreni', NULL); // zrusim text uzavreni
-            $change->offsetSet('odezva_cekam', NULL); // znemoznim pridavani dalsiho feedbacku
-            $change->offsetSet('odezva_odeslan_pozadavek', NULL); // nastavim znova moznost odeslani feedbacku
+            $change->offsetSet('datum_uzavreni', null); // zrusim datum uzavreni
+            $change->offsetSet('zpusob_uzavreni', null); // zrusim zpusob uzavreni
+            $change->offsetSet('obsah_uzavreni', null); // zrusim text uzavreni
+            $change->offsetSet('obsah_uzavreni', null); // zrusim text uzavreni
+            $change->offsetSet('odezva_cekam', null); // znemoznim pridavani dalsiho feedbacku
+            $change->offsetSet('odezva_odeslan_pozadavek', null); // nastavim znova moznost odeslani feedbacku
             $change->offsetSet('identity', $dbVal['osoba_vytvoril']); // predpoklada se, ze na odkaz klikne prijemce mailu
             $change->offsetSet('wl', '**Vyjádření zákaznika:** <br />' . Strings::trim($v['wl'])); // do WL zapisu feedback od zakaznika
             $this->model->update($change, $v['id']);

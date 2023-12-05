@@ -32,7 +32,7 @@ class TiketTaskPresenter extends AdminbasePresenter
      */
     public function actionDefault()
     {
-        //	redirect to tickets default
+        // redirect to tickets default
         $this->redirect(':Admin:Tickets:');
     }
 
@@ -44,14 +44,14 @@ class TiketTaskPresenter extends AdminbasePresenter
         /** @var ArrayHash hodnoty rodicovskeho tikety */
         $v = $this->model->fetch($id);
 
-        //	nastavim cislo rodicovskeho tiketu
+        // nastavim cislo rodicovskeho tiketu
         $v->offsetSet('incident', $v['id']);
 
-        //	odeberu nepotrebne udaje
+        // odeberu nepotrebne udaje
         $v->offsetUnset('maly_popis');
         $v->offsetUnset('obsah');
 
-        //	naplnim formular hodnotami rodice
+        // naplnim formular hodnotami rodice
         $this['add']->setDefaults($v);
     }
 

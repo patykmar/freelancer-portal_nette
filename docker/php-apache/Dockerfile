@@ -1,4 +1,4 @@
-FROM php:7.2-apache
+FROM php:7.4-apache
 
 #ARG WITH_XDEBUG=false
 
@@ -11,7 +11,9 @@ COPY ["docker/php-apache/000-default.conf", "/etc/apache2/sites-available/000-de
 #RUN rm /var/lib/apt/lists/* -R
 
 RUN a2enmod rewrite
-RUN docker-php-ext-install pdo mysqli pdo_mysql mbstring
+RUN docker-php-ext-install pdo mysqli pdo_mysql
+#RUN docker-php-ext-install pdo mysqli pdo_mysql mbstring
+#RUN docker-php-ext-enable pdo_mysql
 
 #RUN if [ $WITH_XDEBUG = "true" ] ; then \
 #    pecl install xdebug-2.9.8; \

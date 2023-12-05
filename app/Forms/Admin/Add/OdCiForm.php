@@ -15,19 +15,24 @@ use Nette\Forms\Form;
 
 class OdCiForm extends UIForm
 {
+    private CiModel $ciModel;
 
-    public function __construct(IContainer $parent = NULL, $name = NULL)
+    public function __construct(CiModel $ciModel, IContainer $parent = null, $name = null)
     {
+        $this->ciModel = $ciModel;
+
         parent::__construct($parent, $name);
-        $this->addText('od', 'Odesilatel:', NULL, 150)
+        $this->addText('od', 'Odesilatel:', null, 150)
             ->addRule(Form::FILLED);
-        $this->addSelect('ci', 'Produkt:', CiModel::fetchPairs())
+        $this->addSelect('ci', 'Produkt:', $this->ciModel->fetchPairs())
             ->setPrompt(' - - - ')
             ->addRule(Form::FILLED);
-        //	Obrana před Cross-Site Request Forgery (CSRF)
+        // Obrana před Cross-Site Request Forgery (CSRF)
         $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
-        //	Tlacitko odeslat
+        // Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;
+
     }
+
 }

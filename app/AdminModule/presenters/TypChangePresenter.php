@@ -86,13 +86,13 @@ class TypChangePresenter extends AdminbasePresenter
     {
         try {
             $this->setView('../_edit');
-            //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
+            // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
             $v = $this->typChangeModel->fetch($id);
 
-            //	odeberu idecko z pole
+            // odeberu idecko z pole
 //            $v->offsetUnset('id');
 
-            //	upravene hodnoty odeslu do formulare
+            // upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
@@ -135,13 +135,13 @@ class TypChangePresenter extends AdminbasePresenter
             $this->typChangeModel->fetch($id);
             $this->typChangeModel->remove($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
-            $this->redirect('TypChange:default');    //	change it !!!
+            $this->redirect('TypChange:default');    // change it !!!
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
-            $this->redirect('TypChange:default');    //	change it !!!
+            $this->redirect('TypChange:default');    // change it !!!
         } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
-            $this->redirect('TypChange:default');    //	change it !!!
+            $this->redirect('TypChange:default');    // change it !!!
         }
     }
 }

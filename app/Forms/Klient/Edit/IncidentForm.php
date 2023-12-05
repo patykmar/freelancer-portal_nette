@@ -13,10 +13,10 @@ use App\Form\Admin\Edit;
 
 class IncidentForm extends Edit\IncidentForm
 {
-    public function __construct(IContainer $parent = NULL, $name = NULL)
+    public function __construct(IContainer $parent = null, $name = null)
     {
         parent::__construct($parent, $name);
-        //	vymenim selectbox za inpust text
+        // vymenim selectbox za inpust text
         $this['new']->offsetUnset('incident_stav');
         $this['new']->addText('incident_stav', 'Stav incidentu:')
             ->setAttribute('readonly', 'readonly');

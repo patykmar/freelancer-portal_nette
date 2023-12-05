@@ -272,14 +272,14 @@ class FakturaPresenter extends AdminbasePresenter
             $dateExp->modify('+14 days');
             $variableSymbol = $v['vs'];
 
-            $supplierBuilder = new ParticipantBuilder($v['dodavatel_nazev'], $v['dodavatel_ulice'], NULL, // cislo popisne - mam v ramci ulice
+            $supplierBuilder = new ParticipantBuilder($v['dodavatel_nazev'], $v['dodavatel_ulice'], null, // cislo popisne - mam v ramci ulice
                 $v['dodavatel_obec'], $v['dodavatel_psc']);
             $supplier = $supplierBuilder->setIn($v['dodavatel_ico'])
                 ->setTin($v['dodavatel_dic'])
                 ->setAccountNumber($v['dodavatel_cislo_uctu'])
                 ->build();
 
-            $customerBuilder = new ParticipantBuilder($v['odberatel_nazev'], $v['odberatel_ulice'], NULL, // cislo popisne - mam v ramci ulice
+            $customerBuilder = new ParticipantBuilder($v['odberatel_nazev'], $v['odberatel_ulice'], null, // cislo popisne - mam v ramci ulice
                 $v['odberatel_obec'], $v['odberatel_psc']);
             $customer = $customerBuilder->setIn($v['odberatel_ico'])
                 ->setAccountNumber($v['odberatel_cislo_uctu'])

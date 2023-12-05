@@ -86,13 +86,13 @@ class OvlivneniPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
 
-            //	nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
+            // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
             $v = $this->model->fetch($id);
 
-            //	odeberu idecko z pole
+            // odeberu idecko z pole
 //            $v->offsetUnset('id');
 
-            //	upravene hodnoty odeslu do formulare
+            // upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());

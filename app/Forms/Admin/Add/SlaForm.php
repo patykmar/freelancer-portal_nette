@@ -20,21 +20,26 @@ class SlaForm extends UIForm
     const HOURS = 23;
     const MINUTES = 59;
 
-    public function __construct(IContainer $parent = NULL, $name = NULL)
+    private PrioritaModel $prioritaModel;
+
+    public function __construct(PrioritaModel $prioritaModel, IContainer $parent = null, $name = null)
     {
         parent::__construct($parent, $name);
+
+        $this->prioritaModel = $prioritaModel;
+
         $this->addHidden('tarif');
         $this->addText('nazev', 'Název tarifu')
             ->setDisabled();
-        $priority = PrioritaModel::fetchPairs();
-        //	pomocny kontejner pro vypis hodnot ve formulari
+        $priority = $this->prioritaModel->fetchPairs();
+        // pomocny kontejner pro vypis hodnot ve formulari
         $hodnoty = $this->addContainer('hodnoty');
-        //	podle poctu priorit se vygeneruji dalsi hodnoty
-        foreach ($priority as $key => $value):
+        // podle poctu priorit se vygeneruji dalsi hodnoty
+        foreach ($priority as $key => $value) {
             $hodnoty->addContainer($key);
             $hodnoty[$key]->addSelect('priorita', 'Priorita', $priority)
                 ->setDefaultValue($key);
-            $hodnoty[$key]->addText('cena_koeficient', 'Koeficient', NULL, 5)
+            $hodnoty[$key]->addText('cena_koeficient', 'Koeficient', null, 5)
                 ->addRule(Form::FILLED)
                 ->addRule(Form::FLOAT);
             $hodnoty[$key]->addSelect('mesic_reakce', 'Měsíců:', SlaForm::getTimeValue(self::MONTHS))
@@ -53,10 +58,10 @@ class SlaForm extends UIForm
                 ->addRule(Form::FILLED);
             $hodnoty[$key]->addSelect('minut_vyhotoveni', 'Minut:', SlaForm::getTimeValue(self::MINUTES))
                 ->addRule(Form::FILLED);
-        endforeach;
-        //	Obrana před Cross-Site Request Forgery (CSRF)
+        }
+        // Obrana před Cross-Site Request Forgery (CSRF)
         $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
-        //	Tlacitko odeslat
+        // Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;
     }
@@ -65,7 +70,7 @@ class SlaForm extends UIForm
      * @param int $value
      * @return array
      */
-    public static function getTimeValue($value = 59)
+    public static function getTimeValue(int $value = 59): array
     {
         $returnArray = array();
         for ($i = 0; $i <= $value; $i++) {
