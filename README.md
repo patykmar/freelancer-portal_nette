@@ -18,16 +18,18 @@ Developed on Nette framework ~2014.
     - 11/23 remove using database layer `dibi` and use only `Nette database`
 - 2023/12
     - Upgraded to PHP 7.4 and Nette framework 2.4
+    - Upgraded to Nette framework 3.0
+    - Removed dependency `miloslavkostir/datagrid`
 
 ## TODO
 
-- Refactor all `datagrid` build on `miloslavkostir/datagrid` and use new `ublaboo/datagrid` instead.
+- Refactor all datagrid build on `miloslavkostir/datagrid` and use new `ublaboo/datagrid` instead.
 
 ## Versions of components
 
 | Nette | PHP |
 |-------|-----|
-| 2.4   | 7.4 |
+| 3.0   | 7.4 |
 
 ## Create missing folders
 
