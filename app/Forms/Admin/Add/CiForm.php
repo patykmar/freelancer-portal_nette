@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Admin\Add;
+namespace App\Forms\Admin\Add;
 
 /**
  * Description of CiForm
@@ -19,20 +19,11 @@ use Nette\ComponentModel\IContainer;
 
 class CiForm extends UIForm
 {
-    /** @var CiModel $ciModel */
-    private $ciModel;
-
-    /** @var StavCiModel $stavCiModel */
-    private $stavCiModel;
-
-    /** @var FrontaModel $frontaModel */
-    private $frontaModel;
-
-    /** @var FirmaModel $firmaModel */
-    private $firmaModel;
-
-    /** @var TarifModel $tarifModel */
-    private $tarifModel;
+    private CiModel $ciModel;
+    private StavCiModel $stavCiModel;
+    private FrontaModel $frontaModel;
+    private FirmaModel $firmaModel;
+    private TarifModel $tarifModel;
 
     public function __construct(
         CiModel     $ciModel,

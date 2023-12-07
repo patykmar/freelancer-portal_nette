@@ -6,7 +6,7 @@ use greeny\MailLibrary\Connection;
 
 class ConnectionFactory
 {
-    private $imapDrive;
+    private ImapDriverFactory $imapDrive;
 
     public function __construct(ImapDriverFactory $imapDriverFactory)
     {
@@ -17,6 +17,5 @@ class ConnectionFactory
     {
         return new Connection($this->imapDrive->create());
     }
-
 
 }

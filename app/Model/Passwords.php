@@ -5,7 +5,7 @@
  * Copyright (c) 2004 David Grudl (http://davidgrudl.com)
  */
 
-namespace App;
+namespace App\Model;
 
 use Nette;
 
@@ -18,7 +18,6 @@ use Nette;
 class Passwords
 {
     const BCRYPT_COST = 10;
-
 
     /**
      * Computes salted password hash.
@@ -46,7 +45,6 @@ class Passwords
         return $hash;
     }
 
-
     /**
      * Verifies that a password matches a hash.
      * @param string $password
@@ -59,7 +57,6 @@ class Passwords
             && $m['cost'] > 3 && $m['cost'] < 31
             && self::hash($password, $m) === $hash;
     }
-
 
     /**
      * Checks if the given hash matches the options.

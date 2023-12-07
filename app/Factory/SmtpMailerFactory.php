@@ -6,8 +6,8 @@ use Nette\Mail\SmtpMailer;
 
 class SmtpMailerFactory
 {
-    private $config;
-    private $emailReceiver;
+    private array $config;
+    private string $emailReceiver;
 
     /**
      * @param $config []<string>

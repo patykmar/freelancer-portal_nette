@@ -7,7 +7,7 @@
  * @license MIT
  */
 
-namespace Components\Navigation;
+namespace App\Components\Navigation;
 
 use Nette\ComponentModel\Container;
 

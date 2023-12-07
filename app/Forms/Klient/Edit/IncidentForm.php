@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Klient\Edit;
+namespace App\Forms\Klient\Edit;
 
 /**
  * Jedna se jednodussi verzi formulare pro klienty
@@ -9,7 +9,7 @@ namespace App\Form\Klient\Edit;
  */
 
 use Nette\ComponentModel\IContainer;
-use App\Form\Admin\Edit;
+use App\Forms\Admin\Edit;
 
 class IncidentForm extends Edit\IncidentForm
 {

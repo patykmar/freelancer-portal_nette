@@ -11,8 +11,8 @@ namespace App\AdminModule\Presenters;
 use App\Grids\Admin\TypIncidentGrid;
 use App\Model\TypIncidentModel;
 use Exception;
-use App\Form\Admin\Add\TypIncidentForm as AddTypIncidentForm;
-use App\Form\Admin\Edit\TypIncidentForm as EditTypIncidentForm;
+use App\Forms\Admin\Add\TypIncidentForm as AddTypIncidentForm;
+use App\Forms\Admin\Edit\TypIncidentForm as EditTypIncidentForm;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
 use Tracy\Debugger;
@@ -20,8 +20,8 @@ use Nette\InvalidArgumentException;
 
 class TypIncidentPresenter extends AdminbasePresenter
 {
-    private $typIncidentModel;
-    private $typIncidentu;
+    private TypIncidentModel $typIncidentModel;
+    private Context $typIncidentu;
 
     public function __construct(Context $context, TypIncidentModel $typIncidentModel)
     {
@@ -128,7 +128,7 @@ class TypIncidentPresenter extends AdminbasePresenter
     {
         try {
             $this->typIncidentModel->fetch($id);
-            $this->typIncidentModel->remove($id);
+            $this->typIncidentModel->removeItem($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('TypIncident:default');    //change it !!!
         } catch (InvalidArgumentException $exc) {

@@ -4,6 +4,6 @@
 // require '.maintenance.php';
 
 
-$container = require __DIR__ . '/../app/bootstrap.php';
+$container = require __DIR__ . '/../app/Bootstrap.php';
 
 $container->getService('application')->run();

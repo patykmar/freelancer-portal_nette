@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Admin\Add;
+namespace App\Forms\Admin\Add;
 
 /**
  * Formular pro tvorbu nove faktury

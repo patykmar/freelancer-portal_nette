@@ -2,7 +2,6 @@
 
 namespace App\Model;
 
-use App\Passwords;
 use Nette\Database\Context;
 use Nette\InvalidArgumentException;
 use Nette\Security\AuthenticationException;
@@ -26,10 +25,7 @@ class UserManager implements IAuthenticator
     const COLUMN_ROLE = 'typ_osoby';
     const PASSWORD_MAX_LENGTH = 4096;
 
-
-    /** @var Context $database */
-    private $database;
-
+    private Context $database;
 
     public function __construct(Context $database)
     {

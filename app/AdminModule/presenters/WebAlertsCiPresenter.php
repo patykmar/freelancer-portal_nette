@@ -10,8 +10,8 @@ namespace App\AdminModule\Presenters;
 
 use App\Grids\Admin\OdCiGrid;
 use App\Model\OdCiModel;
-use App\Form\Admin\Add\OdCiForm as AddOdCiForm;
-use App\Form\Admin\Edit\OdCiForm as EditOdCiForm;
+use App\Forms\Admin\Add\OdCiForm as AddOdCiForm;
+use App\Forms\Admin\Edit\OdCiForm as EditOdCiForm;
 use Exception;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
@@ -20,14 +20,18 @@ use Nette\InvalidArgumentException;
 
 class WebAlertsCiPresenter extends AdminbasePresenter
 {
-    private $odCiModel;
-    private $odCiContext;
+    private OdCiModel $odCiModel;
+    private Context $odCiContext;
+    private AddOdCiForm $addodCiForm;
+    private EditOdCiForm $editOdCiForm;
 
-    public function __construct(OdCiModel $odCiModel, Context $odCiContext)
+    public function __construct(OdCiModel $odCiModel, Context $odCiContext, AddOdCiForm $addOdCiForm, EditOdCiForm $editOdCiForm)
     {
         parent::__construct();
         $this->odCiModel = $odCiModel;
         $this->odCiContext = $odCiContext;
+        $this->addodCiForm = $addOdCiForm;
+        $this->editOdCiForm = $editOdCiForm;
     }
 
     /*************************************** PART DEFINE GRIDS **************************************/
@@ -51,9 +55,8 @@ class WebAlertsCiPresenter extends AdminbasePresenter
 
     public function createComponentAdd(): AddOdCiForm
     {
-        $form = new AddOdCiForm();
-        $form->onSuccess[] = [$this, 'add'];
-        return $form;
+        $this->addodCiForm->onSuccess[] = [$this, 'add'];
+        return $this->addodCiForm;
     }
 
     /**
@@ -98,9 +101,8 @@ class WebAlertsCiPresenter extends AdminbasePresenter
 
     public function createComponentEdit(): EditOdCiForm
     {
-        $form = new EditOdCiForm();
-        $form->onSuccess[] = [$this, 'edit'];
-        return $form;
+        $this->editOdCiForm->onSuccess[] = [$this, 'edit'];
+        return $this->editOdCiForm;
     }
 
     /**
@@ -125,7 +127,7 @@ class WebAlertsCiPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function actionDrop($id)
+    public function actionDrop(int $id)
     {
         try {
             $this->odCiModel->fetch($id);

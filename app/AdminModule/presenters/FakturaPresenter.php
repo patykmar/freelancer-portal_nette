@@ -8,24 +8,24 @@
 
 namespace App\AdminModule\Presenters;
 
-use App\Components\MojeFaktura\MojeFakturaControl;
-use App\Config\AppParameterService;
-use App\Form\Admin\Add\FakturaForm;
-use App\Form\Admin\Add\SelectOdberatelDodavatelForm;
+use App\components\SmtpController\MojeFaktura\MojeFakturaControl;
+use App\config\AppParameterService;
+use App\Forms\Admin\Add\FakturaForm;
+use App\Forms\Admin\Add\SelectOdberatelDodavatelForm;
 use App\Grids\Admin\FakturaGrid;
 use App\Grids\Admin\PolozkyFakturyGrid;
 use App\Model\FakturaModel;
 use App\Model\FakturaPolozkaModel;
 use App\Model\FirmaModel;
-use App\Form\Admin\Edit\FakturaForm as FakturaFormAlias;
+use App\Forms\Admin\Edit\FakturaForm as FakturaFormAlias;
 use App\Model\FormaUhradyModel;
 use App\Model\OsobaModel;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Database\Context;
-use Nette\DateTime;
 use Nette\InvalidArgumentException;
 use Nette\NotImplementedException;
+use Nette\Utils\DateTime;
 use OndrejBrejla\Eciovni\Eciovni;
 use OndrejBrejla\Eciovni\ParticipantBuilder;
 use OndrejBrejla\Eciovni\ItemImpl;
@@ -36,13 +36,13 @@ use Exception;
 
 class FakturaPresenter extends AdminbasePresenter
 {
-    private $fakturaModel;
-    private $fakturaPolozkaModel;
-    private $modelFirma;
-    private $fakturaContext;
-    private $osobaModel;
-    private $formaUhradyModel;
-    private $appParameterService;
+    private FakturaModel $fakturaModel;
+    private FakturaPolozkaModel $fakturaPolozkaModel;
+    private FirmaModel $modelFirma;
+    private Context $fakturaContext;
+    private OsobaModel $osobaModel;
+    private FormaUhradyModel $formaUhradyModel;
+    private AppParameterService $appParameterService;
 
     public function __construct(
         FakturaModel        $fakturaModel,

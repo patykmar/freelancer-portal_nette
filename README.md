@@ -1,25 +1,33 @@
 # Freelancer portal
 
-Developed on Nette framework ~2014. In 2021 has been done code review where was:
+Developed on Nette framework ~2014.
 
-- use composer as dependencies manager
-- rewrote some model layer class where use [`nette database`](https://github.com/dg/nette-database) layer instead
-  of [`dibi`](https://github.com/dg/dibi)
-- changed namespaces of some components like *grids*, *forms*, etc. because use nette skeleton instead
-- use DI instead of manually create instances
-- **application is not ready for production because**:
-    - is still using old php version
-    - running on unmaintained nette framework
-    - main aim of publishing this source code was backup to GitHub and learn how to dockerized old project
+## Release notes
+- 2021
+  - use composer as dependencies manager
+  - rewrote some model layer class where use [`nette database`](https://github.com/dg/nette-database) layer instead
+    of [`dibi`](https://github.com/dg/dibi)
+  - changed namespaces of some components like *grids*, *forms*, etc. because use nette skeleton instead
+  - use DI instead of manually create instances
+  - **application is not ready for production because**:
+      - is still using old php version
+      - running on unmaintained nette framework
+      - main aim of publishing this source code was backup to GitHub and learn how to dockerized old project
 - 2023/11
-  - Application has been refactored to run under PHP 7.1 and upgrade Nette framework to 2.3 version
-  - 11/23 remove using database layer `dibi` and use only `Nette database`
+    - Application has been refactored to run under PHP 7.1 and upgrade Nette framework to 2.3 version
+    - 11/23 remove using database layer `dibi` and use only `Nette database`
+- 2023/12
+    - Upgraded to PHP 7.4 and Nette framework 2.4
+
+## TODO
+
+- Refactor all `datagrid` build on `miloslavkostir/datagrid` and use new `ublaboo/datagrid` instead.
 
 ## Versions of components
 
-| Nette  | PHP |
-|--------|-----|
-| 2.3.11 | 7.1 |
+| Nette | PHP |
+|-------|-----|
+| 2.4   | 7.4 |
 
 ## Create missing folders
 

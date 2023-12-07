@@ -8,23 +8,21 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Model\IncidentModel;
 use Exception;
-use App\Form\Admin\Add\TaskForm;
-use App\Model;
+use App\Forms\Admin\Add\TaskForm;
 use Nette\Application\AbortException;
-use Nette\ArrayHash;
-use Nette\DateTime;
+use Nette\Utils\DateTime;
 use Tracy\Debugger;
 
 class TiketTaskPresenter extends AdminbasePresenter
 {
-    /** @var Model\IncidentModel */
-    private $model;
+    private IncidentModel $incidentModel;
 
-    public function __construct()
+    public function __construct(IncidentModel $incidentModel)
     {
         parent::__construct();
-        $this->model = new Model\IncidentModel;
+        $this->incidentModel = $incidentModel;
     }
 
     /**
@@ -41,8 +39,7 @@ class TiketTaskPresenter extends AdminbasePresenter
     public function renderAdd($id)
     {
         $this->setView('../_add');
-        /** @var ArrayHash hodnoty rodicovskeho tikety */
-        $v = $this->model->fetch($id);
+        $v = $this->incidentModel->fetch($id);
 
         // nastavim cislo rodicovskeho tiketu
         $v->offsetSet('incident', $v['id']);
@@ -72,9 +69,9 @@ class TiketTaskPresenter extends AdminbasePresenter
             $v->offsetSet('incident_stav', 1);    // stav: otevren
             $v->offsetSet('typ_incident', 3);    // ITASK
 
-            $this->model->insert($v);
+            $this->incidentModel->insert($v);
             $this->flashMessage('Nový záznam byl přidán');
-            $this->presenter->redirect('Tickets:edit', $this->model->fetchLastItem());
+            $this->presenter->redirect('Tickets:edit', $this->incidentModel->getLastId());
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');

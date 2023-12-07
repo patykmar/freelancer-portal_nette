@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Admin\Add;
+namespace App\Forms\Admin\Add;
 
 /**
  * Description of OvlivneniForm
@@ -19,11 +19,9 @@ class OvlivneniForm extends UIForm
         parent::__construct($parent, $name);
         $this->addText('nazev', 'Název:', null, 255)
             ->addRule(Form::FILLED);
-        $this->addText('koeficient_cena', 'Koeficient cena:', null, 10)
-            ->setType('number')
+        $this->addInteger('koeficient_cena', 'Koeficient cena:', null, 10)
             ->addRule(Form::FLOAT);
-        $this->addText('koeficient_cas', 'Koeficient čas:', null, 10)
-            ->setType('number')
+        $this->addInteger('koeficient_cas', 'Koeficient čas:', null, 10)
             ->addRule(Form::FLOAT);
         // Obrana před Cross-Site Request Forgery (CSRF)
         $this->addProtection('Vypršel časový limit, odešlete formulář znovu');

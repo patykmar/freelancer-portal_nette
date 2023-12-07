@@ -17,8 +17,8 @@ use App\Model\FrontaModel;
 use App\Model\StavCiModel;
 use App\Model\TarifModel;
 use Exception;
-use App\Form\Admin\Add\CiForm;
-use App\Form\Admin\Edit;
+use App\Forms\Admin\Add\CiForm;
+use App\Forms\Admin\Edit;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Database\Context;
@@ -27,13 +27,13 @@ use Nette\InvalidArgumentException;
 
 class CiPresenter extends AdminbasePresenter
 {
-    private $ciModel;
-    private $stavCiModel;
-    private $ciLogModel;
-    private $ciContext;
-    private $frontaModel;
-    private $firmaModel;
-    private $tarifModel;
+    private CiModel $ciModel;
+    private StavCiModel $stavCiModel;
+    private CiLogModel $ciLogModel;
+    private Context $ciContext;
+    private FrontaModel $frontaModel;
+    private FirmaModel $firmaModel;
+    private TarifModel $tarifModel;
 
     public function __construct(
         CiModel     $ciModel,

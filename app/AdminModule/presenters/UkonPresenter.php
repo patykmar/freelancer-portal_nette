@@ -10,8 +10,8 @@ namespace App\AdminModule\Presenters;
 
 use App\Grids\Admin\UkonGrid;
 use App\Model\UkonModel;
-use App\Form\Admin\Edit\UkonForm as EditUkonForm;
-use App\Form\Admin\Add\UkonForm as AddUkonForm;
+use App\Forms\Admin\Edit\UkonForm as EditUkonForm;
+use App\Forms\Admin\Add\UkonForm as AddUkonForm;
 use Exception;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
@@ -20,14 +20,14 @@ use Nette\InvalidArgumentException;
 
 class UkonPresenter extends AdminbasePresenter
 {
-    private $model;
-    private $netteModel;
+    private UkonModel $ukonModel;
+    private Context $context;
 
     public function __construct(Context $context, UkonModel $ukonModel)
     {
         parent::__construct();
-        $this->model = $ukonModel;
-        $this->netteModel = $context;
+        $this->ukonModel = $ukonModel;
+        $this->context = $context;
     }
 
     /**
@@ -35,7 +35,7 @@ class UkonPresenter extends AdminbasePresenter
      */
     protected function createComponentGrid(): UkonGrid
     {
-        return new UkonGrid($this->netteModel->table('ukon'));
+        return new UkonGrid($this->context->table(UkonModel::TABLE_NAME));
     }
 
     public function renderDefault()
@@ -71,7 +71,7 @@ class UkonPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->model->insert($v);
+            $this->ukonModel->insert($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -91,7 +91,7 @@ class UkonPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->model->fetch($id);
+            $v = $this->ukonModel->fetch($id);
 
             // odeberu idecko z pole
 //            $v->offsetUnset('id');
@@ -118,7 +118,7 @@ class UkonPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->model->update($v['new'], $v['id']);
+            $this->ukonModel->update($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -135,8 +135,8 @@ class UkonPresenter extends AdminbasePresenter
     public function actionDrop(int $id)
     {
         try {
-            $this->model->fetch($id);
-            $this->model->removeItem($id);
+            $this->ukonModel->fetch($id);
+            $this->ukonModel->removeItem($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('Ukon:default'); // change it !!!
         } catch (InvalidArgumentException $exc) {

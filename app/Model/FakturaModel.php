@@ -21,7 +21,7 @@ final class FakturaModel extends BaseNDbModel
     public const TABLE_NAME = 'faktura';
     public const INVOICE_VS_LEN = 6;
 
-    private $incidentModel;
+    private IncidentModel $incidentModel;
 
     public function __construct(Context $context, IncidentModel $incidentModel)
     {
@@ -72,9 +72,6 @@ final class FakturaModel extends BaseNDbModel
             $polozky = $values['polozky'];
             //odeberu polozky z formulare
             $values->offsetUnset('polozky');
-            dump($values);
-            dump($polozky);
-            exit;
             $this->explorer->table(self::TABLE_NAME)
                 ->insert($values);
             // nactu si ID prave vlozene faktury

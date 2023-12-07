@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Admin\Edit;
+namespace App\Forms\Admin\Edit;
 
 /**
  * Description of FakturaForm
@@ -12,7 +12,6 @@ use App\Model\FormaUhradyModel;
 use App\Model\OsobaModel;
 use Nette\Application\UI\Form as UIForm;
 use Nette\ComponentModel\IContainer;
-use Nette\Forms\Container;
 use Nette\Forms\Form;
 
 class FakturaForm extends UIForm
@@ -21,12 +20,11 @@ class FakturaForm extends UIForm
         OsobaModel       $osobaModel,
         FormaUhradyModel $formaUhradyModel,
         IContainer       $parent = null,
-                         $name = null
+        string           $name = null
     )
     {
         parent::__construct($parent, $name);
         $this->addHidden('id');
-        /** @var Container */
         $new = $this->addContainer('new');
         $new->addText('dodavatel_nazev', 'Dodavatel nazev:', null, 250)
             ->addRule(Form::FILLED);

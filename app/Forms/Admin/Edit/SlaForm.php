@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Admin\Edit;
+namespace App\Forms\Admin\Edit;
 
 /**
  * Description of SlaForm
@@ -10,7 +10,7 @@ namespace App\Form\Admin\Edit;
 
 use Nette\Application\UI\Form as UIForm;
 use Nette\ComponentModel\IContainer;
-use App\Form\Admin\Add\SlaForm as AddSlaForm;
+use App\Forms\Admin\Add\SlaForm as AddSlaForm;
 use Nette\Forms\Form;
 
 class SlaForm extends UIForm

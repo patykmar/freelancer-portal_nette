@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Admin\Add;
+namespace App\Forms\Admin\Add;
 
 /**
  * Description of SelectOdberatelDodavatelForm
@@ -20,7 +20,6 @@ class SelectOdberatelDodavatelForm extends UIForm
     public function __construct(FirmaModel $firmaModel, IContainer $parent = null, $name = null)
     {
         $this->firmaModel = $firmaModel;
-
 
         parent::__construct($parent, $name);
         $this->addSelect('dodvatel', 'Dodavatel:', $this->firmaModel->fetchPairs())

@@ -10,8 +10,8 @@ namespace App\AdminModule\Presenters;
 
 use App\Grids\FkGrid;
 use Exception;
-use App\Form\Admin\Add\FkBaseForm as AddFkBaseForm;
-use App\Form\Admin\Edit\FkBaseForm as EditFkBaseForm;
+use App\Forms\Admin\Add\FkBaseForm as AddFkBaseForm;
+use App\Forms\Admin\Edit\FkBaseForm as EditFkBaseForm;
 use App\Model\FrontaModel;
 use Nette\Application\AbortException as AbortExceptionAlias;
 use Nette\Database\Context;
@@ -20,11 +20,8 @@ use Nette\InvalidArgumentException;
 
 class FrontaPresenter extends AdminbasePresenter
 {
-    /** @var FrontaModel */
-    private $frontaModel;
-
-    /** @var Context */
-    private $frontaContext;
+    private FrontaModel $frontaModel;
+    private Context $frontaContext;
 
     public function __construct(FrontaModel $frontaModel, Context $frontaContext)
     {
@@ -107,6 +104,9 @@ class FrontaPresenter extends AdminbasePresenter
         return $form;
     }
 
+    /**
+     * @throws AbortExceptionAlias
+     */
     public function edit(EditFkBaseForm $form)
     {
         try {

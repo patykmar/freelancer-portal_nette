@@ -8,6 +8,7 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Components\SmtpController\SendMailService;
 use App\Grids\Admin\OsobaGrid;
 use App\Model\FirmaModel;
 use App\Model\FormatDatumModel;
@@ -15,26 +16,26 @@ use App\Model\TimeZoneModel;
 use App\Model\TypOsobyModel;
 use App\Model\UserManager;
 use Exception;
-use App\Form\Admin\Add\OsobaForm as AddOsobaForm;
-use App\Form\Admin\Edit\OsobaForm as EditOsobaForm;
+use App\Forms\Admin\Add\OsobaForm as AddOsobaForm;
+use App\Forms\Admin\Edit\OsobaForm as EditOsobaForm;
 use App\Model\OsobaModel;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
-use Nette\ArrayHash;
 use Nette\Database\Context;
-use Nette\DateTime;
+use Nette\Utils\ArrayHash;
+use Nette\Utils\DateTime;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
-use SendMail\SendMailControler;
 
 class OsobaPresenter extends AdminbasePresenter
 {
-    private $osobaModel;
-    private $osobaContext;
-    private $typOsobyModel;
-    private $firmaModel;
-    private $timeZoneModel;
-    private $formatDatumModel;
+    private OsobaModel $osobaModel;
+    private Context $osobaContext;
+    private TypOsobyModel $typOsobyModel;
+    private FirmaModel $firmaModel;
+    private TimeZoneModel $timeZoneModel;
+    private FormatDatumModel $formatDatumModel;
+    private SendMailService $sendMailService;
 
     public function __construct(
         OsobaModel       $osobyModel,
@@ -42,7 +43,8 @@ class OsobaPresenter extends AdminbasePresenter
         TypOsobyModel    $typOsobyModel,
         FirmaModel       $firmaModel,
         TimeZoneModel    $timeZoneModel,
-        FormatDatumModel $formatDatumModel
+        FormatDatumModel $formatDatumModel,
+        SendMailService  $sendMailService
     )
     {
         parent::__construct();
@@ -52,7 +54,7 @@ class OsobaPresenter extends AdminbasePresenter
         $this->firmaModel = $firmaModel;
         $this->timeZoneModel = $timeZoneModel;
         $this->formatDatumModel = $formatDatumModel;
-
+        $this->sendMailService = $sendMailService;
     }
 
     /**
@@ -104,8 +106,8 @@ class OsobaPresenter extends AdminbasePresenter
 
             //pridam datum vytvoreni
             $v->offsetSet('datum_vytvoreni', new DateTime);
-            $mail = new SendMailControler();
-            $mail->novaOsoba($v);
+
+            $this->sendMailService->novaOsoba($v);
             $v->offsetSet('password', UserManager::hashPassword($v['password']));
             $this->osobaModel->insert($v);
         } catch (Exception $exc) {
@@ -122,7 +124,7 @@ class OsobaPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function renderEdit($id)
+    public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
@@ -156,6 +158,9 @@ class OsobaPresenter extends AdminbasePresenter
         return $form;
     }
 
+    /**
+     * @throws AbortException
+     */
     public function edit(EditOsobaForm $form)
     {
         try {
@@ -174,7 +179,7 @@ class OsobaPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function actionDrop($id)
+    public function actionDrop(int $id)
     {
         try {
             try {
@@ -197,7 +202,7 @@ class OsobaPresenter extends AdminbasePresenter
      * @param int $id identifikator uzivatele
      * @throws AbortException
      */
-    public function actionGenerujNoveHeslo($id)
+    public function actionGenerujNoveHeslo(int $id)
     {
         try {
             // Informace o uzivateli nactene z databaze
@@ -209,8 +214,7 @@ class OsobaPresenter extends AdminbasePresenter
             $item->offsetSet('datum_zmeny_hesla', new DateTime);
             $item->offsetUnset('id');
 
-            $mail = new SendMailControler;
-            $mail->vygenerujNoveHeslo($item);
+            $this->sendMailService->vygenerujNoveHeslo($item);
 
             //password encrypt
             $item->offsetSet('password', UserManager::hashPassword($item['password']));

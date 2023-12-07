@@ -10,8 +10,8 @@ namespace App\AdminModule\Presenters;
 
 use App\Grids\Admin\TarifGrid;
 use App\Model\TarifModel;
-use App\Form\Admin\Add\TarifForm as AddTarifForm;
-use App\Form\Admin\Edit\TarifForm as EditTarifForm;
+use App\Forms\Admin\Add\TarifForm as AddTarifForm;
+use App\Forms\Admin\Edit\TarifForm as EditTarifForm;
 use Exception;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
@@ -21,8 +21,8 @@ use Nette\InvalidArgumentException;
 
 class TarifPresenter extends AdminbasePresenter
 {
-    private $tarifModel;
-    private $tarifContext;
+    private TarifModel $tarifModel;
+    private Context $tarifContext;
 
     public function __construct(TarifModel $tarifModel, Context $tarifContext)
     {
@@ -82,7 +82,7 @@ class TarifPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function renderEdit($id)
+    public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
@@ -106,7 +106,7 @@ class TarifPresenter extends AdminbasePresenter
     }
 
     /**
-     * @throws AbortException
+     * @param EditTarifForm $form
      */
     public function edit(EditTarifForm $form)
     {
@@ -131,7 +131,7 @@ class TarifPresenter extends AdminbasePresenter
     {
         try {
             $this->tarifModel->fetch($id);
-            $this->tarifModel->remove($id);
+            $this->tarifModel->removeItem($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('Tarif:default'); //change it !!!
         } catch (InvalidArgumentException $exc) {

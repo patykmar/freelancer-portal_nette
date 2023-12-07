@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Admin\Add;
+namespace App\Forms\Admin\Add;
 
 /**
  * Description of OsobaForm
@@ -18,18 +18,10 @@ use Nette\Forms\Form;
 
 class OsobaForm extends UIForm
 {
-    /** @var TypOsobyModel $typOsobyModel */
-    private $typOsobyModel;
-
-    /** @var FirmaModel $firmaModel */
-    private $firmaModel;
-
-    /** @var TimeZoneModel $timeZoneModel */
-    private $timeZoneModel;
-
-    /** @var FormatDatumModel $formatDatumModel */
-    private $formatDatumModel;
-
+    private TypOsobyModel $typOsobyModel;
+    private FirmaModel $firmaModel;
+    private TimeZoneModel $timeZoneModel;
+    private FormatDatumModel $formatDatumModel;
 
     public function __construct(
         TypOsobyModel    $typOsobyModel,

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Admin\Add;
+namespace App\Forms\Admin\Add;
 
 /**
  * Description of IncidentForm
@@ -8,12 +8,6 @@ namespace App\Form\Admin\Add;
  * @author Martin Patyk
  */
 
-use App\Model\CiModel;
-use App\Model\OsobaModel;
-use App\Model\OvlivneniModel;
-use App\Model\PrioritaModel;
-use App\Model\TypIncidentModel;
-use App\Model\UkonModel;
 use Nette\Application\UI\Form as UIForm;
 use Nette\ComponentModel\IContainer;
 use Nette\Forms\Form;

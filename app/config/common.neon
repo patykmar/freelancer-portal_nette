@@ -25,11 +25,17 @@ session:
         expiration: 14 days
 
 services:
-    - App\Components\SendMailService
+    - App\Components\SmtpController\SendMailService
+    - App\Forms\Admin\Add\FakturaPolozkaForm
+    - App\Forms\Admin\Add\OdCiForm
+    - App\Forms\Admin\Edit\FakturaPolozkaForm
+    - App\Forms\Admin\Edit\OdCiForm
     - App\Model\ChangeStavModel
     - App\Model\CiModel
     - App\Model\CiLogModel
+    - App\Model\DphModel
     - App\Model\FakturaModel
+    - App\Model\FakturaPolozkaCssModel
     - App\Model\FakturaPolozkaModel
     - App\Model\FirmaModel
     - App\Model\FormatDatumModel
@@ -39,6 +45,7 @@ services:
     - App\Model\IncidentStavModel
     - App\Model\IncidentModel
     - App\Model\IncidentLogModel
+    - App\Model\JednotkaModel
     - App\Model\OdCiModel
     - App\Model\OvlivneniModel
     - App\Model\OsobaModel
@@ -59,4 +66,4 @@ services:
     - App\Factory\ConnectionFactory
     - App\Factory\SmtpMailerFactory(%sendMail%, %email.receiver%)
     - Latte\Engine
-    router: App\RouterFactory::createRouter
+    router: App\Router\RouterFactory::createRouter

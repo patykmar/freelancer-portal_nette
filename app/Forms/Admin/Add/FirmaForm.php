@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Admin\Add;
+namespace App\Forms\Admin\Add;
 
 use App\Model\ZemeModel;
 use Nette\Application\UI\Form as UIForm;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Admin\Edit;
+namespace App\Forms\Admin\Edit;
 
 /**
  * Description of FrontaOsobaForm

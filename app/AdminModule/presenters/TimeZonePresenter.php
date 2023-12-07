@@ -11,8 +11,8 @@ namespace App\AdminModule\Presenters;
 use App\Grids\Admin\TimeZoneGrid;
 use App\Model\TimeZoneModel;
 use Exception;
-use App\Form\Admin\Edit\TimeZoneForm as EditTimeZoneForm;
-use App\Form\Admin\Add\TimeZoneForm as AddTimeZoneForm;
+use App\Forms\Admin\Edit\TimeZoneForm as EditTimeZoneForm;
+use App\Forms\Admin\Add\TimeZoneForm as AddTimeZoneForm;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
 use Tracy\Debugger;
@@ -20,11 +20,8 @@ use Nette\InvalidArgumentException;
 
 class TimeZonePresenter extends AdminbasePresenter
 {
-    /** @var TimeZoneModel */
-    private $timeZoneModel;
-
-    /** @var Context */
-    private $timeZoneContext;
+    private TimeZoneModel $timeZoneModel;
+    private Context $timeZoneContext;
 
     public function __construct(TimeZoneModel $timeZoneModel, Context $timeZoneContext)
     {
@@ -82,7 +79,7 @@ class TimeZonePresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function renderEdit($id)
+    public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
@@ -129,11 +126,11 @@ class TimeZonePresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function actionDrop($id)
+    public function actionDrop(int $id)
     {
         try {
             $this->timeZoneModel->fetch($id);
-            $this->timeZoneModel->remove($id);
+            $this->timeZoneModel->removeItem($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('TimeZone:default');    // change it !!!
         } catch (InvalidArgumentException $exc) {

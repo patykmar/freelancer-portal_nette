@@ -11,8 +11,8 @@ namespace App\AdminModule\Presenters;
 use App\Grids\FkGrid;
 use App\Model\TypChangeModel;
 use Exception;
-use App\Form\Admin\Add\FkBaseForm as AddFkBaseForm;
-use App\Form\Admin\Edit\FkBaseForm as EditFkBaseForm;
+use App\Forms\Admin\Add\FkBaseForm as AddFkBaseForm;
+use App\Forms\Admin\Edit\FkBaseForm as EditFkBaseForm;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
 use Tracy\Debugger;
@@ -20,11 +20,8 @@ use Nette\InvalidArgumentException;
 
 class TypChangePresenter extends AdminbasePresenter
 {
-    /** @var TypChangeModel */
-    private $typChangeModel;
-
-    /** @var Context */
-    private $typChangeContext;
+    private TypChangeModel $typChangeModel;
+    private Context $typChangeContext;
 
     public function __construct(Context $typChangeContext, TypChangeModel $typChangeModel)
     {
@@ -82,7 +79,7 @@ class TypChangePresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function renderEdit($id)
+    public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
@@ -129,11 +126,11 @@ class TypChangePresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function actionDrop($id)
+    public function actionDrop(int $id)
     {
         try {
             $this->typChangeModel->fetch($id);
-            $this->typChangeModel->remove($id);
+            $this->typChangeModel->removeItem($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('TypChange:default');    // change it !!!
         } catch (InvalidArgumentException $exc) {

@@ -8,6 +8,7 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Components\WorkLog\WorkLogControl;
 use App\Grids\Admin\IncidentGrid;
 use App\Grids\TiketChildTaskGrid;
 use App\Model\CiModel;
@@ -21,34 +22,32 @@ use App\Model\PrioritaModel;
 use App\Model\TypIncidentModel;
 use App\Model\UkonModel;
 use App\Model\ZpusobUzavreniModel;
-use App\Form\Admin\Add;
-use App\Form\Admin\Edit;
+use App\Forms\Admin\Add;
+use App\Forms\Admin\Edit;
 use Exception;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Database\Context;
-use Nette\DateTime;
+use Nette\Utils\DateTime;
 use Tracy\Debugger;
 use Nette\Forms\Form;
 use Nette\InvalidArgumentException;
 use Nette\Utils\Strings;
-use Portal\WorkLog\WorkLogControl;
 
 class TicketsPresenter extends AdminbasePresenter
 {
-    private $model;
-    private $modelIncWl;
-    private $osobaModel;
-    private $typIncidentModel;
-    private $prioritaModel;
-    private $ovlivneniModel;
-    private $ciModel;
-    private $ukonModel;
-    private $netteModel;
-    private $zpusobUzavreniModel;
-    private $incidentStavModel;
-    private $frontaOsobaModel;
-//    private $childTaskDB;
+    private IncidentModel $model;
+    private IncidentLogModel $modelIncWl;
+    private OsobaModel $osobaModel;
+    private TypIncidentModel $typIncidentModel;
+    private PrioritaModel $prioritaModel;
+    private OvlivneniModel $ovlivneniModel;
+    private CiModel $ciModel;
+    private UkonModel $ukonModel;
+    private Context $netteModel;
+    private ZpusobUzavreniModel $zpusobUzavreniModel;
+    private IncidentStavModel $incidentStavModel;
+    private FrontaOsobaModel $frontaOsobaModel;
 
     public function __construct(
         Context             $context,
