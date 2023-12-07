@@ -1,20 +1,32 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
+declare(strict_types=1);
 
-$configurator = new Nette\Configurator;
+namespace App;
 
-//$configurator->setDebugMode('23.75.345.200'); // enable for your remote IP
-$configurator->setDebugMode(true); // enable for your remote IP
-$configurator->enableDebugger(__DIR__ . '/../log');
+use Nette\Configurator;
 
-$configurator->setTempDirectory(__DIR__ . '/../temp');
 
-$configurator->createRobotLoader()
-    ->addDirectory(__DIR__)
-    ->register();
+class Bootstrap
+{
+    public static function boot(): Configurator
+    {
+        $configurator = new Configurator;
 
-$configurator->addConfig(__DIR__ . '/config/common.neon');
-$configurator->addConfig(__DIR__ . '/config/local.neon');
+        //$configurator->setDebugMode('secret@23.75.345.200'); // enable for your remote IP
+        $configurator->setDebugMode(true); // enable for your remote IP
+        $configurator->enableTracy(__DIR__ . '/../log');
 
-return $configurator->createContainer();
+        $configurator->setTimeZone('Europe/Prague');
+        $configurator->setTempDirectory(__DIR__ . '/../temp');
+
+        $configurator->createRobotLoader()
+            ->addDirectory(__DIR__)
+            ->register();
+
+        $configurator->addConfig(__DIR__ . '/config/common.neon');
+        $configurator->addConfig(__DIR__ . '/config/local.neon');
+
+        return $configurator;
+    }
+}
