@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Config;
+namespace App\config;
 
 class AppParameterService
 {
-    private $basePath;
+    private string $basePath;
 
     public function __construct(string $basePath)
     {

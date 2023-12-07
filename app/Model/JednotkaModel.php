@@ -2,6 +2,8 @@
 
 namespace App\Model;
 
+use Nette\Database\Context;
+
 /**
  * Description of JednotkaModel
  *
@@ -9,14 +11,20 @@ namespace App\Model;
  */
 final class JednotkaModel extends BaseNDbModel
 {
-    use FetchPairsTrait {
-        fetchPairs as protected traitFetchPairs;
+    public const TABLE_NAME = 'jednotka';
+
+    public function __construct(Context $context)
+    {
+        parent::__construct(self::TABLE_NAME, $context);
     }
 
-    public const TABLE_NAME = 'jednotka';
 
     public function fetchPairs(): array
     {
-        return $this->traitFetchPairs('CONCAT(nazev," ",zkratka) AS nazev');
+        return $this->explorer->table(self::TABLE_NAME)
+            ->order('nazev')
+            ->select('id')
+            ->select('CONCAT(nazev," ",zkratka) AS nazev')
+            ->fetchPairs('id', 'nazev');
     }
 }

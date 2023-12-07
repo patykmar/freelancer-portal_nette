@@ -10,8 +10,8 @@ namespace App\AdminModule\Presenters;
 
 use App\Grids\Admin\FormatDatumGrid;
 use Exception;
-use App\Form\Admin\Add\FormatDatumForm as AddFormatDatumForm;
-use App\Form\Admin\Edit\FormatDatumForm as EditFormatDatumForm;
+use App\Forms\Admin\Add\FormatDatumForm as AddFormatDatumForm;
+use App\Forms\Admin\Edit\FormatDatumForm as EditFormatDatumForm;
 use App\Model\FormatDatumModel;
 use Nette\Application\AbortException as AbortExceptionAlias;
 use Nette\Database\Context;
@@ -20,11 +20,8 @@ use Nette\InvalidArgumentException;
 
 class FormatDatumPresenter extends AdminbasePresenter
 {
-    /** @var FormatDatumModel */
-    private $formatDatumModel;
-
-    /** @var Context */
-    private $formatDatumContext;
+    private FormatDatumModel $formatDatumModel;
+    private Context $formatDatumContext;
 
     public function __construct(FormatDatumModel $formatDatumModel, Context $formatDatumContext)
     {
@@ -78,8 +75,9 @@ class FormatDatumPresenter extends AdminbasePresenter
     /**
      * Cast EDIT
      * @param int $id Identifikator polozky
+     * @throws AbortExceptionAlias
      */
-    public function renderEdit($id)
+    public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
@@ -103,6 +101,9 @@ class FormatDatumPresenter extends AdminbasePresenter
         return $form;
     }
 
+    /**
+     * @throws AbortExceptionAlias
+     */
     public function edit(EditFormatDatumForm $form)
     {
         try {

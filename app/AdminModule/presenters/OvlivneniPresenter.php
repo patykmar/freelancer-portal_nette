@@ -11,7 +11,7 @@ namespace App\AdminModule\Presenters;
 use App\Grids\Admin\OvlivneniGrid;
 use App\Model\OvlivneniModel;
 use Exception;
-use App\Form\Admin\Edit\OvlivneniForm;
+use App\Forms\Admin\Edit\OvlivneniForm;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
 use Tracy\Debugger;
@@ -19,11 +19,8 @@ use Nette\InvalidArgumentException;
 
 class OvlivneniPresenter extends AdminbasePresenter
 {
-    /** @var Context */
-    private $netteModel;
-
-    /** @var OvlivneniModel */
-    private $model;
+    private Context $netteModel;
+    private OvlivneniModel $model;
 
     public function __construct(Context $context, OvlivneniModel $ovlivneniModel)
     {
@@ -135,13 +132,13 @@ class OvlivneniPresenter extends AdminbasePresenter
             $this->model->fetch($id);
             $this->model->remove($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
-            $this->redirect('Ovlivneni:default');    //	change it !!!
+            $this->redirect('Ovlivneni:default');    // change it !!!
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
-            $this->redirect('Ovlivneni:default');    //	change it !!!
+            $this->redirect('Ovlivneni:default');    // change it !!!
         } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
-            $this->redirect('Ovlivneni:default');    //	change it !!!
+            $this->redirect('Ovlivneni:default');    // change it !!!
         }
     }
 }

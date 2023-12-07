@@ -11,8 +11,8 @@ namespace App\AdminModule\Presenters;
 use App\Grids\FkGrid;
 use App\Model\StavCiModel;
 use Exception;
-use App\Form\Admin\Add\FkBaseForm as AddFkBaseForm;
-use App\Form\Admin\Edit\FkBaseForm as EditFkBaseForm;
+use App\Forms\Admin\Add\FkBaseForm as AddFkBaseForm;
+use App\Forms\Admin\Edit\FkBaseForm as EditFkBaseForm;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
 use Tracy\Debugger;
@@ -20,8 +20,8 @@ use Nette\InvalidArgumentException;
 
 class StavCiPresenter extends AdminbasePresenter
 {
-    private $stavCiModel;
-    private $stavCiContext;
+    private StavCiModel $stavCiModel;
+    private Context $stavCiContext;
 
     public function __construct(StavCiModel $stavCiModel, Context $stavCiContext)
     {
@@ -80,7 +80,7 @@ class StavCiPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function renderEdit($id)
+    public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
@@ -127,7 +127,7 @@ class StavCiPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function actionDrop($id)
+    public function actionDrop(int $id)
     {
         try {
             $this->stavCiModel->fetch($id);

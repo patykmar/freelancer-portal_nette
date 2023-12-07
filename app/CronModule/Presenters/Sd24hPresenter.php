@@ -6,21 +6,21 @@
  * @author Martin Patyk
  */
 
-namespace App\CronModule;
+namespace App\CronModule\Presenters;
 
-use App\Components\SendMailService;
+use App\components\SmtpController\SendMailService;
 use App\Model\IncidentModel;
 use Nette\Application\AbortException;
 use Nette\Application\UI\InvalidLinkException;
-use Nette\ArrayHash;
+use Nette\Utils\ArrayHash;
 
 class Sd24hPresenter extends CronBasePresenter
 {
     private const IDENTITY_SD24 = 8;
     private const INCIDENT_STAV_UZAVREN = 5;
     private const INCIDENT_STAV_CEKAM_NA_VYJADRENI_ZAKAZNIKA = 6;
-    private $incidentModel;
-    private $sendMailService;
+    private IncidentModel $incidentModel;
+    private SendMailService $sendMailService;
 
     public function __construct(IncidentModel $incidentModel, SendMailService $sendMailService)
     {

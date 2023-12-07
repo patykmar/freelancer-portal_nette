@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * Description of ChangeStavPresenter
  *
@@ -12,8 +11,8 @@ namespace App\AdminModule\Presenters;
 
 use App\Grids\FkGrid;
 use Exception;
-use App\Form\Admin\Add;
-use App\Form\Admin\Edit;
+use App\Forms\Admin\Add;
+use App\Forms\Admin\Edit;
 use App\Model\ChangeStavModel;
 use InvalidArgumentException;
 use Nette\Application\AbortException as AbortExceptionAlias;
@@ -23,12 +22,12 @@ use Tracy\Debugger;
 
 class ChangeStavPresenter extends AdminbasePresenter
 {
-    private $changeStavModel;
-    private $changeStavContext;
+    private ChangeStavModel $changeStavModel;
+    private Context $changeStavContext;
 
     public function __construct(
         ChangeStavModel $changeStavModel,
-        Context $changeStavContext
+        Context         $changeStavContext
     )
     {
         parent::__construct();
@@ -64,6 +63,9 @@ class ChangeStavPresenter extends AdminbasePresenter
         return $form;
     }
 
+    /**
+     * @throws AbortExceptionAlias
+     */
     public function add(Add\FkBaseForm $form)
     {
         try {
@@ -133,14 +135,14 @@ class ChangeStavPresenter extends AdminbasePresenter
                 $this->changeStavModel->fetch($id);
                 $this->changeStavModel->removeItem($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
-                $this->redirect('ChangeStav:default');    //	change it !!!
+                $this->redirect('ChangeStav:default');    // change it !!!
             } catch (InvalidArgumentException $exc) {
                 $this->flashMessage($exc->getMessage());
-                $this->redirect('ChangeStav:default');    //	change it !!!
+                $this->redirect('ChangeStav:default');    // change it !!!
             }
         } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
-            $this->redirect('ChangeStav:default');    //	change it !!!
+            $this->redirect('ChangeStav:default');    // change it !!!
         }
     }
 }

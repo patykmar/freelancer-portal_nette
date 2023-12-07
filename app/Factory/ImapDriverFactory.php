@@ -6,11 +6,11 @@ use greeny\MailLibrary\Drivers\ImapDriver;
 
 class ImapDriverFactory
 {
-    private $username;
-    private $password;
-    private $mailHost;
-    private $port;
-    private $useSsl;
+    private string $username;
+    private string $password;
+    private string $mailHost;
+    private int $port;
+    private bool $useSsl;
 
     public function __construct(string $username, string $password, string $mailHost, int $port, bool $useSsl)
     {

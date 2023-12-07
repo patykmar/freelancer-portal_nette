@@ -11,20 +11,20 @@ namespace App\AdminModule\Presenters;
 use App\Grids\Admin\FirmaGrid;
 use App\Model\ZemeModel;
 use Exception;
-use App\Form\Admin\Add;
-use App\Form\Admin\Edit;
+use App\Forms\Admin\Add;
+use App\Forms\Admin\Edit;
 use App\Model\FirmaModel;
 use Nette\Application\AbortException as AbortExceptionAlias;
 use Nette\Database\Context;
-use Nette\DateTime;
+use Nette\Utils\DateTime;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
 
 class FirmaPresenter extends AdminbasePresenter
 {
-    private $firmaModel;
-    private $firmaContext;
-    private $zemeModel;
+    private FirmaModel $firmaModel;
+    private Context $firmaContext;
+    private ZemeModel $zemeModel;
 
     public function __construct(FirmaModel $firmaModel, Context $firmaContext, ZemeModel $zemeModel)
     {
@@ -110,6 +110,9 @@ class FirmaPresenter extends AdminbasePresenter
         return $form;
     }
 
+    /**
+     * @throws AbortExceptionAlias
+     */
     public function edit(Edit\FirmaForm $form)
     {
         try {

@@ -11,7 +11,7 @@ namespace App\AdminModule\Presenters;
 use App\Grids\Admin\SlaGrid;
 use App\Model\SlaModel;
 use Exception;
-use App\Form\Admin\Edit;
+use App\Forms\Admin\Edit;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Database\Context;
@@ -21,11 +21,8 @@ use Nette\InvalidArgumentException;
 
 class SlaPresenter extends AdminbasePresenter
 {
-    /** @var SlaModel */
-    private $slaModel;
-
-    /** @var Context */
-    private $slaContext;
+    private SlaModel $slaModel;
+    private Context $slaContext;
 
     public function __construct(SlaModel $slaModel, Context $slaContext)
     {
@@ -39,7 +36,7 @@ class SlaPresenter extends AdminbasePresenter
      */
     protected function createComponentGrid(): SlaGrid
     {
-        $id = $this->presenter->getParameter('id', null);
+        $id = $this->presenter->getParameter('id');
         if (isset($id)) {
             return new SlaGrid($this->slaContext->table('sla')->where(array('tarif' => $id)));
         } else {

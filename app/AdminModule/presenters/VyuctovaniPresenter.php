@@ -12,21 +12,21 @@ use App\Grids\Admin\VyuctovaniGrid;
 use App\Model\FakturaModel;
 use App\Model\FirmaModel;
 use App\Model\IncidentModel;
-use App\Form\Admin\Add\FkBaseForm as AddFkBaseForm;
-use App\Form\Admin\Edit\FkBaseForm as EditFkBaseForm;
+use App\Forms\Admin\Add\FkBaseForm as AddFkBaseForm;
+use App\Forms\Admin\Edit\FkBaseForm as EditFkBaseForm;
 use Exception;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
-use Nette\DateTime;
+use Nette\Utils\DateTime;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
 
 class VyuctovaniPresenter extends AdminbasePresenter
 {
-    private $fakturaModel;
-    private $modelIncident;
-    private $vyuctovaniContext;
-    private $firmaModel;
+    private FakturaModel $fakturaModel;
+    private IncidentModel $modelIncident;
+    private Context $vyuctovaniContext;
+    private FirmaModel $firmaModel;
 
     public function __construct(
         FakturaModel  $fakturaModel,
@@ -86,6 +86,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
      * Nacte si vsechny tikety, ktere jsou uzavrene od firmy
      * @param int $id Identifikator firma, odberatel pro kterou se generuje faktura
      * @throws AbortException
+     * @throws Exception
      */
     public function actionGenerujFakturu(int $id)
     {

@@ -11,8 +11,8 @@ namespace App\AdminModule\Presenters;
 use App\Grids\FkGrid;
 use App\Model\IncidentStavModel;
 use Exception;
-use App\Form\Admin\Add\FkBaseForm as AddFkBaseForm;
-use App\Form\Admin\Edit\FkBaseForm as EditFkBaseForm;
+use App\Forms\Admin\Add\FkBaseForm as AddFkBaseForm;
+use App\Forms\Admin\Edit\FkBaseForm as EditFkBaseForm;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
 use Nette\Database\IRow;
@@ -21,24 +21,14 @@ use Nette\InvalidArgumentException;
 
 class IncidentStavPresenter extends AdminbasePresenter
 {
-    /** @var string */
-    private $tableName = 'incident_stav';
+    private IncidentStavModel $incidentStavModel;
+    private Context $netteModel;
 
-    /** @var IncidentStavModel */
-    private $model;
-
-    /** @var Context */
-    private $netteModel;
-
-    /**
-     * @param Context $context
-     * @param IncidentStavModel $model
-     */
     public function __construct(Context $context, IncidentStavModel $model)
     {
         parent::__construct();
         $this->netteModel = $context;
-        $this->model = $model;
+        $this->incidentStavModel = $model;
     }
 
     /**
@@ -46,7 +36,7 @@ class IncidentStavPresenter extends AdminbasePresenter
      */
     protected function createComponentGrid(): FkGrid
     {
-        return new FkGrid($this->netteModel->table($this->tableName));
+        return new FkGrid($this->netteModel->table(IncidentStavModel::TABLE_NAME));
     }
 
     public function renderDefault()
@@ -75,7 +65,7 @@ class IncidentStavPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->model->insert($v);
+            $this->incidentStavModel->insert($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -95,7 +85,7 @@ class IncidentStavPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             /** @var bool|IRow $v nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji */
-            $v = $this->model->fetch($id);
+            $v = $this->incidentStavModel->fetch($id);
 
             // upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
@@ -119,7 +109,7 @@ class IncidentStavPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->model->update($v['new'], $v['id']);
+            $this->incidentStavModel->update($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -134,12 +124,12 @@ class IncidentStavPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function actionDrop($id)
+    public function actionDrop(int $id)
     {
         try {
             try {
-                $this->model->fetch($id);
-                $this->model->remove($id);
+                $this->incidentStavModel->fetch($id);
+                $this->incidentStavModel->removeItem($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
                 $this->redirect('IncidentStav:default');    // change it !!!
             } catch (InvalidArgumentException $exc) {

@@ -15,11 +15,8 @@ use Nette\Security\IUserStorage;
 
 abstract class AdminbasePresenter extends BasePresenter
 {
-    /** @var int identifikator prave prihlaseneho uzivatele */
-    protected $userId;
-
-    /** @var Identity identita prihlaseneho uzivatele */
-    protected $identity;
+    protected int $userId;
+    protected Identity $identity;
 
     /**
      * @throws AbortException

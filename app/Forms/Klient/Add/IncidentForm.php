@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Klient\Add;
+namespace App\Forms\Klient\Add;
 
 /**
  * Description of IncidentForm
@@ -9,7 +9,7 @@ namespace App\Form\Klient\Add;
  */
 
 use Nette\ComponentModel\IContainer;
-use App\Form\Admin\Add;
+use App\Forms\Admin\Add;
 
 class IncidentForm extends Add\IncidentForm
 {

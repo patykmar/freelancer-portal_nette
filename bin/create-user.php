@@ -11,7 +11,7 @@ Usage: create-user.php <name> <password>
 
 list(, $user, $password) = $_SERVER['argv'];
 
-$container = require __DIR__ . '/../app/bootstrap.php';
+$container = require __DIR__ . '/../app/Bootstrap.php';
 $container->getByType('App\Model\UserManager')->add($user, $password);
 
 echo "User $user was added.\n";

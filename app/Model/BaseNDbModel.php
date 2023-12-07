@@ -17,8 +17,8 @@ abstract class BaseNDbModel
 {
     use SmartObject;
 
-    protected $tableName;
-    protected $explorer;
+    protected string $tableName;
+    protected Context $explorer;
 
     public function __construct(string $tableName, Context $context)
     {

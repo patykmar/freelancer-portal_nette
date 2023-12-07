@@ -2,18 +2,17 @@
 
 namespace App\Presenters;
 
-use Nette;
 use Nette\Application\AbortException;
 use Nette\Application\UI\Form;
+use Nette\Security\AuthenticationException;
 
 
 /**
- * Sign in/out presenters.
+ * Sign in/out Presenters.
  * @property mixed $signInFormSucceeded
  */
 class SignPresenter extends BasePresenter
 {
-
 
     /**
      * Sign-in form factory.
@@ -37,7 +36,6 @@ class SignPresenter extends BasePresenter
         return $form;
     }
 
-
     /**
      * @throws AbortException
      */
@@ -55,11 +53,10 @@ class SignPresenter extends BasePresenter
             $this->getUser()->login($values->username, $values->password);
             $this->redirect('Homepage:');
 
-        } catch (Nette\Security\AuthenticationException $e) {
+        } catch (AuthenticationException $e) {
             $form->addError($e->getMessage());
         }
     }
-
 
     /**
      * @throws AbortException

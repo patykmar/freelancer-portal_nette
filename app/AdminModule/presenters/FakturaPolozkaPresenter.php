@@ -10,31 +10,36 @@ namespace App\AdminModule\Presenters;
 
 use App\Model\FakturaPolozkaModel;
 use App\Model\FakturaModel;
-use App\Model;
 use Exception;
-use App\Form\Admin\Add\FakturaPolozkaForm as AddFakturaPolozkaForm;
-use App\Form\Admin\Edit\FakturaPolozkaForm as EditFakturaPolozkaForm;
+use App\Forms\Admin\Add\FakturaPolozkaForm as AddFakturaPolozkaForm;
+use App\Forms\Admin\Edit\FakturaPolozkaForm as EditFakturaPolozkaForm;
 use Nette\Application\AbortException as AbortExceptionAlias;
-use Nette;
 use Nette\Application\BadRequestException;
-use Nette\Application\UI\Form;
+use Nette\Forms\Form as FormAlias;
+use Nette\Utils\ArrayHash;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
 
 class FakturaPolozkaPresenter extends AdminbasePresenter
 {
 
-    /** @var FakturaPolozkaModel */
-    private $model;
+    private FakturaPolozkaModel $fakturaPolozkaModel;
+    private FakturaModel $modelFaktura;
+    private AddFakturaPolozkaForm $newFakturaPolozkaForm;
+    private EditFakturaPolozkaForm $editFakturaPolozkaForm;
 
-    /** @var FakturaModel */
-    private $modelFaktura;
-
-    public function __construct(\Nette\DI\Container $context)
+    public function __construct(
+        FakturaPolozkaModel    $fakturaPolozkaModel,
+        FakturaModel           $fakturaModel,
+        AddFakturaPolozkaForm  $newFakturaPolozkaForm,
+        EditFakturaPolozkaForm $editFakturaPolozkaForm
+    )
     {
-        parent::__construct($context);
-        $this->model = new Model\FakturaPolozkaModel;
-        $this->modelFaktura = new Model\FakturaModel;
+        parent::__construct();
+        $this->fakturaPolozkaModel = $fakturaPolozkaModel;
+        $this->modelFaktura = $fakturaModel;
+        $this->newFakturaPolozkaForm = $newFakturaPolozkaForm;
+        $this->editFakturaPolozkaForm = $editFakturaPolozkaForm;
     }
 
     /**
@@ -52,7 +57,7 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
      * @throws AbortExceptionAlias
      * @var $id int identifikator faktury
      */
-    public function renderAdd($id)
+    public function renderAdd(int $id)
     {
         try {
             $this->setView('../_add');
@@ -60,29 +65,27 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
             $this->modelFaktura->fetch($id);
 
             // do vytvorene komponenty vlozim cislo faktury do ktere chci vlozit polozku
-            $this['add']->setDefaults(Nette\ArrayHash::from(array('faktura' => $id)));
+            $this['add']->setDefaults(ArrayHash::from(array('faktura' => $id)));
         } catch (BadRequestException $exc) {
             $this->flashMessage($exc->getMessage());
             $this->redirect('Faktura:');
         }
     }
 
-    public function createComponentAdd()
+    public function createComponentAdd(): AddFakturaPolozkaForm
     {
-        $form = new AddFakturaPolozkaForm;
-        $form->onSuccess[] = [$this, 'add'];
-        return $form;
+        $this->newFakturaPolozkaForm->onSuccess = [$this, 'add'];
+        return $this->newFakturaPolozkaForm;
     }
 
     /**
      * @param AddFakturaPolozkaForm $form
-     * @throws \Nette\Application\AbortException
      */
     public function add(AddFakturaPolozkaForm $form)
     {
         try {
             $v = $form->getValues();
-            $this->model->insert($v);
+            $this->fakturaPolozkaModel->insert($v);
             $this->flashMessage('Nový záznam byl přidán');
             $this->redirect('Faktura:edit', $v['faktura']);
         } catch (Exception $exc) {
@@ -95,25 +98,26 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
 
     /**
      * @param int $id Identifikator polozky
+     * @throws AbortExceptionAlias
      */
-    public function renderEdit($id)
+    public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
             // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->model->fetch($id);
+            $v = $this->fakturaPolozkaModel->fetch($id);
 
             // pravidla pro formular
             $this['edit']['new']['nazev']
-                ->addRule(Form::FILLED);
+                ->addRule(FormAlias::FILLED);
 
             $this['edit']['new']['pocet_polozek']
                 ->setType('number')
-                ->addRule(Form::FLOAT)
-                ->addRule(Form::RANGE, null, array(0, 999));
+                ->addRule(FormAlias::FLOAT)
+                ->addRule(FormAlias::RANGE, null, array(0, 999));
 
             $this['edit']['new']['cena']
-                ->addRule(Form::FLOAT);
+                ->addRule(FormAlias::FLOAT);
 
             // odeberu idecko z pole
 //            $v->offsetUnset('id');
@@ -128,20 +132,19 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
 
     public function createComponentEdit()
     {
-        $form = new EditFakturaPolozkaForm;
-        $form->onSuccess[] = [$this, 'edit'];
-        return $form;
+        $this->editFakturaPolozkaForm->onSuccess[] = [$this, 'edit'];
+        return $this->editFakturaPolozkaForm;
     }
 
 
     /**
-     * @throws AbortExceptionAlias
+     * @param EditFakturaPolozkaForm $form
      */
     public function edit(EditFakturaPolozkaForm $form)
     {
         try {
             $v = $form->getValues();
-            $this->model->update($v['new'], $v['id']);
+            $this->fakturaPolozkaModel->update($v['new'], $v['id']);
 
             // fresmeruji zpet na editovani faktury
             $this->flashMessage('Záznam byl úspěšně změněn');
@@ -157,13 +160,13 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortExceptionAlias
      */
-    public function actionDrop($id)
+    public function actionDrop(int $id)
     {
         try {
             try {
                 // overim ze polozka existuje a zaroven si nactu jake fakture patri
-                $v = $this->model->fetch($id);
-                $this->model->remove($id);
+                $v = $this->fakturaPolozkaModel->fetch($id);
+                $this->fakturaPolozkaModel->removeItem($id);
 
                 $this->flashMessage('Položka byla odebrána');
 

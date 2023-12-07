@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Admin\Add;
+namespace App\Forms\Admin\Add;
 
 use Nette\Application\UI\Form as UIForm;
 use Nette\ComponentModel\IContainer;

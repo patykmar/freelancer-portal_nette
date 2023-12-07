@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Admin\Edit;
+namespace App\Forms\Admin\Edit;
 
 /**
  * Description of CiForm
@@ -19,20 +19,11 @@ use Nette\Forms\Form;
 
 class CiForm extends UIForm
 {
-    /** @var CiModel $ciModel */
-    private $ciModel;
-
-    /** @var StavCiModel $stavCiModel */
-    private $stavCiModel;
-
-    /** @var FrontaModel $frontaModel */
-    private $frontaModel;
-
-    /** @var FirmaModel $firmaModel */
-    private $firmaModel;
-
-    /** @var TarifModel $tarifModel */
-    private $tarifModel;
+    private CiModel $ciModel;
+    private StavCiModel $stavCiModel;
+    private FrontaModel $frontaModel;
+    private FirmaModel $firmaModel;
+    private TarifModel $tarifModel;
 
 
     public function __construct(
@@ -54,15 +45,6 @@ class CiForm extends UIForm
         $this->tarifModel = $tarifModel;
 
         $this->addHidden('id');
-        /*
-                $old = $this->addContainer('old');
-                $old->addHidden('nazev');
-                $old->addHidden('stav_ci');
-                $old->addHidden('fronta_specialista');
-                $old->addHidden('firma');
-                $old->addHidden('tarif');
-                $old->addHidden('zobrazit');
-        */
         $new = $this->addContainer('new');
         $new->addText('nazev', 'Název:', null, 250)
             ->addRule(Form::FILLED);

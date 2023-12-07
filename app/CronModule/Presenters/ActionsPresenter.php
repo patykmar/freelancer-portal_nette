@@ -6,7 +6,7 @@
  * @author Martin Patyk
  */
 
-namespace App\CronModule;
+namespace App\CronModule\Presenters;
 
 use App\Factory\ConnectionFactory;
 use App\Model\IncidentModel;
@@ -17,16 +17,16 @@ use greeny\MailLibrary\DriverException;
 use greeny\MailLibrary\InvalidFilterValueException;
 use greeny\MailLibrary\Mail;
 use Nette\Application\AbortException;
-use Nette\ArrayHash;
-use Nette\DateTime;
+use Nette\Utils\ArrayHash;
+use Nette\Utils\DateTime;
 use Tracy\Debugger;
 use Nette\Utils\Strings;
 
 class ActionsPresenter extends CronBasePresenter
 {
-    private $ciModel;
-    private $connectionFactory;
-    private $incidentModel;
+    private OdCiModel $ciModel;
+    private ConnectionFactory $connectionFactory;
+    private IncidentModel $incidentModel;
 
     public function __construct(OdCiModel $ciModel, ConnectionFactory $connectionFactory, IncidentModel $incidentModel)
     {
@@ -89,7 +89,6 @@ class ActionsPresenter extends CronBasePresenter
                 }
 
                 //zapisu data do databaze
-                #$newTicketModel = new \Portal\Incident\Models\IncidentModel();
 
                 $this->incidentModel->insert($newTicketValues);
 

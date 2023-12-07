@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Admin\Add;
+namespace App\Forms\Admin\Add;
 
 /**
  * Description of FakturaPolozkaForm
@@ -53,6 +53,5 @@ class FakturaPolozkaForm extends UIForm
         // Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;
-
     }
 }

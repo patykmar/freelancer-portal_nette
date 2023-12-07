@@ -11,8 +11,8 @@ namespace App\AdminModule\Presenters;
 use App\Grids\FkGrid;
 use App\Model\TypOsobyModel;
 use Exception;
-use App\Form\Admin\Add\FkBaseForm as AddFkBaseForm;
-use App\Form\Admin\Edit\FkBaseForm as EditFkBaseForm;
+use App\Forms\Admin\Add\FkBaseForm as AddFkBaseForm;
+use App\Forms\Admin\Edit\FkBaseForm as EditFkBaseForm;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
 use Tracy\Debugger;
@@ -20,11 +20,8 @@ use Nette\InvalidArgumentException;
 
 class TypOsobyPresenter extends AdminbasePresenter
 {
-    /** @var TypOsobyModel */
-    private $typOsobyModel;
-
-    /** @var Context */
-    private $typOsobyContext;
+    private TypOsobyModel $typOsobyModel;
+    private Context $typOsobyContext;
 
     public function __construct(TypOsobyModel $typOsobyModel, Context $typOsobyContext)
     {
@@ -129,11 +126,11 @@ class TypOsobyPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function actionDrop($id)
+    public function actionDrop(int $id)
     {
         try {
             $this->typOsobyModel->fetch($id);
-            $this->typOsobyModel->remove($id);
+            $this->typOsobyModel->removeItem($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('TypOsoby:default');    // change it !!!
         } catch (InvalidArgumentException $exc) {

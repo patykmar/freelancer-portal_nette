@@ -3,12 +3,12 @@
 namespace App\FrontModule\Presenters;
 
 use App\Presenters\BasePresenter;
-use Nette;
 use Nette\Application\AbortException;
 use Nette\Application\UI\Form;
+use Nette\Security\AuthenticationException;
 
 /**
- * Sign in/out presenters.
+ * Sign in/out Presenters.
  */
 class SignPresenter extends BasePresenter
 {
@@ -39,15 +39,15 @@ class SignPresenter extends BasePresenter
     {
         $values = $form->getValues();
         if ($values->remember) {
-            $this->getUser()->setExpiration('14 days', false);
+            $this->getUser()->setExpiration('14 days');
         } else {
-            $this->getUser()->setExpiration('20 minutes', TRUE);
+            $this->getUser()->setExpiration('20 minutes');
         }
 
         try {
             $this->getUser()->login($values->username, $values->password);
             $this->redirect(':Admin:Homepage:');
-        } catch (Nette\Security\AuthenticationException $e) {
+        } catch (AuthenticationException $e) {
             $form->addError($e->getMessage());
         }
     }

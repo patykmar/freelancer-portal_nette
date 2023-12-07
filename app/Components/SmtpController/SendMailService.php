@@ -1,30 +1,28 @@
 <?php
 
-namespace App\Components;
+namespace App\Components\SmtpController;
 
 use App\Factory\SmtpMailerFactory;
 use Nette\Application\UI\Control;
-use Nette\ComponentModel\IContainer;
 use Latte\Engine;
+use Nette\Database\IRow;
 use Nette\Mail\Message;
+use Nette\Mail\SmtpMailer;
 use Nette\NotImplementedException;
 use Nette\Utils\ArrayHash;
 
 class SendMailService extends Control
 {
     private const REGISTER_HELPER_LOADER = '\Nette\Templating\Helpers::loader';
-    private $smtpMailer;
-    private $latteEngine;
-    private $emailAddressReceiver;
+    private SmtpMailer $smtpMailer;
+    private Engine $latteEngine;
+    private string $emailAddressReceiver;
 
     public function __construct(
         SmtpMailerFactory $smtpMailerFactory,
-        Engine            $engine,
-        IContainer        $parent = null,
-        string            $name = null
+        Engine            $engine
     )
     {
-        parent::__construct($parent, $name);
         $this->smtpMailer = $smtpMailerFactory->create();
         $this->emailAddressReceiver = $smtpMailerFactory->getEmailReceiver();
         $this->latteEngine = $engine;
@@ -62,8 +60,9 @@ class SendMailService extends Control
     /**
      * Odesle zakaznikovi email s novym heslem
      */
-//    public function vygenerujNoveHeslo(DibiRow $value)
-//    {
+    public function vygenerujNoveHeslo(IRow $value)
+    {
+        throw new NotImplementedException("Method vygenerujNoveHeslo is not implemented");
     /*
      * Vytvorim sablonu a naplnim ji daty
      */
@@ -82,7 +81,7 @@ class SendMailService extends Control
 //        $this->smtpMailer->send($mail);
     #$mailer = new \Nette\Mail\SendmailMailer;
     #$mailer->send($mail);
-//    }
+    }
 
     /**
      * Odesle zakaznikovi email s pozadavkem na zpetnou vazbu.

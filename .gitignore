@@ -6,11 +6,14 @@ log/*.html
 temp/cache/
 temp/sessions/
 temp/*.dat
+temp/*.db
 vendor/
-app/config/*.local.neon
+app/config/*local.neon
 
 www/adminer/
 www/webtemp/*.js
 www/webtemp/*.css
 
-composer.lock
+*.lock
+*lock.json
+node_modules/
