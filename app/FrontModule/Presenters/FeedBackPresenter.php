@@ -7,10 +7,9 @@ use App\Model\IncidentModel;
 use App\Presenters\BasePresenter;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
-use Nette\ArrayHash;
-use Nette\DI\Container;
 use Nette\InvalidArgumentException;
 use Nette\NotImplementedException;
+use Nette\Utils\ArrayHash;
 use Nette\Utils\Strings;
 
 /**
@@ -18,14 +17,12 @@ use Nette\Utils\Strings;
  */
 class FeedBackPresenter extends BasePresenter
 {
+    private IncidentModel $incidentModel;
 
-    /** @var IncidentModel */
-    private $model;
-
-    public function __construct(Container $context)
+    public function __construct(IncidentModel $incidentModel)
     {
-        parent::__construct($context);
-        $this->model = new IncidentModel();
+        parent::__construct();
+        $this->incidentModel = $incidentModel;
     }
 
     /**
@@ -41,15 +38,15 @@ class FeedBackPresenter extends BasePresenter
      * Zpracuje pozitivni feedback
      * @throws BadRequestException
      */
-    public function renderPositive($id)
+    public function renderPositive(int $id)
     {
         try {
-            $v = $this->model->fetchForFeedBack($id);
+            $v = $this->incidentModel->fetchForFeedBack($id);
             $change = new ArrayHash;
             $change->offsetSet('incident_stav', 5); // nastavim stav uzavreno
             $change->offsetSet('identity', $v['osoba_vytvoril']); // predpoklada se, ze na odkaz klikne prijemce mailu
             $change->offsetSet('odezva_cekam', null); // neumoznim odeslat feedback
-            $this->model->update($change, $id);
+            $this->incidentModel->update($change, $id);
             unset($change, $v); // uvolnim prostredky
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
@@ -93,7 +90,7 @@ class FeedBackPresenter extends BasePresenter
         try {
             $v = $form->getValues();
             //uvereni zda-li je v db takovy radek
-            $dbVal = $this->model->fetchForFeedBack($v['id']);
+            $dbVal = $this->incidentModel->fetchForFeedBack($v['id']);
             $change = new ArrayHash;
             $change->offsetSet('incident_stav', 7); // znovu otevren
             $change->offsetSet('datum_uzavreni', null); // zrusim datum uzavreni
@@ -104,9 +101,8 @@ class FeedBackPresenter extends BasePresenter
             $change->offsetSet('odezva_odeslan_pozadavek', null); // nastavim znova moznost odeslani feedbacku
             $change->offsetSet('identity', $dbVal['osoba_vytvoril']); // predpoklada se, ze na odkaz klikne prijemce mailu
             $change->offsetSet('wl', '**Vyjádření zákaznika:** <br />' . Strings::trim($v['wl'])); // do WL zapisu feedback od zakaznika
-            $this->model->update($change, $v['id']);
+            $this->incidentModel->update($change, $v['id']);
             $this->redirect('close');
-            unset($change, $v, $dbVal);
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
             throw new BadRequestException;
