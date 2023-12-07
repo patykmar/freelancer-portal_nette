@@ -1,0 +1,38 @@
+<style lang="text/css">
+    body {
+        font-size: 10px;
+        color: black;
+        font-family: DejaVuSans;
+    }
+</style>
+
+<h2>Fakturujeme Vám za položky a služby:</h2>
+<div style="clear: both; margin-bottom: 15px;">
+    <table style="border-collapse: inherit; font-size: 10px; color: black; font-family: DejaVuSans;">
+        <tr style="background-color: #D9D9D9;">
+            <td style="text-align: left; width: 450px; border-color: #D9D9D9"><strong>Položka</strong></td>
+            <td style="text-align: center; width: 70px;border-color: #D9D9D9"><strong>Cena/jedn.</strong></td>
+            <td style="text-align: center; width: 50px;border-color: #D9D9D9"><strong>Počet</strong></td>
+            <td style="text-align: center; width: 50px;border-color: #D9D9D9"><strong>Sleva(%)</strong></td>
+            <td style="text-align: center; width: 100px;border-color: #D9D9D9"><strong>Suma(Kč)</strong></td>
+        </tr>
+        {foreach $fakturaPolozky as $item}
+            <tr>
+                {if $item['cssclass'] == 'faktura-nadpis'}
+                    <td style="font-weight: bold" colspan="4">{$item['nazev']}</td>
+                {else}
+                    <td>{$item['nazev']|truncate:75}</td>
+                    <td style="text-align: center;">{$item['cena']|number:2:',':' '}</td>
+                    {*				<td style="text-align: center;">{$item['pocet_polozek'].$item['jednotka']}</td> *}
+                    <td style="text-align: center;">{$item['pocet_polozek']|number:2:',':' '}</td>
+                    <td style="text-align: center;">{$item['sleva']|number:2:',':' '}</td>
+                    <td style="text-align: center;">{$item['cena_celkem']|number:2:',':' '}</td>
+                {/if}
+            </tr>
+            <tr n:ifset="$item['dodatek']">
+                <td colspan="5" style="padding-left: 50px; font-style: italic; font-size: 9px;">{$item['dodatek']}</td>
+            </tr>
+        {/foreach}
+    </table>
+</div>
+
