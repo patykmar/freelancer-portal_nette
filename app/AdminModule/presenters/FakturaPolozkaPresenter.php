@@ -130,7 +130,7 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit()
+    public function createComponentEdit(): EditFakturaPolozkaForm
     {
         $this->editFakturaPolozkaForm->onSuccess[] = [$this, 'edit'];
         return $this->editFakturaPolozkaForm;

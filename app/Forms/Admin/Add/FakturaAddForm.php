@@ -15,7 +15,7 @@ use Nette\Application\UI\Form as UIForm;
 use Nette\ComponentModel\IContainer;
 use Nette\Forms\Form as NetteForm;
 
-class FakturaForm extends UIForm
+class FakturaAddForm extends UIForm
 {
     private FormaUhradyModel $formaUhradyModel;
     private JednotkaModel $jednotkaModel;
