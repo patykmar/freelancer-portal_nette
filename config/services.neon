@@ -3,6 +3,7 @@ services:
     - App\Config\AppParameterService(%wwwDir%)
     - App\Factory\Forms\CiAddFormFactory
     - App\Factory\Forms\CiEditFormFactory
+    - App\Factory\Form\FakturaAddFormFactory
     - App\Factory\Forms\FormFactory
     - App\Factory\ConnectionFactory
     - App\Factory\ImapDriverFactory(%imapDriver.user%, %imapDriver.password%, %imapDriver.host%, %imapDriver.port%, %imapDriver.ssl%)

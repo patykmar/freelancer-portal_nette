@@ -8,9 +8,10 @@
 
 namespace App\AdminModule\Presenters;
 
-use App\components\SmtpController\MojeFaktura\MojeFakturaControl;
+use App\Components\MojeFaktura\MojeFakturaControl;
 use App\Config\AppParameterService;
-use App\Forms\Admin\Add\FakturaForm;
+use App\Factory\Form\FakturaAddFormFactory;
+use App\Forms\Admin\Add\FakturaAddForm;
 use App\Forms\Admin\Add\SelectOdberatelDodavatelForm;
 use App\Grids\Admin\FakturaGrid;
 use App\Grids\Admin\PolozkyFakturyGrid;
@@ -25,6 +26,7 @@ use Nette\Application\BadRequestException;
 use Nette\Database\Context;
 use Nette\InvalidArgumentException;
 use Nette\NotImplementedException;
+use Nette\Utils\ArrayHash;
 use Nette\Utils\DateTime;
 use OndrejBrejla\Eciovni\Eciovni;
 use OndrejBrejla\Eciovni\ParticipantBuilder;
@@ -43,6 +45,7 @@ class FakturaPresenter extends AdminbasePresenter
     private OsobaModel $osobaModel;
     private FormaUhradyModel $formaUhradyModel;
     private AppParameterService $appParameterService;
+    private FakturaAddFormFactory $addFormFactory;
 
     public function __construct(
         FakturaModel        $fakturaModel,
@@ -51,7 +54,8 @@ class FakturaPresenter extends AdminbasePresenter
         Context             $fakturaContext,
         OsobaModel          $osobaModel,
         FormaUhradyModel    $formaUhradyModel,
-        AppParameterService $appParameterService
+        AppParameterService $appParameterService,
+        FakturaAddFormFactory $addFormFactory
     )
     {
         parent::__construct();
@@ -62,6 +66,7 @@ class FakturaPresenter extends AdminbasePresenter
         $this->osobaModel = $osobaModel;
         $this->formaUhradyModel = $formaUhradyModel;
         $this->appParameterService = $appParameterService;
+        $this->addFormFactory = $addFormFactory;
     }
 
     public function getAppParameterService(): AppParameterService
@@ -79,11 +84,6 @@ class FakturaPresenter extends AdminbasePresenter
     protected function createComponentGridPolozkyFaktury(): PolozkyFakturyGrid
     {
         return new PolozkyFakturyGrid($this->fakturaContext->table(FakturaPolozkaModel::TABLE_NAME));
-    }
-
-    public function renderDefault()
-    {
-        #$this->setView('../_default');
     }
 
     /*************************************** PART ADD *************************************
@@ -111,14 +111,14 @@ class FakturaPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentAdd(): FakturaForm
+    public function createComponentAdd(): FakturaAddForm
     {
-        $form = new FakturaForm;
+        $form = $this->addFormFactory->create();
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
-    public function add(FakturaForm $form)
+    public function add(FakturaAddForm $form)
     {
         try {
             $v = $form->getValues();
@@ -180,7 +180,7 @@ class FakturaPresenter extends AdminbasePresenter
         try {
             #$this->setView('../_edit');
             //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->fakturaModel->fetchById($id);
+            $v = $this->fakturaModel->fetch($id);
             $this->getTemplate()->title = $v['vs'];
             $this->getTemplate()->faktura = $id;
 
@@ -201,12 +201,13 @@ class FakturaPresenter extends AdminbasePresenter
 
     /**
      * Zpracovani formulare po editaci
+     * @throws AbortException
      */
     public function edit(FakturaFormAlias $form)
     {
         try {
             $v = $form->getValues();
-            $this->fakturaModel->updateItem($v['new'], $v['id']);
+            $this->fakturaModel->update($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -245,10 +246,10 @@ class FakturaPresenter extends AdminbasePresenter
             #$this->redirectUrl(__DIR__ . '/../../../facka/'.$faData['vs'].'.pdf');
 
             //nastavim u faktury nazev PDF souboru
-            $arr = new \Nette\ArrayHash;
+            $arr = new ArrayHash;
             $arr->offsetSet('pdf_soubor', $faData['pdf_soubor']);
 
-            $this->fakturaModel->updateItem($arr, $id);
+            $this->fakturaModel->update($arr, $id);
             unset($arr);
             $this->flashMessage('PDF faktura byla vygenerovana');
             $this->redirect('default');
@@ -263,7 +264,7 @@ class FakturaPresenter extends AdminbasePresenter
     public function actionGeneratePdfEciovni($id)
     {
         try {
-            $v = $this->fakturaModel->fetchById($id);
+            $v = $this->fakturaModel->fetch($id);
 
             $dateNow = new $v['datum_vystaveni'];
             $dateExp = new $v['datum_splatnosti'];

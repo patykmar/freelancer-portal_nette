@@ -15,7 +15,7 @@ use Nette\Application\UI\Form as UIForm;
 use Nette\ComponentModel\IContainer;
 use Nette\Forms\Form as NetteForm;
 
-class FakturaForm extends UIForm
+class FakturaAddForm extends UIForm
 {
     private FormaUhradyModel $formaUhradyModel;
     private JednotkaModel $jednotkaModel;
@@ -88,9 +88,9 @@ class FakturaForm extends UIForm
                 ->addRule(NetteForm::INTEGER)
                 ->addRule(NetteForm::RANGE, null, array(0, 999));
             $item->addSelect('jednotka', 'Jednotka:', $this->jednotkaModel->fetchPairs())
-                ->setPrompt(IForm::INPUT_SELECT_PROMPT);
+                ->setPrompt(' - - - ');
             $item->addSelect('dph', 'DPH:', $this->dphModel->fetchPairs())
-                ->setPrompt(IForm::INPUT_SELECT_PROMPT);
+                ->setPrompt(' - - - ');
             $item->addSelect('cssclass', 'css:')
                 ->setItems(array(
                     'faktura-polozka',
@@ -101,7 +101,7 @@ class FakturaForm extends UIForm
             unset($item);
         }
         // Obrana před Cross-Site Request Forgery (CSRF)
-        $this->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
+        $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
         // Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;
