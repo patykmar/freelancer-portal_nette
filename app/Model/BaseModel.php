@@ -56,7 +56,8 @@ abstract class BaseModel implements BaseModelInterface
      */
     public function insertNewItem(ArrayHash $newItem): ArrayHash
     {
-        return $this->explorer->table($this->tableName)->insert($newItem);
+        $result = $this->explorer->table($this->tableName)->insert($newItem);
+        return ArrayHash::from($result);
     }
 
     public function removeItem(int $id, string $keyName = "id"): void

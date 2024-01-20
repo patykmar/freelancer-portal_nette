@@ -3,6 +3,8 @@ services:
     - App\Config\AppParameterService(%wwwDir%)
     - App\Factory\Forms\CiAddFormFactory
     - App\Factory\Forms\CiEditFormFactory
+    - App\Factory\Forms\CompanyAddFormFactory
+    - App\Factory\Forms\CompanyEditFormFactory
     - App\Factory\Forms\FakturaPolozkaAddFormFactory
     - App\Factory\Forms\FakturaPolozkaEditFormFactory
     - App\Factory\Forms\FormFactory
