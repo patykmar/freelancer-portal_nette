@@ -8,13 +8,13 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Factory\Forms\CompanyAddFormFactory;
+use App\Factory\Forms\CompanyEditFormFactory;
 use App\Grids\Admin\FirmaGrid;
-use App\Model\ZemeModel;
 use Exception;
-use App\Forms\Admin\Add;
-use App\Forms\Admin\Edit;
 use App\Model\FirmaModel;
 use Nette\Application\AbortException as AbortExceptionAlias;
+use Nette\Application\UI\Form;
 use Nette\Database\Context;
 use Nette\Utils\DateTime;
 use Tracy\Debugger;
@@ -24,14 +24,21 @@ class FirmaPresenter extends AdminbasePresenter
 {
     private FirmaModel $firmaModel;
     private Context $firmaContext;
-    private ZemeModel $zemeModel;
+    private CompanyAddFormFactory $companyAddFormFactory;
+    private CompanyEditFormFactory $companyEditFormFactory;
 
-    public function __construct(FirmaModel $firmaModel, Context $firmaContext, ZemeModel $zemeModel)
+    public function __construct(
+        FirmaModel             $firmaModel,
+        Context                $firmaContext,
+        CompanyAddFormFactory  $companyAddFormFactory,
+        CompanyEditFormFactory $companyEditFormFactory
+    )
     {
         parent::__construct();
         $this->firmaModel = $firmaModel;
         $this->firmaContext = $firmaContext;
-        $this->zemeModel = $zemeModel;
+        $this->companyAddFormFactory = $companyAddFormFactory;
+        $this->companyEditFormFactory = $companyEditFormFactory;
     }
 
     /**
@@ -55,9 +62,9 @@ class FirmaPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd(): Add\FirmaForm
+    public function createComponentAdd(): Form
     {
-        $form = new Add\FirmaForm($this->zemeModel);
+        $form = $this->companyAddFormFactory->create();
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
@@ -65,13 +72,13 @@ class FirmaPresenter extends AdminbasePresenter
     /**
      * @throws AbortExceptionAlias
      */
-    public function add(Add\FirmaForm $form)
+    public function add(Form $form)
     {
         try {
             $v = $form->getValues();
             $v->offsetSet('datum_vytvoreni', new DateTime);
             $v->offsetSet('datum_upravy', new DateTime);
-            $this->firmaModel->insert($v);
+            $this->firmaModel->insertNewItem($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -103,9 +110,9 @@ class FirmaPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit(): Edit\FirmaForm
+    public function createComponentEdit(): Form
     {
-        $form = new Edit\FirmaForm($this->zemeModel);
+        $form = $this->companyEditFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
@@ -113,7 +120,7 @@ class FirmaPresenter extends AdminbasePresenter
     /**
      * @throws AbortExceptionAlias
      */
-    public function edit(Edit\FirmaForm $form)
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();
