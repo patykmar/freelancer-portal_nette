@@ -25,11 +25,11 @@ class FirmaForm extends UIForm
         $this->addText('psc', 'PSČ:', null, 15)
             ->addRule(NetteForm::FILLED);
         $this->addSelect('zeme', 'Stát:', $zemeModel->fetchPairs())
-            ->setPrompt(' - - - ')
+            ->setPrompt(IForm::INPUT_SELECT_PROMPT)
             ->addRule(NetteForm::FILLED);
         $this->addText('cislo_uctu', 'Číslo účtu:', null, 50);
         //Obrana před Cross-Site Request Forgery (CSRF)
-        $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
+        $this->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         //Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;

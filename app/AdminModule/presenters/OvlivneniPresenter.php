@@ -84,7 +84,7 @@ class OvlivneniPresenter extends AdminbasePresenter
             $this->setView('../_edit');
 
             // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->model->fetch($id);
+            $v = $this->model->fetchById($id);
 
             // odeberu idecko z pole
 //            $v->offsetUnset('id');
@@ -111,7 +111,7 @@ class OvlivneniPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->model->update($v['new'], $v['id']);
+            $this->model->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -129,7 +129,7 @@ class OvlivneniPresenter extends AdminbasePresenter
     public function actionDrop($id)
     {
         try {
-            $this->model->fetch($id);
+            $this->model->fetchById($id);
             $this->model->remove($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('Ovlivneni:default');    // change it !!!

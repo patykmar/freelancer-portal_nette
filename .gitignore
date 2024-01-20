@@ -8,7 +8,7 @@ temp/sessions/
 temp/*.dat
 temp/*.db
 vendor/
-app/config/*local.neon
+config/*local.neon
 
 www/adminer/
 www/webtemp/*.js

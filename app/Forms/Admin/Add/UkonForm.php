@@ -31,7 +31,7 @@ class UkonForm extends UIForm
         $this->addTextArea('popis', 'Popis:')
             ->addRule(Form::FILLED);
         // Obrana před Cross-Site Request Forgery (CSRF)
-        $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
+        $this->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;

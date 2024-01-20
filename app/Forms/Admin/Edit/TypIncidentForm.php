@@ -33,9 +33,9 @@ class TypIncidentForm extends UIForm
             ->setRequired()
             ->addRule(Form::FLOAT);
         $new->addSelect('typ_incident', 'Typ incidentu - rodič:', $typIncidentModel->fetchPairsMain())
-            ->setPrompt(' - - - ');
+            ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         //Obrana před Cross-Site Request Forgery (CSRF)
-        $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
+        $this->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         //Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;

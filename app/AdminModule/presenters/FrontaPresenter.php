@@ -10,8 +10,8 @@ namespace App\AdminModule\Presenters;
 
 use App\Grids\FkGrid;
 use Exception;
-use App\Forms\Admin\Add\FkBaseForm as AddFkBaseForm;
-use App\Forms\Admin\Edit\FkBaseForm as EditFkBaseForm;
+use App\Forms\Admin\Add\ForeignKeyAddForm as AddFkBaseForm;
+use App\Forms\Admin\Edit\ForeignKeyEditForm as EditFkBaseForm;
 use App\Model\FrontaModel;
 use Nette\Application\AbortException as AbortExceptionAlias;
 use Nette\Database\Context;
@@ -84,7 +84,7 @@ class FrontaPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->frontaModel->fetch($id);
+            $v = $this->frontaModel->fetchById($id);
 
             // odeberu idecko z pole
             // $v->offsetUnset('id');
@@ -111,7 +111,7 @@ class FrontaPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->frontaModel->update($v['new'], $v['id']);
+            $this->frontaModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -129,7 +129,7 @@ class FrontaPresenter extends AdminbasePresenter
     {
         try {
             try {
-                $this->frontaModel->fetch($id);
+                $this->frontaModel->fetchById($id);
                 $this->frontaModel->remove($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
                 $this->redirect('Fronta:default');    // change it !!!

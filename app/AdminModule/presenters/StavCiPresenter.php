@@ -11,8 +11,8 @@ namespace App\AdminModule\Presenters;
 use App\Grids\FkGrid;
 use App\Model\StavCiModel;
 use Exception;
-use App\Forms\Admin\Add\FkBaseForm as AddFkBaseForm;
-use App\Forms\Admin\Edit\FkBaseForm as EditFkBaseForm;
+use App\Forms\Admin\Add\ForeignKeyAddForm as AddFkBaseForm;
+use App\Forms\Admin\Edit\ForeignKeyEditForm as EditFkBaseForm;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
 use Tracy\Debugger;
@@ -85,7 +85,7 @@ class StavCiPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->stavCiModel->fetch($id);
+            $v = $this->stavCiModel->fetchById($id);
 
             // odeberu idecko z pole
 //            $v->offsetUnset('id');
@@ -112,7 +112,7 @@ class StavCiPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->stavCiModel->update($v['new'], $v['id']);
+            $this->stavCiModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -130,7 +130,7 @@ class StavCiPresenter extends AdminbasePresenter
     public function actionDrop(int $id)
     {
         try {
-            $this->stavCiModel->fetch($id);
+            $this->stavCiModel->fetchById($id);
             $this->stavCiModel->remove($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('StavCi:default');    // change it !!!

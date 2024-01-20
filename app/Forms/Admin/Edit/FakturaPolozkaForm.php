@@ -16,7 +16,7 @@ use Nette\ComponentModel\IContainer;
 
 class FakturaPolozkaForm extends UIForm
 {
-    const EMPTY_PROMPT = ' - - - ';
+    const EMPTY_PROMPT = IForm::INPUT_SELECT_PROMPT;
     private JednotkaModel $jednotkaModel;
     private DphModel $dphModel;
     private FakturaPolozkaCssModel $fakturaPolozkaCssModel;
@@ -49,7 +49,7 @@ class FakturaPolozkaForm extends UIForm
             ->setPrompt(self::EMPTY_PROMPT);
         $new->addText('cena', 'Cena:', null, 10);
         // Obrana před Cross-Site Request Forgery (CSRF)
-        $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
+        $this->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;

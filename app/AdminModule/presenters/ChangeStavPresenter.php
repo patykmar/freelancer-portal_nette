@@ -9,13 +9,13 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Forms\Admin\Add\ForeignKeyAddForm;
+use App\Forms\Admin\Edit\ForeignKeyEditForm;
 use App\Grids\FkGrid;
 use Exception;
-use App\Forms\Admin\Add;
-use App\Forms\Admin\Edit;
 use App\Model\ChangeStavModel;
 use InvalidArgumentException;
-use Nette\Application\AbortException as AbortExceptionAlias;
+use Nette\Application\AbortException;
 use Nette\Database\Context;
 use Tracy\Debugger;
 
@@ -40,7 +40,7 @@ class ChangeStavPresenter extends AdminbasePresenter
      */
     protected function createComponentGrid(): FkGrid
     {
-        return new FkGrid($this->changeStavContext->table('change_stav'));
+        return new FkGrid($this->changeStavContext->table(ChangeStavModel::TABLE_NAME));
     }
 
     public function renderDefault()
@@ -56,17 +56,17 @@ class ChangeStavPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd(): Add\FkBaseForm
+    public function createComponentAdd(): ForeignKeyAddForm
     {
-        $form = new Add\FkBaseForm;
+        $form = new ForeignKeyAddForm;
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
     /**
-     * @throws AbortExceptionAlias
+     * @throws AbortException
      */
-    public function add(Add\FkBaseForm $form)
+    public function add(ForeignKeyAddForm $form)
     {
         try {
             $v = $form->getValues();
@@ -82,14 +82,14 @@ class ChangeStavPresenter extends AdminbasePresenter
     /**
      * Cast EDIT
      * @param int $id Identifikator polozky
-     * @throws AbortExceptionAlias
+     * @throws AbortException
      */
     public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
             // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->changeStavModel->fetch($id);
+            $v = $this->changeStavModel->fetchById($id);
             // odeberu idecko z pole
 //            $v->offsetUnset('id');
             // upravene hodnoty odeslu do formulare
@@ -100,21 +100,21 @@ class ChangeStavPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit(): Edit\FkBaseForm
+    public function createComponentEdit(): ForeignKeyEditForm
     {
-        $form = new Edit\FkBaseForm;
+        $form = new ForeignKeyEditForm;
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
     /**
-     * @throws AbortExceptionAlias
+     * @throws AbortException
      */
-    public function edit(Edit\FkBaseForm $form)
+    public function edit(ForeignKeyEditForm $form)
     {
         try {
             $v = $form->getValues();
-            $this->changeStavModel->update($v['new'], $v['id']);
+            $this->changeStavModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -126,20 +126,18 @@ class ChangeStavPresenter extends AdminbasePresenter
     /**
      * Cast DROP
      * @param int $id Identifikator polozky
-     * @throws AbortExceptionAlias
+     * @throws AbortException
      */
     public function actionDrop(int $id)
     {
         try {
-            try {
-                $this->changeStavModel->fetch($id);
-                $this->changeStavModel->removeItem($id);
-                $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
-                $this->redirect('ChangeStav:default');    // change it !!!
-            } catch (InvalidArgumentException $exc) {
-                $this->flashMessage($exc->getMessage());
-                $this->redirect('ChangeStav:default');    // change it !!!
-            }
+            $this->changeStavModel->fetchById($id);
+            $this->changeStavModel->removeItem($id);
+            $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
+            $this->redirect('ChangeStav:default');    // change it !!!
+        } catch (InvalidArgumentException $exc) {
+            $this->flashMessage($exc->getMessage());
+            $this->redirect('ChangeStav:default');    // change it !!!
         } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
             $this->redirect('ChangeStav:default');    // change it !!!

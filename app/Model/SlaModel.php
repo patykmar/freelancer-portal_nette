@@ -2,15 +2,16 @@
 
 namespace App\Model;
 
+use Nette\Application\BadRequestException;
 use Nette\Database\Context;
-use Nette\Database\Table\IRow;
+use Nette\Utils\ArrayHash;
 
 /**
  * Description of SlaModel
  *
  * @author Martin Patyk
  */
-final class SlaModel extends BaseNDbModel
+final class SlaModel extends BaseModel
 {
     use FetchPairsTrait;
 
@@ -41,14 +42,19 @@ final class SlaModel extends BaseNDbModel
      * Pretizena funkce ktera krome vsech hodnot v tabulce SLA vraci i nazvy
      * tarifu a priority
      * @param int $id Identifikator SLAcka
-     * @return IRow
+     * @return ArrayHash
+     * @throws BadRequestException
      */
-    public function fetch(int $id): IRow
+    public function fetchById(int $id): ArrayHash
     {
-        $sla = $this->explorer->table(self::TABLE_NAME);
-        $sla->where("tarif.id = sla.tarif");
-        $sla->where("priorita.id = sla.priorita");
-        return $sla->get($id);
+        $result = $this->explorer->table(self::TABLE_NAME)
+            ->where("tarif.id = sla.tarif")
+            ->where("priorita.id = sla.priorita")
+            ->get($id);
+        if ($this->checkNullOrFalse($result)) {
+            throw new BadRequestException("SLA no found for ID: $id");
+        }
+        return ArrayHash::from($result);
     }
 
     /**

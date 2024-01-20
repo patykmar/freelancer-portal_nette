@@ -84,7 +84,7 @@ class TimeZonePresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->timeZoneModel->fetch($id);
+            $v = $this->timeZoneModel->fetchById($id);
 
             // odeberu idecko z pole
 //            $v->offsetUnset('id');
@@ -111,7 +111,7 @@ class TimeZonePresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->timeZoneModel->update($v['new'], $v['id']);
+            $this->timeZoneModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -129,7 +129,7 @@ class TimeZonePresenter extends AdminbasePresenter
     public function actionDrop(int $id)
     {
         try {
-            $this->timeZoneModel->fetch($id);
+            $this->timeZoneModel->fetchById($id);
             $this->timeZoneModel->removeItem($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('TimeZone:default');    // change it !!!

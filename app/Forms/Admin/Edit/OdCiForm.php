@@ -27,10 +27,10 @@ class OdCiForm extends UIForm
         $new->addText('od', 'Odesilatel:', null, 150)
             ->addRule(Form::FILLED);
         $new->addSelect('ci', 'Produkt:', $this->ciModel->fetchPairs())
-            ->setPrompt(' - - - ')
+            ->setPrompt(IForm::INPUT_SELECT_PROMPT)
             ->addRule(Form::FILLED);
         // Obrana před Cross-Site Request Forgery (CSRF)
-        $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
+        $this->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;

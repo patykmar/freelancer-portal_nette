@@ -14,7 +14,7 @@ use Nette\ComponentModel\IContainer;
 
 class SelectOdberatelDodavatelForm extends UIForm
 {
-    const EMPTY_PROMPT = ' - - - ';
+    const EMPTY_PROMPT = IForm::INPUT_SELECT_PROMPT;
     private FirmaModel $firmaModel;
 
     public function __construct(FirmaModel $firmaModel, IContainer $parent = null, $name = null)
@@ -27,7 +27,7 @@ class SelectOdberatelDodavatelForm extends UIForm
         $this->addSelect('odberatel', 'Odberatel:', $this->firmaModel->fetchPairs())
             ->setPrompt(self::EMPTY_PROMPT);
         // Obrana před Cross-Site Request Forgery (CSRF)
-        $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
+        $this->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;

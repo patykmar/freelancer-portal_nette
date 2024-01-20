@@ -38,9 +38,9 @@ class FakturaPolozkaForm extends UIForm
             ->addRule(NetteForm::INTEGER)
             ->addRule(NetteForm::RANGE, null, array(0, 999));
         $this->addSelect('jednotka', 'Jednotka:', $this->jednotkaModel->fetchPairs())
-            ->setPrompt(' - - - ');
+            ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $this->addSelect('dph', 'DPH:', $this->dphModel->fetchPairs())
-            ->setPrompt(' - - - ');
+            ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $this->addSelect('cssclass', 'css:')
             ->setItems(array(
                 'faktura-polozka',
@@ -49,7 +49,7 @@ class FakturaPolozkaForm extends UIForm
         $this->addText('cena', 'Cena:', null, 10)
             ->addRule(NetteForm::FLOAT);
         // Obrana před Cross-Site Request Forgery (CSRF)
-        $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
+        $this->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;

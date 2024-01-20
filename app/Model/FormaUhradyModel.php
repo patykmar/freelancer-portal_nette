@@ -9,7 +9,7 @@ use Nette\Database\Context;
  *
  * @author Martin Patyk
  */
-final class FormaUhradyModel extends BaseNDbModel
+final class FormaUhradyModel extends BaseModel
 {
     use FetchPairsTrait;
 

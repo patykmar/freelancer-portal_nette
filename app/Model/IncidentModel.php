@@ -17,7 +17,7 @@ use Tracy\Debugger;
  *
  * @author Martin Patyk
  */
-final class IncidentModel extends BaseNDbModel
+final class IncidentModel extends BaseModel
 {
     public const TABLE_NAME = 'incident';
     private const INCIDENT_STAV_UZAVREN = 5;
@@ -378,7 +378,7 @@ final class IncidentModel extends BaseNDbModel
      * @return void
      * @throws InvalidArgumentException
      */
-    public function update(ArrayHash $arr, int $id)
+    public function updateItem(ArrayHash $arr, int $id): void
     {
         // nejprve si nactu stare hodnoty radku z databaze pro potreby porovnani
         $dbData = $this->fetchWith3thPartyTable($id);
@@ -597,7 +597,7 @@ final class IncidentModel extends BaseNDbModel
             $arr->offsetUnset('datum_reakce');
             $arr->offsetUnset('identity');
 
-            parent::update($arr, $id);
+            parent::updateItem($arr, $id);
         } catch (Exception $exc) {
             throw new InvalidArgumentException($exc->getMessage());
         }

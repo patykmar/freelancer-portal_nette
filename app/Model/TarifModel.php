@@ -13,7 +13,7 @@ use Nette\InvalidArgumentException;
  *
  * @author Martin Patyk
  */
-final class TarifModel extends BaseNDbModel
+final class TarifModel extends BaseModel
 {
     use FetchPairsTrait;
 

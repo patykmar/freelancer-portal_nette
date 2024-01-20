@@ -62,7 +62,7 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
         try {
             $this->setView('../_add');
             // overim ze je v systemu evidovana faktura s timto cislem
-            $this->modelFaktura->fetch($id);
+            $this->modelFaktura->fetchById($id);
 
             // do vytvorene komponenty vlozim cislo faktury do ktere chci vlozit polozku
             $this['add']->setDefaults(ArrayHash::from(array('faktura' => $id)));
@@ -105,7 +105,7 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->fakturaPolozkaModel->fetch($id);
+            $v = $this->fakturaPolozkaModel->fetchById($id);
 
             // pravidla pro formular
             $this['edit']['new']['nazev']
@@ -144,7 +144,7 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->fakturaPolozkaModel->update($v['new'], $v['id']);
+            $this->fakturaPolozkaModel->updateItem($v['new'], $v['id']);
 
             // fresmeruji zpet na editovani faktury
             $this->flashMessage('Záznam byl úspěšně změněn');
@@ -165,7 +165,7 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
         try {
             try {
                 // overim ze polozka existuje a zaroven si nactu jake fakture patri
-                $v = $this->fakturaPolozkaModel->fetch($id);
+                $v = $this->fakturaPolozkaModel->fetchById($id);
                 $this->fakturaPolozkaModel->removeItem($id);
 
                 $this->flashMessage('Položka byla odebrána');

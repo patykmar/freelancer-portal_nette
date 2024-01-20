@@ -9,7 +9,7 @@
 namespace App\AdminModule\Presenters;
 
 use App\components\SmtpController\MojeFaktura\MojeFakturaControl;
-use App\config\AppParameterService;
+use App\Config\AppParameterService;
 use App\Forms\Admin\Add\FakturaForm;
 use App\Forms\Admin\Add\SelectOdberatelDodavatelForm;
 use App\Grids\Admin\FakturaGrid;
@@ -180,7 +180,7 @@ class FakturaPresenter extends AdminbasePresenter
         try {
             #$this->setView('../_edit');
             //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->fakturaModel->fetch($id);
+            $v = $this->fakturaModel->fetchById($id);
             $this->getTemplate()->title = $v['vs'];
             $this->getTemplate()->faktura = $id;
 
@@ -206,7 +206,7 @@ class FakturaPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->fakturaModel->update($v['new'], $v['id']);
+            $this->fakturaModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -248,7 +248,7 @@ class FakturaPresenter extends AdminbasePresenter
             $arr = new \Nette\ArrayHash;
             $arr->offsetSet('pdf_soubor', $faData['pdf_soubor']);
 
-            $this->fakturaModel->update($arr, $id);
+            $this->fakturaModel->updateItem($arr, $id);
             unset($arr);
             $this->flashMessage('PDF faktura byla vygenerovana');
             $this->redirect('default');
@@ -263,7 +263,7 @@ class FakturaPresenter extends AdminbasePresenter
     public function actionGeneratePdfEciovni($id)
     {
         try {
-            $v = $this->fakturaModel->fetch($id);
+            $v = $this->fakturaModel->fetchById($id);
 
             $dateNow = new $v['datum_vystaveni'];
             $dateExp = new $v['datum_splatnosti'];

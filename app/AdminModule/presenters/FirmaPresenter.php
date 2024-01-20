@@ -90,7 +90,7 @@ class FirmaPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->firmaModel->fetch($id);
+            $v = $this->firmaModel->fetchById($id);
 
             //odeberu idecko z pole
 //            $v->offsetUnset('id');
@@ -118,7 +118,7 @@ class FirmaPresenter extends AdminbasePresenter
         try {
             $v = $form->getValues();
             $v['new']->offsetSet('datum_upravy', new DateTime);
-            $this->firmaModel->update($v['new'], $v['id']);
+            $this->firmaModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -136,7 +136,7 @@ class FirmaPresenter extends AdminbasePresenter
     {
         try {
             try {
-                $this->firmaModel->fetch($id);
+                $this->firmaModel->fetchById($id);
                 $this->firmaModel->remove($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
                 $this->redirect('Firma:default'); // change it !!!

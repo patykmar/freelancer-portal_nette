@@ -48,19 +48,19 @@ class OsobaForm extends UIForm
             ->addRule(Form::EMAIL);
         $this->addSelect('firma', 'Firma:', $this->firmaModel->fetchPairs())
             ->addRule(Form::FILLED)
-            ->setPrompt(' - - - ');
+            ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $this->addSelect('typ_osoby', 'Typ osoby:', $this->typOsobyModel->fetchPairs())
             ->addRule(Form::FILLED)
-            ->setPrompt(' - - - ');
+            ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $this->addSelect('time_zone', 'Časová zona:', $this->timeZoneModel->fetchPairs())
             ->addRule(Form::FILLED)
-            ->setPrompt(' - - - ');
+            ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $this->addSelect('format_datum', 'Formád datumu:', $this->formatDatumModel->fetchPairs())
             ->addRule(Form::FILLED)
-            ->setPrompt(' - - - ');
+            ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $this->addCheckbox('je_admin', 'Jde o admina?');
         //Obrana před Cross-Site Request Forgery (CSRF)
-        $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
+        $this->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         //Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;

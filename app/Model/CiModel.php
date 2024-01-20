@@ -9,7 +9,7 @@ use Nette\Database\Context;
  *
  * @author Martin Patyk
  */
-final class CiModel extends BaseNDbModel
+final class CiModel extends BaseModel
 {
     use FetchPairsTrait;
 

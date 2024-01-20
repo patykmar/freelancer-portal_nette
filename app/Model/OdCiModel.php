@@ -9,7 +9,7 @@ use Nette\Database\Context;
  *
  * @author Martin Patyk
  */
-final class OdCiModel extends BaseNDbModel
+final class OdCiModel extends BaseModel
 {
     use FetchPairsTrait;
 

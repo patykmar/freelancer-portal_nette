@@ -9,7 +9,7 @@ use Nette\Database\Context;
  *
  * @author Martin Patyk
  */
-final class ZemeModel extends BaseNDbModel
+final class ZemeModel extends BaseModel
 {
     use FetchPairsTrait;
 

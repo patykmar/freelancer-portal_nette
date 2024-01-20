@@ -11,8 +11,8 @@ namespace App\AdminModule\Presenters;
 use App\Grids\FkGrid;
 use App\Model\IncidentStavModel;
 use Exception;
-use App\Forms\Admin\Add\FkBaseForm as AddFkBaseForm;
-use App\Forms\Admin\Edit\FkBaseForm as EditFkBaseForm;
+use App\Forms\Admin\Add\ForeignKeyAddForm as AddFkBaseForm;
+use App\Forms\Admin\Edit\ForeignKeyEditForm as EditFkBaseForm;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
 use Nette\Database\IRow;
@@ -85,7 +85,7 @@ class IncidentStavPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             /** @var bool|IRow $v nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji */
-            $v = $this->incidentStavModel->fetch($id);
+            $v = $this->incidentStavModel->fetchById($id);
 
             // upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
@@ -109,7 +109,7 @@ class IncidentStavPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->incidentStavModel->update($v['new'], $v['id']);
+            $this->incidentStavModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -128,7 +128,7 @@ class IncidentStavPresenter extends AdminbasePresenter
     {
         try {
             try {
-                $this->incidentStavModel->fetch($id);
+                $this->incidentStavModel->fetchById($id);
                 $this->incidentStavModel->removeItem($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
                 $this->redirect('IncidentStav:default');    // change it !!!

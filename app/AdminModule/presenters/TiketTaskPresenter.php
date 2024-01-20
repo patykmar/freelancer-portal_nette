@@ -39,7 +39,7 @@ class TiketTaskPresenter extends AdminbasePresenter
     public function renderAdd($id)
     {
         $this->setView('../_add');
-        $v = $this->incidentModel->fetch($id);
+        $v = $this->incidentModel->fetchById($id);
 
         // nastavim cislo rodicovskeho tiketu
         $v->offsetSet('incident', $v['id']);

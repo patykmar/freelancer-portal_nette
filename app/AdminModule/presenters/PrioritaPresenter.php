@@ -11,8 +11,8 @@ namespace App\AdminModule\Presenters;
 use App\Grids\FkGrid;
 use App\Model\PrioritaModel;
 use Exception;
-use App\Forms\Admin\Add\FkBaseForm as AddFkBaseForm;
-use App\Forms\Admin\Edit\FkBaseForm as EditFkBaseForm;
+use App\Forms\Admin\Add\ForeignKeyAddForm as AddFkBaseForm;
+use App\Forms\Admin\Edit\ForeignKeyEditForm as EditFkBaseForm;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
 use Tracy\Debugger;
@@ -84,7 +84,7 @@ class PrioritaPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->prioritaModel->fetch($id);
+            $v = $this->prioritaModel->fetchById($id);
             // odeberu idecko z pole
 //            $v->offsetUnset('id');
 
@@ -110,7 +110,7 @@ class PrioritaPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->prioritaModel->update($v['new'], $v['id']);
+            $this->prioritaModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -128,7 +128,7 @@ class PrioritaPresenter extends AdminbasePresenter
     public function actionDrop(int $id)
     {
         try {
-            $this->prioritaModel->fetch($id);
+            $this->prioritaModel->fetchById($id);
             $this->prioritaModel->removeItem($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('Priorita:default');    // change it !!!

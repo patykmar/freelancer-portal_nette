@@ -59,7 +59,7 @@ class SlaPresenter extends AdminbasePresenter
     {
         try {
             //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->slaModel->fetch($id);
+            $v = $this->slaModel->fetchById($id);
             //odeberu idecko z pole a jine nepotrebne veci
 //            $v->offsetUnset('id');
             //upravene hodnoty odeslu do formulare
@@ -84,7 +84,7 @@ class SlaPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->slaModel->update($v['new'], $v['id']);
+            $this->slaModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');

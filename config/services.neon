@@ -1,31 +1,12 @@
-#
-# SECURITY WARNING: it is CRITICAL that this file & directory are NOT accessible directly via a web browser!
-#
-# If you don't protect this directory from direct web access, anybody will be able to see your passwords.
-# http://nette.org/security-warning
-#
-parameters:
-    imapDriver:
-        user:
-        password:
-        host:
-        port: 993
-        ssl: true
-    email:
-        receiver: portal@patyk.cz
-
-php:
-    date.timezone: Europe/Prague
-
-application:
-    errorPresenter: Error
-    mapping:
-        *: App\*Module\Presenters\*Presenter
-session:
-        expiration: 14 days
-
 services:
     - App\Components\SmtpController\SendMailService
+    - App\Config\AppParameterService(%wwwDir%)
+    - App\Factory\Forms\CiAddFormFactory
+    - App\Factory\Forms\CiEditFormFactory
+    - App\Factory\Forms\FormFactory
+    - App\Factory\ConnectionFactory
+    - App\Factory\ImapDriverFactory(%imapDriver.user%, %imapDriver.password%, %imapDriver.host%, %imapDriver.port%, %imapDriver.ssl%)
+    - App\Factory\SmtpMailerFactory(%sendMail%, %email.receiver%)
     - App\Forms\Admin\Add\FakturaPolozkaForm
     - App\Forms\Admin\Add\OdCiForm
     - App\Forms\Admin\Edit\FakturaPolozkaForm
@@ -61,9 +42,5 @@ services:
     - App\Model\UserManager
     - App\Model\ZemeModel
     - App\Model\ZpusobUzavreniModel
-    - App\Config\AppParameterService(%wwwDir%)
-    - App\Factory\ImapDriverFactory(%imapDriver.user%, %imapDriver.password%, %imapDriver.host%, %imapDriver.port%, %imapDriver.ssl%)
-    - App\Factory\ConnectionFactory
-    - App\Factory\SmtpMailerFactory(%sendMail%, %email.receiver%)
     - Latte\Engine
     router: App\Router\RouterFactory::createRouter

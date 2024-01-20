@@ -82,7 +82,7 @@ class TypIncidentPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->typIncidentModel->fetch($id);
+            $v = $this->typIncidentModel->fetchById($id);
 
             //odeberu idecko z pole
 //            $v->offsetUnset('id');
@@ -109,7 +109,7 @@ class TypIncidentPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->typIncidentModel->update($v['new'], $v['id']);
+            $this->typIncidentModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -127,7 +127,7 @@ class TypIncidentPresenter extends AdminbasePresenter
     public function actionDrop(int $id)
     {
         try {
-            $this->typIncidentModel->fetch($id);
+            $this->typIncidentModel->fetchById($id);
             $this->typIncidentModel->removeItem($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('TypIncident:default');    //change it !!!

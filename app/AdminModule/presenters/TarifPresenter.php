@@ -87,7 +87,7 @@ class TarifPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->tarifModel->fetch($id);
+            $v = $this->tarifModel->fetchById($id);
             //odeberu idecko z pole
 //            $v->offsetUnset('id');
             //upravene hodnoty odeslu do formulare
@@ -112,7 +112,7 @@ class TarifPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->tarifModel->update($v['new'], $v['id']);
+            $this->tarifModel->updateItem($v['new'], $v['id']);
             $this->flashMessage('Záznam byl úspěšně změněn');
             $this->redirect('default');
         } catch (Exception $exc) {
@@ -130,7 +130,7 @@ class TarifPresenter extends AdminbasePresenter
     public function actionDrop(int $id)
     {
         try {
-            $this->tarifModel->fetch($id);
+            $this->tarifModel->fetchById($id);
             $this->tarifModel->removeItem($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('Tarif:default'); //change it !!!

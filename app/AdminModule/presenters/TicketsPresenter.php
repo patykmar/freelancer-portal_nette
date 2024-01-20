@@ -188,19 +188,19 @@ class TicketsPresenter extends AdminbasePresenter
                 ->setItems($this->ciModel->fetchAllPairsWithCompanyName());
             $this['editTiket']['new']['fronta_osoba']
                 ->setItems($this->frontaOsobaModel->fetchSpecialistPairsWithQueueName())
-                ->setPrompt(' - - - ');
+                ->setPrompt(IForm::INPUT_SELECT_PROMPT);
             $this['editTiket']['new']['ukon']
                 ->setItems($this->ukonModel->fetchPairs())
-                ->setPrompt(' - - - ');
+                ->setPrompt(IForm::INPUT_SELECT_PROMPT);
             $this['editTiket']['new']['ovlivneni']
                 ->setItems($this->ovlivneniModel->fetchPairs())
-                ->setPrompt(' - - - ');
+                ->setPrompt(IForm::INPUT_SELECT_PROMPT);
             $this['editTiket']['new']['zpusob_uzavreni']
                 ->setItems($this->zpusobUzavreniModel->fetchPairs())
-                ->setPrompt(' - - - ');
+                ->setPrompt(IForm::INPUT_SELECT_PROMPT);
             $this['editTiket']['new']['typ_incident']
                 ->setItems($this->typIncidentModel->fetchPairs())
-                ->setPrompt(' - - - ')
+                ->setPrompt(IForm::INPUT_SELECT_PROMPT)
                 ->addRule(Form::FILLED);
             $this['editTiket']['new']['priorita']
                 ->setItems($this->prioritaModel->fetchPairs())
@@ -269,7 +269,7 @@ class TicketsPresenter extends AdminbasePresenter
             if (!empty($v['new']['wl'])):
                 $v['new']->offsetSet('wl', '**Popis činnosti:** <br />' . Strings::trim($v['new']['wl']));
             endif;
-            $this->model->update($v['new'], $v['id']);
+            $this->model->updateItem($v['new'], $v['id']);
             $this->presenter->flashMessage('Záznam byl úspěšně změněn');
             $this->redirect('edit', $v['id']);
         } catch (InvalidArgumentException $exc) {
@@ -287,7 +287,7 @@ class TicketsPresenter extends AdminbasePresenter
     public function actionDrop($id)
     {
         try {
-            $this->model->fetch($id);
+            $this->model->fetchById($id);
             $this->model->remove($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('Tickets:default'); //change it !!!

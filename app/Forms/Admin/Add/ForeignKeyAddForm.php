@@ -2,19 +2,18 @@
 
 namespace App\Forms\Admin\Add;
 
-use Nette\Application\UI\Form as UIForm;
-use Nette\ComponentModel\IContainer;
+use Nette\Application\UI\Form;
 use Nette\Forms\Form as NetteForm;
 
-class FkBaseForm extends UIForm
+class ForeignKeyAddForm extends Form
 {
-    public function __construct(IContainer $parent = null, $name = null)
+    public function __construct()
     {
-        parent::__construct($parent, $name);
+        parent::__construct();
         $this->addText('nazev', 'Název:', null, 100)
             ->addRule(NetteForm::FILLED);
         // Obrana před Cross-Site Request Forgery (CSRF)
-        $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
+        $this->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;

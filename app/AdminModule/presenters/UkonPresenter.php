@@ -91,7 +91,7 @@ class UkonPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->ukonModel->fetch($id);
+            $v = $this->ukonModel->fetchById($id);
 
             // odeberu idecko z pole
 //            $v->offsetUnset('id');
@@ -118,7 +118,7 @@ class UkonPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->ukonModel->update($v['new'], $v['id']);
+            $this->ukonModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -135,7 +135,7 @@ class UkonPresenter extends AdminbasePresenter
     public function actionDrop(int $id)
     {
         try {
-            $this->ukonModel->fetch($id);
+            $this->ukonModel->fetchById($id);
             $this->ukonModel->removeItem($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('Ukon:default'); // change it !!!

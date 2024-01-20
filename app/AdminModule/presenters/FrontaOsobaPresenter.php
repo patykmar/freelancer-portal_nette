@@ -95,7 +95,7 @@ class FrontaOsobaPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->frontaOsobaModel->fetch($id);
+            $v = $this->frontaOsobaModel->fetchById($id);
 
             //odeberu idecko z pole
 //            $v->offsetUnset('id');
@@ -119,7 +119,7 @@ class FrontaOsobaPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->frontaOsobaModel->update($v['new'], $v['id']);
+            $this->frontaOsobaModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -137,7 +137,7 @@ class FrontaOsobaPresenter extends AdminbasePresenter
     {
         try {
             try {
-                $this->frontaOsobaModel->fetch($id);
+                $this->frontaOsobaModel->fetchById($id);
                 $this->frontaOsobaModel->remove($id);
                 $this->flashMessage('Položka byla odebrána'); //Položka byla odebrána
                 $this->redirect('FrontaOsobaPresenter:default');    //change it !!!

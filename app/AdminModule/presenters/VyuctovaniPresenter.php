@@ -12,8 +12,8 @@ use App\Grids\Admin\VyuctovaniGrid;
 use App\Model\FakturaModel;
 use App\Model\FirmaModel;
 use App\Model\IncidentModel;
-use App\Forms\Admin\Add\FkBaseForm as AddFkBaseForm;
-use App\Forms\Admin\Edit\FkBaseForm as EditFkBaseForm;
+use App\Forms\Admin\Add\ForeignKeyAddForm as AddFkBaseForm;
+use App\Forms\Admin\Edit\ForeignKeyEditForm as EditFkBaseForm;
 use Exception;
 use Nette\Application\AbortException;
 use Nette\Database\Context;
@@ -163,7 +163,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->fakturaModel->fetch($id);
+            $v = $this->fakturaModel->fetchById($id);
             //odeberu idecko z pole
 //            $v->offsetUnset('id');
             //upravene hodnoty odeslu do formulare
@@ -188,7 +188,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->fakturaModel->update($v['new'], $v['id']);
+            $this->fakturaModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -206,7 +206,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
     public function actionDrop(int $id)
     {
         try {
-            $this->fakturaModel->fetch($id);
+            $this->fakturaModel->fetchById($id);
             $this->fakturaModel->remove($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('VyuctovaniPresenter:default'); //change it !!!

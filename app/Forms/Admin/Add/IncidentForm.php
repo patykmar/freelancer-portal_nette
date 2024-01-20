@@ -24,17 +24,17 @@ class IncidentForm extends UIForm
         $this->addSelect('priorita', 'Priorita:')
             ->addRule(Form::FILLED);
         $this->addSelect('ovlivneni', 'Ovlivnění:')
-            ->setPrompt(' - - - ');
+            ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $this->addSelect('ci', 'Produkt:')
             ->addRule(Form::FILLED);
         $this->addSelect('ukon', 'Služba:')
-            ->setPrompt(' - - - ');
+            ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $this->addText('maly_popis', 'Malý popis:', null, 100)
             ->addRule(Form::FILLED);
         $this->addTextArea('obsah', 'Popis požadavku')
             ->addRule(Form::FILLED);
         // Obrana před Cross-Site Request Forgery (CSRF)
-        $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
+        $this->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;

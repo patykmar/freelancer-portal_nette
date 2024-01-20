@@ -86,7 +86,7 @@ class WebAlertsCiPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->odCiModel->fetch($id);
+            $v = $this->odCiModel->fetchById($id);
 
             // odeberu idecko z pole
 //            $v->offsetUnset('id');
@@ -112,7 +112,7 @@ class WebAlertsCiPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->odCiModel->update($v['new'], $v['id']);
+            $this->odCiModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -130,7 +130,7 @@ class WebAlertsCiPresenter extends AdminbasePresenter
     public function actionDrop(int $id)
     {
         try {
-            $this->odCiModel->fetch($id);
+            $this->odCiModel->fetchById($id);
             $this->odCiModel->removeItem($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('WebAlertsCi:default');    // change it !!!

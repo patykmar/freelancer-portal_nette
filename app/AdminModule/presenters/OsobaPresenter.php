@@ -129,7 +129,7 @@ class OsobaPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->osobaModel->fetch($id);
+            $v = $this->osobaModel->fetchById($id);
 
             //odeberu idecko z pole a heslo
 //            $v->offsetUnset('id');
@@ -165,7 +165,7 @@ class OsobaPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->osobaModel->update($v['new'], $v['id']);
+            $this->osobaModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -183,7 +183,7 @@ class OsobaPresenter extends AdminbasePresenter
     {
         try {
             try {
-                $this->osobaModel->fetch($id);
+                $this->osobaModel->fetchById($id);
                 $this->osobaModel->remove($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
                 $this->redirect('Osoba:default'); //change it !!!
@@ -206,7 +206,7 @@ class OsobaPresenter extends AdminbasePresenter
     {
         try {
             // Informace o uzivateli nactene z databaze
-            $item = $this->osobaModel->fetch($id);
+            $item = $this->osobaModel->fetchById($id);
 
             //necham si vygenerovat nove heslo
             $item->offsetSet('password', UserManager::generateNewPassword());
@@ -220,7 +220,7 @@ class OsobaPresenter extends AdminbasePresenter
             $item->offsetSet('password', UserManager::hashPassword($item['password']));
 
             //save to db
-            $this->osobaModel->update(ArrayHash::from($item), $id);
+            $this->osobaModel->updateItem(ArrayHash::from($item), $id);
 
             $flashMessage = sprintf('Uzivateli %s %s bylo vygenerovano nove heslo', $item['jmeno'], $item['prijmeni']);
 

@@ -9,7 +9,7 @@ use Nette\Database\Context;
  *
  * @author Martin Patyk
  */
-final class ZpusobUzavreniModel extends BaseNDbModel
+final class ZpusobUzavreniModel extends BaseModel
 {
     use FetchPairsTrait;
 

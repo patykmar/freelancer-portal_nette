@@ -73,7 +73,7 @@ class FakturaForm extends UIForm
         $new->addSelect('forma_uhrady', 'Forma uhrady:', $formaUhradyModel->fetchPairs())
             ->addRule(Form::FILLED);
         //Obrana před Cross-Site Request Forgery (CSRF)
-        $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
+        $this->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         //Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož')
             ->setHtmlAttribute('class', 'btn btn-success');

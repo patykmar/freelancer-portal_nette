@@ -82,7 +82,7 @@ class FormatDatumPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->formatDatumModel->fetch($id);
+            $v = $this->formatDatumModel->fetchById($id);
 
             // odeberu idecko z pole
 //            $v->offsetUnset('id');
@@ -108,7 +108,7 @@ class FormatDatumPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->formatDatumModel->update($v['new'], $v['id']);
+            $this->formatDatumModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -126,7 +126,7 @@ class FormatDatumPresenter extends AdminbasePresenter
     {
         try {
             try {
-                $this->formatDatumModel->fetch($id);
+                $this->formatDatumModel->fetchById($id);
                 $this->formatDatumModel->remove($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
                 $this->redirect('FormatDatum:default');    // change it !!!
