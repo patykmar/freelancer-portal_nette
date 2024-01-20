@@ -8,13 +8,14 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Factory\Forms\FakturaPolozkaAddFormFactory;
+use App\Factory\Forms\FakturaPolozkaEditFormFactory;
 use App\Model\FakturaPolozkaModel;
 use App\Model\FakturaModel;
 use Exception;
-use App\Forms\Admin\Add\FakturaPolozkaForm as AddFakturaPolozkaForm;
-use App\Forms\Admin\Edit\FakturaPolozkaForm as EditFakturaPolozkaForm;
 use Nette\Application\AbortException as AbortExceptionAlias;
 use Nette\Application\BadRequestException;
+use Nette\Application\UI\Form;
 use Nette\Forms\Form as FormAlias;
 use Nette\Utils\ArrayHash;
 use Tracy\Debugger;
@@ -22,24 +23,23 @@ use Nette\InvalidArgumentException;
 
 class FakturaPolozkaPresenter extends AdminbasePresenter
 {
-
     private FakturaPolozkaModel $fakturaPolozkaModel;
     private FakturaModel $modelFaktura;
-    private AddFakturaPolozkaForm $newFakturaPolozkaForm;
-    private EditFakturaPolozkaForm $editFakturaPolozkaForm;
+    private FakturaPolozkaAddFormFactory $fakturaPolozkaAddFormFactory;
+    private FakturaPolozkaEditFormFactory $fakturaPolozkaEditFormFactory;
 
     public function __construct(
-        FakturaPolozkaModel    $fakturaPolozkaModel,
-        FakturaModel           $fakturaModel,
-        AddFakturaPolozkaForm  $newFakturaPolozkaForm,
-        EditFakturaPolozkaForm $editFakturaPolozkaForm
+        FakturaPolozkaModel           $fakturaPolozkaModel,
+        FakturaModel                  $fakturaModel,
+        FakturaPolozkaAddFormFactory  $fakturaPolozkaAddFormFactory,
+        FakturaPolozkaEditFormFactory $fakturaPolozkaEditFormFactory
     )
     {
         parent::__construct();
         $this->fakturaPolozkaModel = $fakturaPolozkaModel;
         $this->modelFaktura = $fakturaModel;
-        $this->newFakturaPolozkaForm = $newFakturaPolozkaForm;
-        $this->editFakturaPolozkaForm = $editFakturaPolozkaForm;
+        $this->fakturaPolozkaAddFormFactory = $fakturaPolozkaAddFormFactory;
+        $this->fakturaPolozkaEditFormFactory = $fakturaPolozkaEditFormFactory;
     }
 
     /**
@@ -72,16 +72,17 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentAdd(): AddFakturaPolozkaForm
+    public function createComponentAdd(): Form
     {
-        $this->newFakturaPolozkaForm->onSuccess = [$this, 'add'];
-        return $this->newFakturaPolozkaForm;
+        $form = $this->fakturaPolozkaAddFormFactory->create();
+        $form->onSuccess = [$this, 'add'];
+        return $form;
     }
 
     /**
-     * @param AddFakturaPolozkaForm $form
+     * @param Form $form
      */
-    public function add(AddFakturaPolozkaForm $form)
+    public function add(Form $form)
     {
         try {
             $v = $form->getValues();
@@ -130,17 +131,18 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit(): EditFakturaPolozkaForm
+    public function createComponentEdit(): Form
     {
-        $this->editFakturaPolozkaForm->onSuccess[] = [$this, 'edit'];
-        return $this->editFakturaPolozkaForm;
+        $form = $this->fakturaPolozkaEditFormFactory->create();
+        $form->onSuccess[] = [$this, 'edit'];
+        return $form;
     }
 
 
     /**
-     * @param EditFakturaPolozkaForm $form
+     * @param Form $form
      */
-    public function edit(EditFakturaPolozkaForm $form)
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();

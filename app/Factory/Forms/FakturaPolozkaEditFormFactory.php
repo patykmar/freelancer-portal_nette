@@ -1,40 +1,38 @@
 <?php
 
-namespace App\Forms\Admin\Edit;
-
-/**
- * Description of FakturaPolozkaForm
- *
- * @author Martin Patyk
- */
+namespace App\Factory\Forms;
 
 use App\Model\DphModel;
 use App\Model\FakturaPolozkaCssModel;
 use App\Model\JednotkaModel;
-use Nette\Application\UI\Form as UIForm;
-use Nette\ComponentModel\IContainer;
+use Nette\Application\UI\Form;
 
-class FakturaPolozkaForm extends UIForm
+class FakturaPolozkaEditFormFactory
 {
-    const EMPTY_PROMPT = IForm::INPUT_SELECT_PROMPT;
     private JednotkaModel $jednotkaModel;
     private DphModel $dphModel;
     private FakturaPolozkaCssModel $fakturaPolozkaCssModel;
+    private FormFactory $formFactory;
 
     public function __construct(
         JednotkaModel          $jednotkaModel,
         DphModel               $dphModel,
         FakturaPolozkaCssModel $fakturaPolozkaCssModel,
-        IContainer             $parent = null,
-                               $name = null)
+        FormFactory            $formFactory
+    )
     {
         $this->jednotkaModel = $jednotkaModel;
         $this->dphModel = $dphModel;
         $this->fakturaPolozkaCssModel = $fakturaPolozkaCssModel;
+        $this->formFactory = $formFactory;
+    }
 
-        parent::__construct($parent, $name);
-        $this->addHidden('id');
-        $new = $this->addContainer('new');
+    public function create(): Form
+    {
+        $form = $this->formFactory->create();
+
+        $form->addHidden('id');
+        $new = $form->addContainer('new');
         $new->addHidden('faktura');
         $new->addText('nazev', 'Nazev:', null, 250);
         $new->addText('dodatek', 'Dodatek:', null, 250);
@@ -42,17 +40,17 @@ class FakturaPolozkaForm extends UIForm
         $new->addText('koeficient_cena', 'Koeficient cena:', null, 5);
         $new->addText('sleva', 'Sleva:', null, 5);
         $new->addSelect('jednotka', 'Jednotka:', $this->jednotkaModel->fetchPairs())
-            ->setPrompt(self::EMPTY_PROMPT);
+            ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $new->addSelect('dph', 'DPH:', $this->dphModel->fetchPairs())
-            ->setPrompt(self::EMPTY_PROMPT);
+            ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $new->addSelect('cssclass', 'css:', $this->fakturaPolozkaCssModel->fetchPairs())
-            ->setPrompt(self::EMPTY_PROMPT);
+            ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $new->addText('cena', 'Cena:', null, 10);
         // Obrana před Cross-Site Request Forgery (CSRF)
-        $this->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
+        $form->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat
-        $this->addSubmit('btSbmt', 'Ulož');
-        return $this;
-
+        $form->addSubmit('btSbmt', 'Ulož');
+        return $form;
     }
+
 }
