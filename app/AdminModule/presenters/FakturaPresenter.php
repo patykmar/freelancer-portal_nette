@@ -10,20 +10,18 @@ namespace App\AdminModule\Presenters;
 
 use App\Components\MojeFaktura\MojeFakturaControl;
 use App\Config\AppParameterService;
-use App\Factory\Forms\FakturaAddFormFactory;
-use App\Forms\Admin\Add\FakturaAddForm;
+use App\Factory\Forms\InvoiceAddFormFactory;
+use App\Factory\Forms\InvoiceEditFormFactory;
 use App\Forms\Admin\Add\SelectOdberatelDodavatelForm;
-use App\Forms\Admin\Edit\FakturaForm as FakturaFormAlias;
 use App\Grids\Admin\FakturaGrid;
 use App\Grids\Admin\PolozkyFakturyGrid;
 use App\Model\FakturaModel;
 use App\Model\FakturaPolozkaModel;
 use App\Model\FirmaModel;
-use App\Model\FormaUhradyModel;
-use App\Model\OsobaModel;
 use Exception;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
+use Nette\Application\UI\Form;
 use Nette\Database\Context;
 use Nette\InvalidArgumentException;
 use Nette\NotImplementedException;
@@ -42,20 +40,18 @@ class FakturaPresenter extends AdminbasePresenter
     private FakturaPolozkaModel $fakturaPolozkaModel;
     private FirmaModel $modelFirma;
     private Context $fakturaContext;
-    private OsobaModel $osobaModel;
-    private FormaUhradyModel $formaUhradyModel;
     private AppParameterService $appParameterService;
-    private FakturaAddFormFactory $addFormFactory;
+    private InvoiceAddFormFactory $invoiceAddFormFactory;
+    private InvoiceEditFormFactory $invoiceEditFormFactory;
 
     public function __construct(
-        FakturaModel        $fakturaModel,
-        FakturaPolozkaModel $fakturaPolozkaModel,
-        FirmaModel          $modelFirma,
-        Context             $fakturaContext,
-        OsobaModel          $osobaModel,
-        FormaUhradyModel    $formaUhradyModel,
-        AppParameterService $appParameterService,
-        FakturaAddFormFactory $addFormFactory
+        FakturaModel           $fakturaModel,
+        FakturaPolozkaModel    $fakturaPolozkaModel,
+        FirmaModel             $modelFirma,
+        Context                $fakturaContext,
+        AppParameterService    $appParameterService,
+        InvoiceAddFormFactory  $invoiceAddFormFactory,
+        InvoiceEditFormFactory $invoiceEditFormFactory
     )
     {
         parent::__construct();
@@ -63,10 +59,9 @@ class FakturaPresenter extends AdminbasePresenter
         $this->fakturaPolozkaModel = $fakturaPolozkaModel;
         $this->modelFirma = $modelFirma;
         $this->fakturaContext = $fakturaContext;
-        $this->osobaModel = $osobaModel;
-        $this->formaUhradyModel = $formaUhradyModel;
         $this->appParameterService = $appParameterService;
-        $this->addFormFactory = $addFormFactory;
+        $this->invoiceAddFormFactory = $invoiceAddFormFactory;
+        $this->invoiceEditFormFactory = $invoiceEditFormFactory;
     }
 
     public function getAppParameterService(): AppParameterService
@@ -111,14 +106,14 @@ class FakturaPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentAdd(): FakturaAddForm
+    public function createComponentAdd(): Form
     {
-        $form = $this->addFormFactory->create();
+        $form = $this->invoiceAddFormFactory->create();
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
-    public function add(FakturaAddForm $form)
+    public function add(Form $form)
     {
         try {
             $v = $form->getValues();
@@ -162,11 +157,11 @@ class FakturaPresenter extends AdminbasePresenter
 
     /**
      * Formular pro editaci faktury
-     * @return FakturaFormAlias
+     * @return Form
      */
-    public function createComponentEdit(): FakturaFormAlias
+    public function createComponentEdit(): Form
     {
-        $form = new FakturaFormAlias($this->osobaModel, $this->formaUhradyModel);
+        $form = $this->invoiceEditFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
@@ -203,7 +198,7 @@ class FakturaPresenter extends AdminbasePresenter
      * Zpracovani formulare po editaci
      * @throws AbortException
      */
-    public function edit(FakturaFormAlias $form)
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();
