@@ -27,7 +27,9 @@ final class OsobaModel extends BaseModel
     {
         return $this->explorer->table(self::TABLE_NAME)
             ->where("typ_osoby", [2, 3])
-            ->fetchPairs('id', 'CONCAT(jmeno," ",prijmeni) as nazev');
+            ->select('id')
+            ->select('CONCAT(jmeno," ",prijmeni) AS nazev')
+            ->fetchPairs('id', 'nazev');
     }
 
     /**

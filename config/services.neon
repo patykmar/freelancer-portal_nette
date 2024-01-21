@@ -7,10 +7,13 @@ services:
     - App\Factory\Forms\CompanyEditFormFactory
     - App\Factory\Forms\InvoiceItemAddFormFactory
     - App\Factory\Forms\InvoiceItemEditFormFactory
-    - App\Factory\Forms\FakturaPolozkaEditFormFactory
+    - App\Factory\Forms\DateFormatAddFormFactory
+    - App\Factory\Forms\DateFormatEditFormFactory
     - App\Factory\Forms\FormFactory
     - App\Factory\Forms\InvoiceAddFormFactory
     - App\Factory\Forms\InvoiceEditFormFactory
+    - App\Factory\Forms\QueueOsobaAddFormFactory
+    - App\Factory\Forms\QueueOsobaEditFormFactory
     - App\Factory\ConnectionFactory
     - App\Factory\ImapDriverFactory(%imapDriver.user%, %imapDriver.password%, %imapDriver.host%, %imapDriver.port%, %imapDriver.ssl%)
     - App\Factory\SmtpMailerFactory(%sendMail%, %email.receiver%)
