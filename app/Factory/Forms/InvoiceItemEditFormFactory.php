@@ -7,7 +7,7 @@ use App\Model\FakturaPolozkaCssModel;
 use App\Model\JednotkaModel;
 use Nette\Application\UI\Form;
 
-class FakturaPolozkaEditFormFactory
+class InvoiceItemEditFormFactory
 {
     private JednotkaModel $jednotkaModel;
     private DphModel $dphModel;

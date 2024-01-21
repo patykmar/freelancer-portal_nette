@@ -7,7 +7,7 @@ use App\Model\JednotkaModel;
 use Nette\Application\UI\Form;
 use Nette\Forms\Form as NetteForm;
 
-class FakturaPolozkaAddFormFactory
+class InvoiceItemAddFormFactory
 {
     private JednotkaModel $jednotkaModel;
     private DphModel $dphModel;

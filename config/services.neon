@@ -5,7 +5,8 @@ services:
     - App\Factory\Forms\CiEditFormFactory
     - App\Factory\Forms\CompanyAddFormFactory
     - App\Factory\Forms\CompanyEditFormFactory
-    - App\Factory\Forms\FakturaPolozkaAddFormFactory
+    - App\Factory\Forms\InvoiceItemAddFormFactory
+    - App\Factory\Forms\InvoiceItemEditFormFactory
     - App\Factory\Forms\FakturaPolozkaEditFormFactory
     - App\Factory\Forms\FormFactory
     - App\Factory\Forms\InvoiceAddFormFactory

@@ -8,8 +8,8 @@
 
 namespace App\AdminModule\Presenters;
 
-use App\Factory\Forms\FakturaPolozkaAddFormFactory;
-use App\Factory\Forms\FakturaPolozkaEditFormFactory;
+use App\Factory\Forms\InvoiceItemAddFormFactory;
+use App\Factory\Forms\InvoiceItemEditFormFactory;
 use App\Model\FakturaPolozkaModel;
 use App\Model\FakturaModel;
 use Exception;
@@ -25,14 +25,14 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
 {
     private FakturaPolozkaModel $fakturaPolozkaModel;
     private FakturaModel $modelFaktura;
-    private FakturaPolozkaAddFormFactory $fakturaPolozkaAddFormFactory;
-    private FakturaPolozkaEditFormFactory $fakturaPolozkaEditFormFactory;
+    private InvoiceItemAddFormFactory $fakturaPolozkaAddFormFactory;
+    private InvoiceItemEditFormFactory $fakturaPolozkaEditFormFactory;
 
     public function __construct(
-        FakturaPolozkaModel           $fakturaPolozkaModel,
-        FakturaModel                  $fakturaModel,
-        FakturaPolozkaAddFormFactory  $fakturaPolozkaAddFormFactory,
-        FakturaPolozkaEditFormFactory $fakturaPolozkaEditFormFactory
+        FakturaPolozkaModel        $fakturaPolozkaModel,
+        FakturaModel               $fakturaModel,
+        InvoiceItemAddFormFactory  $fakturaPolozkaAddFormFactory,
+        InvoiceItemEditFormFactory $fakturaPolozkaEditFormFactory
     )
     {
         parent::__construct();
