@@ -12,6 +12,8 @@ services:
     - App\Factory\Forms\ForeignKeyAddFormFactory
     - App\Factory\Forms\ForeignKeyEditFormFactory
     - App\Factory\Forms\FormFactory
+    - App\Factory\Forms\ImpactAddFormFactory
+    - App\Factory\Forms\ImpactEditFormFactory
     - App\Factory\Forms\InvoiceAddFormFactory
     - App\Factory\Forms\InvoiceEditFormFactory
     - App\Factory\Forms\PersonAddFormFactory
