@@ -69,7 +69,7 @@ class TiketTaskPresenter extends AdminbasePresenter
             $v->offsetSet('incident_stav', 1);    // stav: otevren
             $v->offsetSet('typ_incident', 3);    // ITASK
 
-            $this->incidentModel->insert($v);
+            $this->incidentModel->insertNewItem($v);
             $this->flashMessage('Nový záznam byl přidán');
             $this->presenter->redirect('Tickets:edit', $this->incidentModel->getLastId());
         } catch (Exception $exc) {
