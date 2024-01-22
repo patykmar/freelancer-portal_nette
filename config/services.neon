@@ -20,6 +20,8 @@ services:
     - App\Factory\Forms\PersonEditFormFactory
     - App\Factory\Forms\QueueOsobaAddFormFactory
     - App\Factory\Forms\QueueOsobaEditFormFactory
+    - App\Factory\Forms\SlaAddFormFactory
+    - App\Factory\Forms\SlaEditFormFactory
     - App\Factory\ConnectionFactory
     - App\Factory\ImapDriverFactory(%imapDriver.user%, %imapDriver.password%, %imapDriver.host%, %imapDriver.port%, %imapDriver.ssl%)
     - App\Factory\SmtpMailerFactory(%sendMail%, %email.receiver%)

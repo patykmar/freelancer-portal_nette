@@ -8,12 +8,14 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Factory\Forms\SlaAddFormFactory;
+use App\Factory\Forms\SlaEditFormFactory;
 use App\Grids\Admin\SlaGrid;
 use App\Model\SlaModel;
 use Exception;
-use App\Forms\Admin\Edit;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
+use Nette\Application\UI\Form;
 use Nette\Database\Context;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
@@ -23,12 +25,21 @@ class SlaPresenter extends AdminbasePresenter
 {
     private SlaModel $slaModel;
     private Context $slaContext;
+    private SlaAddFormFactory $slaAddFormFactory;
+    private SlaEditFormFactory $slaEditFormFactory;
 
-    public function __construct(SlaModel $slaModel, Context $slaContext)
+    public function __construct(
+        SlaModel           $slaModel,
+        Context            $slaContext,
+        SlaAddFormFactory  $slaAddFormFactory,
+        SlaEditFormFactory $slaEditFormFactory
+    )
     {
         parent::__construct();
         $this->slaModel = $slaModel;
         $this->slaContext = $slaContext;
+        $this->slaAddFormFactory = $slaAddFormFactory;
+        $this->slaEditFormFactory = $slaEditFormFactory;
     }
 
     /**
@@ -43,6 +54,13 @@ class SlaPresenter extends AdminbasePresenter
             return new SlaGrid($this->slaContext->table('sla'));
         }
     }
+
+    public function createComponentAdd(): Form
+    {
+        return $this->slaAddFormFactory->create();
+    }
+
+    //TODO: Add handling new item form
 
     public function renderDefault($id = null)
     {
@@ -70,9 +88,9 @@ class SlaPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit(): Edit\SlaForm
+    public function createComponentEdit(): Form
     {
-        $form = new Edit\SlaForm();
+        $form = $this->slaEditFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
@@ -80,7 +98,7 @@ class SlaPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function edit(Edit\SlaForm $form)
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();
