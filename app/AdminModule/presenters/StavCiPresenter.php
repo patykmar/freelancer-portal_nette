@@ -8,12 +8,14 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Factory\Forms\ForeignKeyAddFormFactory;
+use App\Factory\Forms\ForeignKeyEditFormFactory;
 use App\Grids\FkGrid;
 use App\Model\StavCiModel;
 use Exception;
-use App\Forms\Admin\Add\ForeignKeyAddForm as AddFkBaseForm;
-use App\Forms\Admin\Edit\ForeignKeyEditForm as EditFkBaseForm;
 use Nette\Application\AbortException;
+use Nette\Application\BadRequestException;
+use Nette\Application\UI\Form;
 use Nette\Database\Context;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
@@ -22,12 +24,21 @@ class StavCiPresenter extends AdminbasePresenter
 {
     private StavCiModel $stavCiModel;
     private Context $stavCiContext;
+    private ForeignKeyAddFormFactory $foreignKeyAddFormFactory;
+    private ForeignKeyEditFormFactory $foreignKeyEditFormFactory;
 
-    public function __construct(StavCiModel $stavCiModel, Context $stavCiContext)
+    public function __construct(
+        StavCiModel               $stavCiModel,
+        Context                   $stavCiContext,
+        ForeignKeyAddFormFactory  $foreignKeyAddFormFactory,
+        ForeignKeyEditFormFactory $foreignKeyEditFormFactory
+    )
     {
         parent::__construct();
         $this->stavCiModel = $stavCiModel;
         $this->stavCiContext = $stavCiContext;
+        $this->foreignKeyAddFormFactory = $foreignKeyAddFormFactory;
+        $this->foreignKeyEditFormFactory = $foreignKeyEditFormFactory;
     }
 
     /**
@@ -51,9 +62,9 @@ class StavCiPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd()
+    public function createComponentAdd(): Form
     {
-        $form = new AddFkBaseForm;
+        $form = $this->foreignKeyAddFormFactory->create();
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
@@ -61,11 +72,11 @@ class StavCiPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function add(AddFkBaseForm $form)
+    public function add(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->stavCiModel->insert($v);
+            $this->stavCiModel->insertNewItem($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -79,6 +90,7 @@ class StavCiPresenter extends AdminbasePresenter
     /**
      * @param int $id Identifikator polozky
      * @throws AbortException
+     * @throws BadRequestException
      */
     public function renderEdit(int $id)
     {
@@ -98,9 +110,9 @@ class StavCiPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit()
+    public function createComponentEdit(): Form
     {
-        $form = new EditFkBaseForm;
+        $form = $this->foreignKeyEditFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
@@ -108,7 +120,7 @@ class StavCiPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function edit(EditFkBaseForm $form)
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();
