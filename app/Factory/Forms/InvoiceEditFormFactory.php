@@ -7,13 +7,18 @@ use App\Model\OsobaModel;
 use Nette\Application\UI\Form;
 use Nette\Forms\Form as FormAlias;
 
+/** @deprecated */
 class InvoiceEditFormFactory
 {
     private FormFactory $formFactory;
     private OsobaModel $osobaModel;
     private FormaUhradyModel $formaUhradyModel;
 
-    public function __construct(FormFactory $formFactory, OsobaModel $osobaModel, FormaUhradyModel $formaUhradyModel)
+    public function __construct(
+        FormFactory      $formFactory,
+        OsobaModel       $osobaModel,
+        FormaUhradyModel $formaUhradyModel
+    )
     {
         $this->formFactory = $formFactory;
         $this->osobaModel = $osobaModel;

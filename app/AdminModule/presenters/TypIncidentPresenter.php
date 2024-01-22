@@ -90,14 +90,8 @@ class TypIncidentPresenter extends AdminbasePresenter
     {
         try {
             $this->setView('../_edit');
-            //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->typIncidentModel->fetchById($id);
-
-            //odeberu idecko z pole
-//            $v->offsetUnset('id');
-
             //upravene hodnoty odeslu do formulare
-            $this['edit']->setDefaults($v);
+            $this['edit']->setDefaults($this->typIncidentModel->fetchById($id));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
             $this->redirect('default');

@@ -12,7 +12,7 @@ use App\Components\MojeFaktura\MojeFakturaControl;
 use App\Config\AppParameterService;
 use App\Factory\Forms\InvoiceAddFormFactory;
 use App\Factory\Forms\InvoiceEditFormFactory;
-use App\Forms\Admin\Add\SelectOdberatelDodavatelForm;
+use App\Factory\Forms\SubscriberSupporterRelationFormFactory;
 use App\Grids\Admin\FakturaGrid;
 use App\Grids\Admin\PolozkyFakturyGrid;
 use App\Model\FakturaModel;
@@ -43,15 +43,17 @@ class FakturaPresenter extends AdminbasePresenter
     private AppParameterService $appParameterService;
     private InvoiceAddFormFactory $invoiceAddFormFactory;
     private InvoiceEditFormFactory $invoiceEditFormFactory;
+    private SubscriberSupporterRelationFormFactory $subscriberSupporterRelationFormFactory;
 
     public function __construct(
-        FakturaModel           $fakturaModel,
-        FakturaPolozkaModel    $fakturaPolozkaModel,
-        FirmaModel             $modelFirma,
-        Context                $fakturaContext,
-        AppParameterService    $appParameterService,
-        InvoiceAddFormFactory  $invoiceAddFormFactory,
-        InvoiceEditFormFactory $invoiceEditFormFactory
+        FakturaModel                           $fakturaModel,
+        FakturaPolozkaModel                    $fakturaPolozkaModel,
+        FirmaModel                             $modelFirma,
+        Context                                $fakturaContext,
+        AppParameterService                    $appParameterService,
+        InvoiceAddFormFactory                  $invoiceAddFormFactory,
+        InvoiceEditFormFactory                 $invoiceEditFormFactory,
+        SubscriberSupporterRelationFormFactory $subscriberSupporterRelationFormFactory
     )
     {
         parent::__construct();
@@ -62,6 +64,7 @@ class FakturaPresenter extends AdminbasePresenter
         $this->appParameterService = $appParameterService;
         $this->invoiceAddFormFactory = $invoiceAddFormFactory;
         $this->invoiceEditFormFactory = $invoiceEditFormFactory;
+        $this->subscriberSupporterRelationFormFactory = $subscriberSupporterRelationFormFactory;
     }
 
     public function getAppParameterService(): AppParameterService
@@ -138,17 +141,17 @@ class FakturaPresenter extends AdminbasePresenter
     }
 
 
-    public function createComponentOdberatelDodavatel(): SelectOdberatelDodavatelForm
+    public function createComponentOdberatelDodavatel(): Form
     {
-        $form = new SelectOdberatelDodavatelForm();
+        $form = $this->subscriberSupporterRelationFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
     /**
-     * @param SelectOdberatelDodavatelForm $form
+     * @param Form $form
      */
-    public function HandleOdberatelDodavatel(SelectOdberatelDodavatelForm $form)
+    public function HandleOdberatelDodavatel(Form $form)
     {
         throw new NotImplementedException();
     }
@@ -175,7 +178,7 @@ class FakturaPresenter extends AdminbasePresenter
         try {
             #$this->setView('../_edit');
             //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->fakturaModel->fetch($id);
+            $v = $this->fakturaModel->fetchById($id);
             $this->getTemplate()->title = $v['vs'];
             $this->getTemplate()->faktura = $id;
 
@@ -202,7 +205,7 @@ class FakturaPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->fakturaModel->update($v['new'], $v['id']);
+            $this->fakturaModel->updateItem($v, $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');

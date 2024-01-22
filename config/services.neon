@@ -9,6 +9,7 @@ services:
     - App\Factory\Forms\InvoiceItemEditFormFactory
     - App\Factory\Forms\DateFormatAddFormFactory
     - App\Factory\Forms\DateFormatEditFormFactory
+    - App\Factory\Forms\EmailLinkToCiFormFactory
     - App\Factory\Forms\ForeignKeyAddFormFactory
     - App\Factory\Forms\ForeignKeyEditFormFactory
     - App\Factory\Forms\FormFactory
@@ -22,6 +23,7 @@ services:
     - App\Factory\Forms\QueueOsobaEditFormFactory
     - App\Factory\Forms\SlaAddFormFactory
     - App\Factory\Forms\SlaEditFormFactory
+    - App\Factory\Forms\SubscriberSupporterRelationFormFactory
     - App\Factory\Forms\TariffAddFormFactory
     - App\Factory\Forms\TariffEditFormFactory
     - App\Factory\Forms\TaskFormFactory
@@ -33,8 +35,6 @@ services:
     - App\Factory\ConnectionFactory
     - App\Factory\ImapDriverFactory(%imapDriver.user%, %imapDriver.password%, %imapDriver.host%, %imapDriver.port%, %imapDriver.ssl%)
     - App\Factory\SmtpMailerFactory(%sendMail%, %email.receiver%)
-    - App\Forms\Admin\Add\OdCiForm
-    - App\Forms\Admin\Edit\OdCiForm
     - App\Model\ChangeStavModel
     - App\Model\CiModel
     - App\Model\CiLogModel
