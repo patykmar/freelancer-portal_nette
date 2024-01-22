@@ -15,7 +15,6 @@ use App\Grids\Admin\IncidentGrid;
 use App\Grids\TiketChildTaskGrid;
 use App\Model\IncidentLogModel;
 use App\Model\IncidentModel;
-use App\Forms\Admin\Edit;
 use Exception;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
@@ -150,7 +149,7 @@ class TicketsPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function edit(Edit\IncidentForm $form)
+    public function edit(Form $form)
     {
         try {
             /**
