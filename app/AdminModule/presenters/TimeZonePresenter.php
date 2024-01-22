@@ -8,12 +8,13 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Factory\Forms\TimeZoneFormFactory;
 use App\Grids\Admin\TimeZoneGrid;
 use App\Model\TimeZoneModel;
 use Exception;
-use App\Forms\Admin\Edit\TimeZoneForm as EditTimeZoneForm;
-use App\Forms\Admin\Add\TimeZoneForm as AddTimeZoneForm;
 use Nette\Application\AbortException;
+use Nette\Application\BadRequestException;
+use Nette\Application\UI\Form;
 use Nette\Database\Context;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
@@ -22,18 +23,24 @@ class TimeZonePresenter extends AdminbasePresenter
 {
     private TimeZoneModel $timeZoneModel;
     private Context $timeZoneContext;
+    private TimeZoneFormFactory $timeZoneFormFactory;
 
-    public function __construct(TimeZoneModel $timeZoneModel, Context $timeZoneContext)
+    public function __construct(
+        TimeZoneModel       $timeZoneModel,
+        Context             $timeZoneContext,
+        TimeZoneFormFactory $timeZoneFormFactory
+    )
     {
         parent::__construct();
         $this->timeZoneModel = $timeZoneModel;
         $this->timeZoneContext = $timeZoneContext;
+        $this->timeZoneFormFactory = $timeZoneFormFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
      */
-    protected function createComponentGrid()
+    protected function createComponentGrid(): TimeZoneGrid
     {
         return new TimeZoneGrid($this->timeZoneContext->table('time_zone'));
     }
@@ -50,9 +57,9 @@ class TimeZonePresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd()
+    public function createComponentAdd(): Form
     {
-        $form = new AddTimeZoneForm();
+        $form = $this->timeZoneFormFactory->create();
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
@@ -60,11 +67,12 @@ class TimeZonePresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function add(AddTimeZoneForm $form)
+    public function add(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->timeZoneModel->insert($v);
+            $v->offsetUnset('id');
+            $this->timeZoneModel->insertNewItem($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -78,6 +86,7 @@ class TimeZonePresenter extends AdminbasePresenter
     /**
      * @param int $id Identifikator polozky
      * @throws AbortException
+     * @throws BadRequestException
      */
     public function renderEdit(int $id)
     {
@@ -90,16 +99,16 @@ class TimeZonePresenter extends AdminbasePresenter
 //            $v->offsetUnset('id');
 
             // upravene hodnoty odeslu do formulare
-            $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
+            $this['edit']->setDefaults($v);
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
             $this->redirect('default');
         }
     }
 
-    public function createComponentEdit()
+    public function createComponentEdit(): Form
     {
-        $form = new EditTimeZoneForm();
+        $form = $this->timeZoneFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
@@ -107,11 +116,11 @@ class TimeZonePresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function edit(EditTimeZoneForm $form)
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->timeZoneModel->updateItem($v['new'], $v['id']);
+            $this->timeZoneModel->updateItem($v, $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');

@@ -11,6 +11,7 @@ namespace App\Model;
 use Nette\Application\BadRequestException;
 use Nette\Database\Context;
 use Nette\Database\Table\IRow;
+use Nette\Database\Table\Selection;
 use Nette\SmartObject;
 use Nette\Utils\ArrayHash;
 
@@ -18,13 +19,15 @@ abstract class BaseModel implements BaseModelInterface
 {
     use SmartObject;
 
-    protected string $tableName;
+    private string $tableName;
     protected Context $explorer;
+    protected Selection $selection;
 
     public function __construct(string $tableName, Context $context)
     {
         $this->tableName = $tableName;
         $this->explorer = $context;
+        $this->selection = $context->table($tableName);
     }
 
     /**
@@ -56,7 +59,7 @@ abstract class BaseModel implements BaseModelInterface
      */
     public function insertNewItem(ArrayHash $newItem): ArrayHash
     {
-        $result = $this->explorer->table($this->tableName)->insert($newItem);
+        $result = $this->selection->insert($newItem);
         return ArrayHash::from($result);
     }
 
