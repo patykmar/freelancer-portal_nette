@@ -24,6 +24,7 @@ services:
     - App\Factory\Forms\SlaEditFormFactory
     - App\Factory\Forms\TariffAddFormFactory
     - App\Factory\Forms\TariffEditFormFactory
+    - App\Factory\Forms\TaskFormFactory
     - App\Factory\Forms\TicketAddFormFactory
     - App\Factory\Forms\TicketEditFormFactory
     - App\Factory\Forms\TicketTaskFormFactory
