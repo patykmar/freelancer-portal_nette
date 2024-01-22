@@ -8,21 +8,28 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Factory\Forms\TicketTaskFormFactory;
 use App\Model\IncidentModel;
 use Exception;
-use App\Forms\Admin\Add\TaskForm;
 use Nette\Application\AbortException;
+use Nette\Application\BadRequestException;
+use Nette\Application\UI\Form;
 use Nette\Utils\DateTime;
 use Tracy\Debugger;
 
 class TiketTaskPresenter extends AdminbasePresenter
 {
     private IncidentModel $incidentModel;
+    private TicketTaskFormFactory $ticketTaskFormFactory;
 
-    public function __construct(IncidentModel $incidentModel)
+    public function __construct(
+        IncidentModel         $incidentModel,
+        TicketTaskFormFactory $ticketTaskFormFactory
+    )
     {
         parent::__construct();
         $this->incidentModel = $incidentModel;
+        $this->ticketTaskFormFactory = $ticketTaskFormFactory;
     }
 
     /**
@@ -34,9 +41,11 @@ class TiketTaskPresenter extends AdminbasePresenter
         $this->redirect(':Admin:Tickets:');
     }
 
-    /*************************************** PART ADD **************************************/
+    /*************************************** PART ADD *************************************
+     * @throws BadRequestException
+     */
 
-    public function renderAdd($id)
+    public function renderAdd(int $id)
     {
         $this->setView('../_add');
         $v = $this->incidentModel->fetchById($id);
@@ -52,14 +61,14 @@ class TiketTaskPresenter extends AdminbasePresenter
         $this['add']->setDefaults($v);
     }
 
-    public function createComponentAdd()
+    public function createComponentAdd(): Form
     {
-        $form = new TaskForm();
+        $form = $this->ticketTaskFormFactory->create($this->getUser()->getId());
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
-    public function add(TaskForm $form)
+    public function add(Form $form)
     {
         try {
             $v = $form->getValues();

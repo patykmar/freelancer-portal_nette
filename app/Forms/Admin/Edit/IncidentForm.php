@@ -12,6 +12,7 @@ use Nette\Application\UI\Form as UIForm;
 use Nette\ComponentModel\IContainer;
 use Nette\Forms\Form;
 
+/** @deprecated */
 class IncidentForm extends UIForm
 {
     public function __construct(IContainer $parent = null, $name = null)
