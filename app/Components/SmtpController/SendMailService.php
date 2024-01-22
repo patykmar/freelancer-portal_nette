@@ -60,12 +60,12 @@ class SendMailService extends Control
     /**
      * Odesle zakaznikovi email s novym heslem
      */
-    public function vygenerujNoveHeslo(IRow $value)
+    public function vygenerujNoveHeslo(ArrayHash $value)
     {
         throw new NotImplementedException("Method vygenerujNoveHeslo is not implemented");
-    /*
-     * Vytvorim sablonu a naplnim ji daty
-     */
+        /*
+         * Vytvorim sablonu a naplnim ji daty
+         */
 //        $template = $this->createTemplate()
 //            ->setFile(__DIR__ . '/noveHeslo.latte')
 //            ->registerFilter($this->latteEngine)
@@ -79,8 +79,8 @@ class SendMailService extends Control
 //            ->setSubject('Portal.patyk.cz nove heslo')
 //            ->setHtmlBody($template);
 //        $this->smtpMailer->send($mail);
-    #$mailer = new \Nette\Mail\SendmailMailer;
-    #$mailer->send($mail);
+        #$mailer = new \Nette\Mail\SendmailMailer;
+        #$mailer->send($mail);
     }
 
     /**

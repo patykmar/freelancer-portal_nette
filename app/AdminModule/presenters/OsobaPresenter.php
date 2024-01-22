@@ -9,18 +9,15 @@
 namespace App\AdminModule\Presenters;
 
 use App\Components\SmtpController\SendMailService;
+use App\Factory\Forms\PersonAddFormFactory;
+use App\Factory\Forms\PersonEditFormFactory;
 use App\Grids\Admin\OsobaGrid;
-use App\Model\FirmaModel;
-use App\Model\FormatDatumModel;
-use App\Model\TimeZoneModel;
-use App\Model\TypOsobyModel;
 use App\Model\UserManager;
 use Exception;
-use App\Forms\Admin\Add\OsobaForm as AddOsobaForm;
-use App\Forms\Admin\Edit\OsobaForm as EditOsobaForm;
 use App\Model\OsobaModel;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
+use Nette\Application\UI\Form;
 use Nette\Database\Context;
 use Nette\Utils\ArrayHash;
 use Nette\Utils\DateTime;
@@ -31,30 +28,24 @@ class OsobaPresenter extends AdminbasePresenter
 {
     private OsobaModel $osobaModel;
     private Context $osobaContext;
-    private TypOsobyModel $typOsobyModel;
-    private FirmaModel $firmaModel;
-    private TimeZoneModel $timeZoneModel;
-    private FormatDatumModel $formatDatumModel;
     private SendMailService $sendMailService;
+    private PersonAddFormFactory $personAddFormFactory;
+    private PersonEditFormFactory $personEditFormFactory;
 
     public function __construct(
-        OsobaModel       $osobyModel,
-        Context          $osobaContext,
-        TypOsobyModel    $typOsobyModel,
-        FirmaModel       $firmaModel,
-        TimeZoneModel    $timeZoneModel,
-        FormatDatumModel $formatDatumModel,
-        SendMailService  $sendMailService
+        OsobaModel            $osobyModel,
+        Context               $osobaContext,
+        SendMailService       $sendMailService,
+        PersonAddFormFactory  $personAddFormFactory,
+        PersonEditFormFactory $personEditFormFactory
     )
     {
         parent::__construct();
         $this->osobaModel = $osobyModel;
         $this->osobaContext = $osobaContext;
-        $this->typOsobyModel = $typOsobyModel;
-        $this->firmaModel = $firmaModel;
-        $this->timeZoneModel = $timeZoneModel;
-        $this->formatDatumModel = $formatDatumModel;
         $this->sendMailService = $sendMailService;
+        $this->personAddFormFactory = $personAddFormFactory;
+        $this->personEditFormFactory = $personEditFormFactory;
     }
 
     /**
@@ -78,14 +69,9 @@ class OsobaPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd(): AddOsobaForm
+    public function createComponentAdd(): Form
     {
-        $form = new AddOsobaForm(
-            $this->typOsobyModel,
-            $this->firmaModel,
-            $this->timeZoneModel,
-            $this->formatDatumModel
-        );
+        $form = $this->personAddFormFactory->create();
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
@@ -93,7 +79,7 @@ class OsobaPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function add(AddOsobaForm $form)
+    public function add(Form $form)
     {
         try {
             $v = $form->getValues();
@@ -144,16 +130,11 @@ class OsobaPresenter extends AdminbasePresenter
     }
 
     /**
-     * @return EditOsobaForm
+     * @return Form
      */
-    public function createComponentEdit(): EditOsobaForm
+    public function createComponentEdit(): Form
     {
-        $form = new EditOsobaForm(
-            $this->typOsobyModel,
-            $this->firmaModel,
-            $this->timeZoneModel,
-            $this->formatDatumModel
-        );
+        $form = $this->personEditFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
@@ -161,7 +142,7 @@ class OsobaPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function edit(EditOsobaForm $form)
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();

@@ -14,6 +14,8 @@ services:
     - App\Factory\Forms\FormFactory
     - App\Factory\Forms\InvoiceAddFormFactory
     - App\Factory\Forms\InvoiceEditFormFactory
+    - App\Factory\Forms\PersonAddFormFactory
+    - App\Factory\Forms\PersonEditFormFactory
     - App\Factory\Forms\QueueOsobaAddFormFactory
     - App\Factory\Forms\QueueOsobaEditFormFactory
     - App\Factory\ConnectionFactory
