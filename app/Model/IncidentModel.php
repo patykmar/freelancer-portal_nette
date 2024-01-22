@@ -203,15 +203,15 @@ final class IncidentModel extends BaseModel
      */
     public function fetchForFeedBack(int $id)
     {
-        $r = $this->explorer->table(self::TABLE_NAME)
+        $result = $this->explorer->table(self::TABLE_NAME)
             ->where("id", $id)
             ->where("odezva_cekam", true)
             ->where("odezva_odeslan_pozadavek", true)
             ->fetch();
-        if (!$r) {
+        if ($this->checkNullOrFalse($result)) {
             throw new InvalidArgumentException('Tiket nebyl nalezen');
         }
-        return $r;
+        return $result;
     }
 
     /**
@@ -293,9 +293,9 @@ final class IncidentModel extends BaseModel
 
     /**
      * Vkladani noveho tiketu
-     * @param ArrayHash $values form values
+     * @param ArrayHash $newItem form values
      */
-    public function insert(ArrayHash $values)
+    public function insertNewItem(ArrayHash $newItem): ArrayHash
     {
         $this->connection->beginTransaction();
         try {
@@ -308,17 +308,17 @@ final class IncidentModel extends BaseModel
                 "AND sla.priorita = ? " .
                 "AND sla.typ_incident = ? " .
                 "AND ci.id = ? ";
-            $cas = $this->connection->query($queryCas, $values['priorita'], $values['typ_incident'], $values['ci'])
+            $cas = $this->connection->query($queryCas, $newItem['priorita'], $newItem['typ_incident'], $newItem['ci'])
                 ->fetch();
 
-            $values->offsetSet('datum_reakce', $cas['reakce']);
-            $values->offsetSet('datum_ukonceni', $cas['hotovo']);
+            $newItem->offsetSet('datum_reakce', $cas['reakce']);
+            $newItem->offsetSet('datum_ukonceni', $cas['hotovo']);
 
             //   nove tikety jsou odeslany automaticky na SD
-            $values->offsetSet('fronta_osoba', 2);
+            $newItem->offsetSet('fronta_osoba', 2);
 
             //   zapisu do datbaze
-            $this->connection->query("INSERT INTO " . self::TABLE_NAME . " ", $values);
+            $result = parent::insertNewItem($newItem);
 
             //   nactu si id od prave zapsaneho incidentu a vytvorim text pro WL
             $lastId = $this->connection->getInsertId();
@@ -327,7 +327,7 @@ final class IncidentModel extends BaseModel
             $workLogArray = new ArrayHash;
             $workLogArray->offsetSet('incident', $lastId);
             $workLogArray->offsetSet('datum_vytvoreni', new DateTime);
-            $workLogArray->offsetSet('osoba', $values['osoba_vytvoril']);
+            $workLogArray->offsetSet('osoba', $newItem['osoba_vytvoril']);
 
             //   nactu si nazvy k vlozenym hodnotam, aby byly citelne pro cloveka
             $query = 'SELECT ' .
@@ -347,15 +347,15 @@ final class IncidentModel extends BaseModel
             $obsah .= ' **Typ incidentu**: ' . $dbFetch['incident_stav'] . chr(10);
             $obsah .= ' **Priorita**: ' . $dbFetch['priorita'] . chr(10);
             $obsah .= ' **Fronta**: ' . $dbFetch['fronta'] . chr(10);
-            $obsah .= ' **Maly popis**: ' . $values['maly_popis'] . chr(10);
+            $obsah .= ' **Maly popis**: ' . $newItem['maly_popis'] . chr(10);
             $obsah .= ' **Popis požadavku**: ' . chr(10);
-            $obsah .= $values['obsah'];
+            $obsah .= $newItem['obsah'];
 
             $workLogArray->offsetSet('obsah', $obsah);
             //   uvolnim pamet s docasnymi promennymi
             unset($obsah, $dbFetch);
             //   zapisi do WL informace o novem tiketu
-            $this->incidentLogModel->insert($workLogArray);
+            $this->incidentLogModel->insertNewItem($workLogArray);
             $this->connection->commit();
         } catch (Exception $exc) {
             $this->connection->rollBack();
@@ -363,6 +363,7 @@ final class IncidentModel extends BaseModel
             Debugger::log($exc->getMessage());
             throw new InvalidArgumentException($exc->getMessage());
         }
+        return $result;
     }
 
     ###
@@ -569,7 +570,7 @@ final class IncidentModel extends BaseModel
             }
 
             //   pokud ma WL alespon jeden zaznam tak zapis do WL hodnoty
-            if (count($wl) > 0) {
+            if (!empty($wl)) {
                 /**    @var ArrayHash Description */
                 $item = new ArrayHash();
                 $item->offsetSet('incident', $id);

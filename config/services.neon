@@ -24,6 +24,8 @@ services:
     - App\Factory\Forms\SlaEditFormFactory
     - App\Factory\Forms\TariffAddFormFactory
     - App\Factory\Forms\TariffEditFormFactory
+    - App\Factory\Forms\TicketAddFormFactory
+    - App\Factory\Forms\TicketEditFormFactory
     - App\Factory\ConnectionFactory
     - App\Factory\ImapDriverFactory(%imapDriver.user%, %imapDriver.password%, %imapDriver.host%, %imapDriver.port%, %imapDriver.ssl%)
     - App\Factory\SmtpMailerFactory(%sendMail%, %email.receiver%)
