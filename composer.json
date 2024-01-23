@@ -19,10 +19,10 @@
         "latte/latte": "^2.4",
         "tracy/tracy": "^2.4",
         "greeny/maillibrary": "^3.2",
-        "mpdf/mpdf": "v5.7.1",
+        "mpdf/mpdf": "^8.0",
         "texy/texy": "^2.9",
         "miloslavkostir/datagrid": "^2.0",
-        "ondrejbrejla/eciovni": "1.1"
+        "ondrejbrejla/eciovni": "^2.3"
     },
     "require-dev": {
         "nette/tester": "^2.0"

@@ -20,6 +20,7 @@ Developed on Nette framework ~2014.
     - Upgraded to PHP 7.4 and Nette framework 2.4
 - 2024/1
   - Refactor defining classes of forms to use factory class for building forms
+  - Update `mPdf` and `ondrejbrejla/eciovni` to `^8.0` respective `^2.3`
 
 ## TODO
 
