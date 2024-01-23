@@ -21,7 +21,7 @@ class ZpusobUzavreniForm extends UIForm
         $new->addText('nazev', 'Název:', null, 255);
         $new->addText('koeficient_cena', 'Koeficient cena:', null, 13);
         // Obrana před Cross-Site Request Forgery (CSRF)
-        $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
+        $this->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;

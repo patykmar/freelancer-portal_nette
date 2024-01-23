@@ -8,12 +8,14 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Factory\Forms\ForeignKeyAddFormFactory;
+use App\Factory\Forms\ForeignKeyEditFormFactory;
 use App\Grids\FkGrid;
 use App\Model\TypChangeModel;
 use Exception;
-use App\Forms\Admin\Add\FkBaseForm as AddFkBaseForm;
-use App\Forms\Admin\Edit\FkBaseForm as EditFkBaseForm;
 use Nette\Application\AbortException;
+use Nette\Application\BadRequestException;
+use Nette\Application\UI\Form;
 use Nette\Database\Context;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
@@ -22,18 +24,27 @@ class TypChangePresenter extends AdminbasePresenter
 {
     private TypChangeModel $typChangeModel;
     private Context $typChangeContext;
+    private ForeignKeyAddFormFactory $foreignKeyAddFormFactory;
+    private ForeignKeyEditFormFactory $foreignKeyEditFormFactory;
 
-    public function __construct(Context $typChangeContext, TypChangeModel $typChangeModel)
+    public function __construct(
+        Context                   $typChangeContext,
+        TypChangeModel            $typChangeModel,
+        ForeignKeyAddFormFactory  $foreignKeyAddFormFactory,
+        ForeignKeyEditFormFactory $foreignKeyEditFormFactory
+    )
     {
         parent::__construct();
         $this->typChangeContext = $typChangeContext;
         $this->typChangeModel = $typChangeModel;
+        $this->foreignKeyAddFormFactory = $foreignKeyAddFormFactory;
+        $this->foreignKeyEditFormFactory = $foreignKeyEditFormFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
      */
-    protected function createComponentGrid()
+    protected function createComponentGrid(): FkGrid
     {
         return new FkGrid($this->typChangeContext->table('typ_change'));
     }
@@ -50,9 +61,9 @@ class TypChangePresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd()
+    public function createComponentAdd(): Form
     {
-        $form = new AddFkBaseForm;
+        $form = $this->foreignKeyAddFormFactory->create();
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
@@ -60,11 +71,11 @@ class TypChangePresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function add(AddFkBaseForm $form)
+    public function add(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->typChangeModel->insert($v);
+            $this->typChangeModel->insertNewItem($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -78,13 +89,14 @@ class TypChangePresenter extends AdminbasePresenter
     /**
      * @param int $id Identifikator polozky
      * @throws AbortException
+     * @throws BadRequestException
      */
     public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
             // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->typChangeModel->fetch($id);
+            $v = $this->typChangeModel->fetchById($id);
 
             // odeberu idecko z pole
 //            $v->offsetUnset('id');
@@ -97,9 +109,9 @@ class TypChangePresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit()
+    public function createComponentEdit(): Form
     {
-        $form = new EditFkBaseForm;
+        $form = $this->foreignKeyEditFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
@@ -107,11 +119,11 @@ class TypChangePresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function edit(EditFkBaseForm $form)
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->typChangeModel->update($v['new'], $v['id']);
+            $this->typChangeModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -129,7 +141,7 @@ class TypChangePresenter extends AdminbasePresenter
     public function actionDrop(int $id)
     {
         try {
-            $this->typChangeModel->fetch($id);
+            $this->typChangeModel->fetchById($id);
             $this->typChangeModel->removeItem($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('TypChange:default');    // change it !!!

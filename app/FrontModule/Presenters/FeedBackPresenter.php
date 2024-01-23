@@ -46,7 +46,7 @@ class FeedBackPresenter extends BasePresenter
             $change->offsetSet('incident_stav', 5); // nastavim stav uzavreno
             $change->offsetSet('identity', $v['osoba_vytvoril']); // predpoklada se, ze na odkaz klikne prijemce mailu
             $change->offsetSet('odezva_cekam', null); // neumoznim odeslat feedback
-            $this->incidentModel->update($change, $id);
+            $this->incidentModel->updateItem($change, $id);
             unset($change, $v); // uvolnim prostredky
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
@@ -101,7 +101,7 @@ class FeedBackPresenter extends BasePresenter
             $change->offsetSet('odezva_odeslan_pozadavek', null); // nastavim znova moznost odeslani feedbacku
             $change->offsetSet('identity', $dbVal['osoba_vytvoril']); // predpoklada se, ze na odkaz klikne prijemce mailu
             $change->offsetSet('wl', '**Vyjádření zákaznika:** <br />' . Strings::trim($v['wl'])); // do WL zapisu feedback od zakaznika
-            $this->incidentModel->update($change, $v['id']);
+            $this->incidentModel->updateItem($change, $v['id']);
             $this->redirect('close');
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());

@@ -9,7 +9,7 @@ use Nette\Database\Context;
  *
  * @author Martin Patyk
  */
-final class TypOsobyModel extends BaseNDbModel
+final class TypOsobyModel extends BaseModel
 {
     use FetchPairsTrait;
 

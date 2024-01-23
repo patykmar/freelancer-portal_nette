@@ -8,12 +8,14 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Factory\Forms\ForeignKeyAddFormFactory;
+use App\Factory\Forms\ForeignKeyEditFormFactory;
 use App\Grids\FkGrid;
 use Exception;
-use App\Forms\Admin\Add\FkBaseForm as AddFkBaseForm;
-use App\Forms\Admin\Edit\FkBaseForm as EditFkBaseForm;
 use App\Model\FrontaModel;
 use Nette\Application\AbortException as AbortExceptionAlias;
+use Nette\Application\BadRequestException;
+use Nette\Application\UI\Form;
 use Nette\Database\Context;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
@@ -22,12 +24,21 @@ class FrontaPresenter extends AdminbasePresenter
 {
     private FrontaModel $frontaModel;
     private Context $frontaContext;
+    private ForeignKeyAddFormFactory $foreignKeyAddFormFactory;
+    private ForeignKeyEditFormFactory $foreignKeyEditFormFactory;
 
-    public function __construct(FrontaModel $frontaModel, Context $frontaContext)
+    public function __construct(
+        FrontaModel               $frontaModel,
+        Context                   $frontaContext,
+        ForeignKeyAddFormFactory  $foreignKeyAddFormFactory,
+        ForeignKeyEditFormFactory $foreignKeyEditFormFactory
+    )
     {
         parent::__construct();
         $this->frontaModel = $frontaModel;
         $this->frontaContext = $frontaContext;
+        $this->foreignKeyAddFormFactory = $foreignKeyAddFormFactory;
+        $this->foreignKeyEditFormFactory = $foreignKeyEditFormFactory;
     }
 
     /**
@@ -51,9 +62,9 @@ class FrontaPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd(): AddFkBaseForm
+    public function createComponentAdd(): Form
     {
-        $form = new AddFkBaseForm;
+        $form = $this->foreignKeyAddFormFactory->create();
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
@@ -61,11 +72,11 @@ class FrontaPresenter extends AdminbasePresenter
     /**
      * @throws AbortExceptionAlias
      */
-    public function add(AddFkBaseForm $form)
+    public function add(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->frontaModel->insert($v);
+            $this->frontaModel->insertNewItem($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -78,13 +89,14 @@ class FrontaPresenter extends AdminbasePresenter
      * Cast EDIT
      * @param int $id Identifikator polozky
      * @throws AbortExceptionAlias
+     * @throws BadRequestException
      */
     public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
             // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->frontaModel->fetch($id);
+            $v = $this->frontaModel->fetchById($id);
 
             // odeberu idecko z pole
             // $v->offsetUnset('id');
@@ -97,9 +109,9 @@ class FrontaPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit(): EditFkBaseForm
+    public function createComponentEdit(): Form
     {
-        $form = new EditFkBaseForm;
+        $form = $this->foreignKeyEditFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
@@ -107,11 +119,11 @@ class FrontaPresenter extends AdminbasePresenter
     /**
      * @throws AbortExceptionAlias
      */
-    public function edit(EditFkBaseForm $form)
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->frontaModel->update($v['new'], $v['id']);
+            $this->frontaModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -129,7 +141,7 @@ class FrontaPresenter extends AdminbasePresenter
     {
         try {
             try {
-                $this->frontaModel->fetch($id);
+                $this->frontaModel->fetchById($id);
                 $this->frontaModel->remove($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
                 $this->redirect('Fronta:default');    // change it !!!

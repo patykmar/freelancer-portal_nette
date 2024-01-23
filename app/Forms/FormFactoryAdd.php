@@ -19,7 +19,7 @@ use Nette\Forms\Form;
 
 class FormFactoryAdd extends UIForm
 {
-    const EMPTY_PROMPT = ' - - - ';
+    const EMPTY_PROMPT = IForm::INPUT_SELECT_PROMPT;
     private CiModel $ciModel;
     private FrontaModel $frontaModel;
     private FirmaModel $firmaModel;
@@ -88,7 +88,7 @@ class FormFactoryAdd extends UIForm
         $this->addTextArea('obsah', 'Obsah:')
             ->addRule(Form::FILLED);
         //Obrana před Cross-Site Request Forgery (CSRF)
-        $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
+        $this->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         //Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;

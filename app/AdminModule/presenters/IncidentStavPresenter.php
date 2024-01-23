@@ -8,12 +8,13 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Factory\Forms\ForeignKeyAddFormFactory;
+use App\Factory\Forms\ForeignKeyEditFormFactory;
 use App\Grids\FkGrid;
 use App\Model\IncidentStavModel;
 use Exception;
-use App\Forms\Admin\Add\FkBaseForm as AddFkBaseForm;
-use App\Forms\Admin\Edit\FkBaseForm as EditFkBaseForm;
 use Nette\Application\AbortException;
+use Nette\Application\UI\Form;
 use Nette\Database\Context;
 use Nette\Database\IRow;
 use Tracy\Debugger;
@@ -23,12 +24,21 @@ class IncidentStavPresenter extends AdminbasePresenter
 {
     private IncidentStavModel $incidentStavModel;
     private Context $netteModel;
+    private ForeignKeyEditFormFactory $foreignKeyEditFormFactory;
+    private ForeignKeyAddFormFactory $foreignKeyAddFormFactory;
 
-    public function __construct(Context $context, IncidentStavModel $model)
+    public function __construct(
+        Context                   $context,
+        IncidentStavModel         $model,
+        ForeignKeyEditFormFactory $foreignKeyEditFormFactory,
+        ForeignKeyAddFormFactory  $foreignKeyAddFormFactory
+    )
     {
         parent::__construct();
         $this->netteModel = $context;
         $this->incidentStavModel = $model;
+        $this->foreignKeyEditFormFactory = $foreignKeyEditFormFactory;
+        $this->foreignKeyAddFormFactory = $foreignKeyAddFormFactory;
     }
 
     /**
@@ -51,9 +61,9 @@ class IncidentStavPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd(): AddFkBaseForm
+    public function createComponentAdd(): Form
     {
-        $form = new AddFkBaseForm;
+        $form = $this->foreignKeyAddFormFactory->create();
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
@@ -61,7 +71,7 @@ class IncidentStavPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function add(AddFkBaseForm $form)
+    public function add(Form $form)
     {
         try {
             $v = $form->getValues();
@@ -85,7 +95,7 @@ class IncidentStavPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             /** @var bool|IRow $v nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji */
-            $v = $this->incidentStavModel->fetch($id);
+            $v = $this->incidentStavModel->fetchById($id);
 
             // upravene hodnoty odeslu do formulare
             $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
@@ -95,9 +105,9 @@ class IncidentStavPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit(): EditFkBaseForm
+    public function createComponentEdit(): Form
     {
-        $form = new EditFkBaseForm;
+        $form = $this->foreignKeyEditFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
@@ -105,11 +115,11 @@ class IncidentStavPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function edit(EditFkBaseForm $form)
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->incidentStavModel->update($v['new'], $v['id']);
+            $this->incidentStavModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -128,7 +138,7 @@ class IncidentStavPresenter extends AdminbasePresenter
     {
         try {
             try {
-                $this->incidentStavModel->fetch($id);
+                $this->incidentStavModel->fetchById($id);
                 $this->incidentStavModel->removeItem($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
                 $this->redirect('IncidentStav:default');    // change it !!!

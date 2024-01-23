@@ -9,7 +9,7 @@ use Nette\Database\Context;
  *
  * @author Martin Patyk
  */
-final class UkonModel extends BaseNDbModel
+final class UkonModel extends BaseModel
 {
     use FetchPairsTrait;
 

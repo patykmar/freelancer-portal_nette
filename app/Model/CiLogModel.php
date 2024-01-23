@@ -9,7 +9,7 @@ use Nette\Database\Context;
  *
  * @author Martin Patyk
  */
-final class CiLogModel extends BaseNDbModel
+final class CiLogModel extends BaseModel
 {
     public const TABLE_NAME = 'ci_log';
 

@@ -11,6 +11,6 @@ trait FetchPairsTrait
      */
     public function fetchPairs($value = "nazev"): array
     {
-        return $this->explorer->table($this->tableName)->order('nazev')->fetchPairs('id', $value);
+        return $this->explorer->table(self::TABLE_NAME)->order('nazev')->fetchPairs('id', $value);
     }
 }

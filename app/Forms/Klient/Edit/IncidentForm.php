@@ -11,6 +11,7 @@ namespace App\Forms\Klient\Edit;
 use Nette\ComponentModel\IContainer;
 use App\Forms\Admin\Edit;
 
+/** @deprecated */
 class IncidentForm extends Edit\IncidentForm
 {
     public function __construct(IContainer $parent = null, $name = null)

@@ -9,7 +9,7 @@ use Nette\Database\Context;
  *
  * @author Martin Patyk
  */
-final class PrioritaModel extends BaseNDbModel
+final class PrioritaModel extends BaseModel
 {
     use FetchPairsTrait;
 

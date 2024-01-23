@@ -8,51 +8,43 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Factory\Forms\CiAddFormFactory;
+use App\Factory\Forms\CiEditFormFactory;
 use App\Grids\Admin\CiGrid;
 use App\Grids\Admin\PotomciCiGrid;
 use App\Model\CiLogModel;
 use App\Model\CiModel;
-use App\Model\FirmaModel;
-use App\Model\FrontaModel;
-use App\Model\StavCiModel;
-use App\Model\TarifModel;
 use Exception;
-use App\Forms\Admin\Add\CiForm;
-use App\Forms\Admin\Edit;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
+use Nette\Application\UI\Form;
 use Nette\Database\Context;
+use Nette\Utils\DateTime;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
 
 class CiPresenter extends AdminbasePresenter
 {
     private CiModel $ciModel;
-    private StavCiModel $stavCiModel;
     private CiLogModel $ciLogModel;
     private Context $ciContext;
-    private FrontaModel $frontaModel;
-    private FirmaModel $firmaModel;
-    private TarifModel $tarifModel;
+    private CiAddFormFactory $addFormFactory;
+    private CiEditFormFactory $editFormFactory;
 
     public function __construct(
-        CiModel     $ciModel,
-        StavCiModel $stavCiModel,
-        CiLogModel  $modelCiLog,
-        FrontaModel $frontaModel,
-        FirmaModel  $firmaModel,
-        TarifModel  $tarifModel,
-        Context     $ciContext
+        CiModel           $ciModel,
+        CiLogModel        $ciLogModel,
+        Context           $ciContext,
+        CiAddFormFactory  $addFormFactory,
+        CiEditFormFactory $editFormFactory
     )
     {
         parent::__construct();
         $this->ciModel = $ciModel;
-        $this->stavCiModel = $stavCiModel;
-        $this->ciLogModel = $modelCiLog;
-        $this->frontaModel = $frontaModel;
-        $this->firmaModel = $firmaModel;
-        $this->tarifModel = $tarifModel;
+        $this->ciLogModel = $ciLogModel;
         $this->ciContext = $ciContext;
+        $this->addFormFactory = $addFormFactory;
+        $this->editFormFactory = $editFormFactory;
     }
 
     /**
@@ -83,7 +75,7 @@ class CiPresenter extends AdminbasePresenter
     {
         try {
             $this->setView('../_add');
-            $this->ciModel->fetch($id);
+            $this->ciModel->fetchById($id);
 
             // u potomka neni potreba specifikovat nektere cizi klice
             $this['add']->offsetUnset('fronta_tier_1');
@@ -104,28 +96,25 @@ class CiPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentAdd(): CiForm
+    public function createComponentAdd(): Form
     {
-        $form = new CiForm(
-            $this->ciModel,
-            $this->stavCiModel,
-            $this->frontaModel,
-            $this->firmaModel,
-            $this->tarifModel
-        );
+        $form = $this->addFormFactory->create();
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
-    public function add(CiForm $form)
+    /**
+     * @throws AbortException
+     */
+    public function add(Form $form)
     {
         try {
             $v = $form->getValues();
             $ci_log = $this->createLog($form->components);
             $v->offsetSet('log', $ci_log);
             $v->offsetSet('osoba_vytvoril', $this->userId);
-            $v->offsetSet('datum_vytvoreni', new \Nette\DateTime);
-            $this->ciModel->insert($v);
+            $v->offsetSet('datum_vytvoreni', new DateTime);
+            $this->ciModel->insertNewItem($v);
         } catch (InvalidArgumentException $exc) {
             $form->addError('Nový záznam nebyl přidán');
             $this->flashMessage($exc->getMessage());
@@ -154,7 +143,7 @@ class CiPresenter extends AdminbasePresenter
         try {
             #$this->setView('../_edit');
             //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->ciModel->fetch($id);
+            $v = $this->ciModel->fetchById($id);
             $this->template->id = $id;
             //do sablony poslu log
             $this->template->ciLog = $this->ciLogModel->fetchAllByCi($id);
@@ -168,15 +157,9 @@ class CiPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit(): Edit\CiForm
+    public function createComponentEdit(): Form
     {
-        $form = new Edit\CiForm(
-            $this->ciModel,
-            $this->stavCiModel,
-            $this->frontaModel,
-            $this->firmaModel,
-            $this->tarifModel
-        );
+        $form = $this->editFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
@@ -184,11 +167,11 @@ class CiPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function edit(Edit\CiForm $form)
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->ciModel->update($v['new'], $v['id']);
+            $this->ciModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -206,8 +189,8 @@ class CiPresenter extends AdminbasePresenter
     {
         try {
             try {
-                $this->ciModel->fetch($id);
-                $this->ciModel->remove($id);
+                $this->ciModel->fetchById($id);
+                $this->ciModel->removeItem($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
                 $this->redirect('Ci:default'); //change it !!!
             } catch (InvalidArgumentException $exc) {

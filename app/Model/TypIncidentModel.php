@@ -9,7 +9,7 @@ use Nette\Database\Context;
  *
  * @author Martin Patyk
  */
-final class TypIncidentModel extends BaseNDbModel
+final class TypIncidentModel extends BaseModel
 {
     use FetchPairsTrait;
 

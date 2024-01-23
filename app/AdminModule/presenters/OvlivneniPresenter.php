@@ -8,11 +8,14 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Factory\Forms\ImpactAddFormFactory;
+use App\Factory\Forms\ImpactEditFormFactory;
 use App\Grids\Admin\OvlivneniGrid;
 use App\Model\OvlivneniModel;
 use Exception;
-use App\Forms\Admin\Edit\OvlivneniForm;
 use Nette\Application\AbortException;
+use Nette\Application\BadRequestException;
+use Nette\Application\UI\Form;
 use Nette\Database\Context;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
@@ -21,18 +24,27 @@ class OvlivneniPresenter extends AdminbasePresenter
 {
     private Context $netteModel;
     private OvlivneniModel $model;
+    private ImpactAddFormFactory $impactAddFormFactory;
+    private ImpactEditFormFactory $impactEditFormFactory;
 
-    public function __construct(Context $context, OvlivneniModel $ovlivneniModel)
+    public function __construct(
+        Context               $context,
+        OvlivneniModel        $ovlivneniModel,
+        ImpactAddFormFactory  $impactAddFormFactory,
+        ImpactEditFormFactory $impactEditFormFactory
+    )
     {
         parent::__construct();
         $this->model = $ovlivneniModel;
         $this->netteModel = $context;
+        $this->impactAddFormFactory = $impactAddFormFactory;
+        $this->impactEditFormFactory = $impactEditFormFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
      */
-    protected function createComponentGrid()
+    protected function createComponentGrid(): OvlivneniGrid
     {
         return new OvlivneniGrid($this->netteModel->table('ovlivneni'));
     }
@@ -49,9 +61,9 @@ class OvlivneniPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd()
+    public function createComponentAdd(): Form
     {
-        $form = new OvlivneniForm();
+        $form = $this->impactAddFormFactory->create();
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
@@ -59,11 +71,11 @@ class OvlivneniPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function add(OvlivneniForm $form)
+    public function add(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->model->insert($v);
+            $this->model->insertNewItem($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -77,14 +89,15 @@ class OvlivneniPresenter extends AdminbasePresenter
     /**
      * @param int $id Identifikator polozky
      * @throws AbortException
+     * @throws BadRequestException
      */
-    public function renderEdit($id)
+    public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
 
             // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->model->fetch($id);
+            $v = $this->model->fetchById($id);
 
             // odeberu idecko z pole
 //            $v->offsetUnset('id');
@@ -97,9 +110,9 @@ class OvlivneniPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit()
+    public function createComponentEdit(): Form
     {
-        $form = new OvlivneniForm;
+        $form = $this->impactEditFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
@@ -107,11 +120,11 @@ class OvlivneniPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function edit(OvlivneniForm $form)
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->model->update($v['new'], $v['id']);
+            $this->model->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -126,11 +139,11 @@ class OvlivneniPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function actionDrop($id)
+    public function actionDrop(int $id)
     {
         try {
-            $this->model->fetch($id);
-            $this->model->remove($id);
+            $this->model->fetchById($id);
+            $this->model->removeItem($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('Ovlivneni:default');    // change it !!!
         } catch (InvalidArgumentException $exc) {

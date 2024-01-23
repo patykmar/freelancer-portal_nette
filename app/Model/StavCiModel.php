@@ -9,7 +9,7 @@ use Nette\Database\Context;
  *
  * @author Martin Patyk
  */
-final class StavCiModel extends BaseNDbModel
+final class StavCiModel extends BaseModel
 {
     use FetchPairsTrait;
 

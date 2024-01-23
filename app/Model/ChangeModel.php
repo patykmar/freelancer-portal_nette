@@ -9,7 +9,7 @@ use Nette\Database\Context;
  *
  * @author Martin Patyk
  */
-final class ChangeModel extends BaseNDbModel
+final class ChangeModel extends BaseModel
 {
     public const TABLE_NAME = 'change';
 

@@ -8,12 +8,13 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Factory\Forms\ForeignKeyAddFormFactory;
 use App\Grids\FkGrid;
 use App\Model\TypOsobyModel;
 use Exception;
-use App\Forms\Admin\Add\FkBaseForm as AddFkBaseForm;
-use App\Forms\Admin\Edit\FkBaseForm as EditFkBaseForm;
 use Nette\Application\AbortException;
+use Nette\Application\BadRequestException;
+use Nette\Application\UI\Form;
 use Nette\Database\Context;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
@@ -22,18 +23,24 @@ class TypOsobyPresenter extends AdminbasePresenter
 {
     private TypOsobyModel $typOsobyModel;
     private Context $typOsobyContext;
+    private ForeignKeyAddFormFactory $foreignKeyAddFormFactory;
 
-    public function __construct(TypOsobyModel $typOsobyModel, Context $typOsobyContext)
+    public function __construct(
+        TypOsobyModel            $typOsobyModel,
+        Context                  $typOsobyContext,
+        ForeignKeyAddFormFactory $foreignKeyAddFormFactory
+    )
     {
         parent::__construct();
         $this->typOsobyModel = $typOsobyModel;
         $this->typOsobyContext = $typOsobyContext;
+        $this->foreignKeyAddFormFactory = $foreignKeyAddFormFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
      */
-    protected function createComponentGrid()
+    protected function createComponentGrid(): FkGrid
     {
         return new FkGrid($this->typOsobyContext->table('typ_osoby'));
     }
@@ -51,9 +58,9 @@ class TypOsobyPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd()
+    public function createComponentAdd(): Form
     {
-        $form = new AddFkBaseForm;
+        $form = $this->foreignKeyAddFormFactory->create();
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
@@ -62,11 +69,12 @@ class TypOsobyPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function add(AddFkBaseForm $form)
+    public function add(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->typOsobyModel->insert($v);
+            $v->offsetUnset('id');
+            $this->typOsobyModel->insertNewItem($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -80,26 +88,27 @@ class TypOsobyPresenter extends AdminbasePresenter
     /**
      * @param int $id Identifikator polozky
      * @throws AbortException
+     * @throws BadRequestException
      */
-    public function renderEdit($id)
+    public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
             // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->typOsobyModel->fetch($id);
+            $v = $this->typOsobyModel->fetchById($id);
             // odeberu idecko z pole
             $v->offsetUnset('id');
             // upravene hodnoty odeslu do formulare
-            $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
+            $this['edit']->setDefaults($v);
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
             $this->redirect('default');
         }
     }
 
-    public function createComponentEdit()
+    public function createComponentEdit(): Form
     {
-        $form = new EditFkBaseForm;
+        $form = $this->foreignKeyAddFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
@@ -107,11 +116,11 @@ class TypOsobyPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function edit(EditFkBaseForm $form)
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->typOsobyModel->update($v['new'], $v['id']);
+            $this->typOsobyModel->updateItem($v, $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -129,7 +138,7 @@ class TypOsobyPresenter extends AdminbasePresenter
     public function actionDrop(int $id)
     {
         try {
-            $this->typOsobyModel->fetch($id);
+            $this->typOsobyModel->fetchById($id);
             $this->typOsobyModel->removeItem($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('TypOsoby:default');    // change it !!!

@@ -8,12 +8,14 @@
 
 namespace App\AdminModule\Presenters;
 
+use App\Factory\Forms\TariffAddFormFactory;
+use App\Factory\Forms\TariffEditFormFactory;
 use App\Grids\Admin\TarifGrid;
 use App\Model\TarifModel;
-use App\Forms\Admin\Add\TarifForm as AddTarifForm;
-use App\Forms\Admin\Edit\TarifForm as EditTarifForm;
 use Exception;
 use Nette\Application\AbortException;
+use Nette\Application\BadRequestException;
+use Nette\Application\UI\Form;
 use Nette\Database\Context;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
@@ -23,6 +25,8 @@ class TarifPresenter extends AdminbasePresenter
 {
     private TarifModel $tarifModel;
     private Context $tarifContext;
+    private TariffAddFormFactory $tariffAddFormFactory;
+    private TariffEditFormFactory $tariffEditFormFactory;
 
     public function __construct(TarifModel $tarifModel, Context $tarifContext)
     {
@@ -51,18 +55,18 @@ class TarifPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd(): AddTarifForm
+    public function createComponentAdd(): Form
     {
-        $form = new AddTarifForm();
+        $form = $this->tariffAddFormFactory->create();
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
     /**
-     * @param AddTarifForm $form
+     * @param Form $form
      * @throws AbortException
      */
-    public function add(AddTarifForm $form)
+    public function add(Form $form)
     {
         try {
             $v = $form->getValues();
@@ -81,13 +85,14 @@ class TarifPresenter extends AdminbasePresenter
     /**
      * @param int $id Identifikator polozky
      * @throws AbortException
+     * @throws BadRequestException
      */
     public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
             //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->tarifModel->fetch($id);
+            $v = $this->tarifModel->fetchById($id);
             //odeberu idecko z pole
 //            $v->offsetUnset('id');
             //upravene hodnoty odeslu do formulare
@@ -98,21 +103,21 @@ class TarifPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit(): EditTarifForm
+    public function createComponentEdit(): Form
     {
-        $form = new EditTarifForm();
+        $form = $this->tariffEditFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
     /**
-     * @param EditTarifForm $form
+     * @param Form $form
      */
-    public function edit(EditTarifForm $form)
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->tarifModel->update($v['new'], $v['id']);
+            $this->tarifModel->updateItem($v['new'], $v['id']);
             $this->flashMessage('Záznam byl úspěšně změněn');
             $this->redirect('default');
         } catch (Exception $exc) {
@@ -130,7 +135,7 @@ class TarifPresenter extends AdminbasePresenter
     public function actionDrop(int $id)
     {
         try {
-            $this->tarifModel->fetch($id);
+            $this->tarifModel->fetchById($id);
             $this->tarifModel->removeItem($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('Tarif:default'); //change it !!!

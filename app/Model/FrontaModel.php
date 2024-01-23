@@ -9,7 +9,7 @@ use Nette\Database\Context;
  *
  * @author Martin Patyk
  */
-final class FrontaModel extends BaseNDbModel
+final class FrontaModel extends BaseModel
 {
     use FetchPairsTrait;
 
