@@ -114,7 +114,7 @@ class TypIncidentPresenter extends AdminbasePresenter
             $v = $form->getValues();
             $this->typIncidentModel->updateItem($v, $v['id']);
         } catch (Exception $exc) {
-            Debugger::log($exc->getMessage());
+            Debugger::log($exc->getMessage(), ILogger::ERROR);
             $form->addError('Záznam nebyl změněn');
         }
         $this->flashMessage('Záznam byl úspěšně změněn');

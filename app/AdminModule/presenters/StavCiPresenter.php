@@ -8,45 +8,43 @@
 
 namespace App\AdminModule\Presenters;
 
-use App\Factory\Forms\ForeignKeyAddFormFactory;
-use App\Factory\Forms\ForeignKeyEditFormFactory;
-use App\Grids\FkGrid;
+use App\Factory\Forms\ForeignKeyFormFactory;
+use App\Factory\Grids\SimpleDataGridFactory;
 use App\Model\StavCiModel;
 use Exception;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
-use Nette\Application\UI\Form;
-use Nette\Database\Context;
+use Nette\Forms\Form;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class StavCiPresenter extends AdminbasePresenter
 {
     private StavCiModel $stavCiModel;
-    private Context $stavCiContext;
-    private ForeignKeyAddFormFactory $foreignKeyAddFormFactory;
-    private ForeignKeyEditFormFactory $foreignKeyEditFormFactory;
+    private SimpleDataGridFactory $simpleDataGridFactory;
+    private ForeignKeyFormFactory $foreignKeyFormFactory;
 
     public function __construct(
-        StavCiModel               $stavCiModel,
-        Context                   $stavCiContext,
-        ForeignKeyAddFormFactory  $foreignKeyAddFormFactory,
-        ForeignKeyEditFormFactory $foreignKeyEditFormFactory
+        StavCiModel           $stavCiModel,
+        SimpleDataGridFactory $simpleDataGridFactory,
+        ForeignKeyFormFactory $foreignKeyFormFactory
     )
     {
         parent::__construct();
         $this->stavCiModel = $stavCiModel;
-        $this->stavCiContext = $stavCiContext;
-        $this->foreignKeyAddFormFactory = $foreignKeyAddFormFactory;
-        $this->foreignKeyEditFormFactory = $foreignKeyEditFormFactory;
+        $this->simpleDataGridFactory = $simpleDataGridFactory;
+        $this->foreignKeyFormFactory = $foreignKeyFormFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
+     * @throws DataGridException
      */
-    protected function createComponentGrid()
+    protected function createComponentGrid(): DataGrid
     {
-        return new FkGrid($this->stavCiContext->table('stav_ci'));
+        return $this->simpleDataGridFactory->createStavCi();
     }
 
     public function renderDefault()
@@ -64,7 +62,7 @@ class StavCiPresenter extends AdminbasePresenter
 
     public function createComponentAdd(): Form
     {
-        $form = $this->foreignKeyAddFormFactory->create();
+        $form = $this->foreignKeyFormFactory->create();
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
@@ -76,6 +74,7 @@ class StavCiPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
+            $v->offsetUnset('id');
             $this->stavCiModel->insertNewItem($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
@@ -96,14 +95,8 @@ class StavCiPresenter extends AdminbasePresenter
     {
         try {
             $this->setView('../_edit');
-            // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->stavCiModel->fetchById($id);
-
-            // odeberu idecko z pole
-//            $v->offsetUnset('id');
-
             // upravene hodnoty odeslu do formulare
-            $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
+            $this['edit']->setDefaults($this->stavCiModel->fetchById($id));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
             $this->redirect('default');
@@ -112,7 +105,7 @@ class StavCiPresenter extends AdminbasePresenter
 
     public function createComponentEdit(): Form
     {
-        $form = $this->foreignKeyEditFormFactory->create();
+        $form = $this->foreignKeyFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
@@ -124,7 +117,7 @@ class StavCiPresenter extends AdminbasePresenter
     {
         try {
             $v = $form->getValues();
-            $this->stavCiModel->updateItem($v['new'], $v['id']);
+            $this->stavCiModel->updateItem($v, $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -143,7 +136,7 @@ class StavCiPresenter extends AdminbasePresenter
     {
         try {
             $this->stavCiModel->fetchById($id);
-            $this->stavCiModel->remove($id);
+            $this->stavCiModel->removeItem($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('StavCi:default');    // change it !!!
         } catch (InvalidArgumentException $exc) {

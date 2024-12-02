@@ -21,10 +21,8 @@ Developed on Nette framework ~2014.
 - 2024/1
   - Refactor defining classes of forms to use factory class for building forms
   - Update `mPdf` and `ondrejbrejla/eciovni` to `^8.0` respective `^2.3`
-
-## TODO
-
-- Refactor all `datagrid` build on `miloslavkostir/datagrid` and use new `ublaboo/datagrid` instead.
+- 2024/12
+  - Migrate `datagrid` from `miloslavkostir/datagrid` to `ublaboo/datagrid`
 
 ## Versions of components
 

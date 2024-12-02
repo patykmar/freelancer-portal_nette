@@ -2,13 +2,9 @@
 
 namespace App\Factory\Forms;
 
-use Nette\Application\UI\Form;
-use Nette\Forms\Form as FormAlias;
+use Nette\Forms\Form;
 
-/**
- * @deprecated
-*/
-class ForeignKeyEditFormFactory
+class ForeignKeyFormFactory
 {
     private FormFactory $formFactory;
 
@@ -24,9 +20,8 @@ class ForeignKeyEditFormFactory
     {
         $form = $this->formFactory->create();
         $form->addHidden('id');
-        $new = $this->addContainer('new');
-        $new->addText('nazev', 'Název:', null, 100)
-            ->addRule(FormAlias::FILLED, 'Prosím vyplňte: %label');
+        $form->addText('nazev', 'Název:', null, 100)
+            ->addRule(Form::FILLED, 'Prosím vyplňte: %label');
         // Obrana před Cross-Site Request Forgery (CSRF)
         $form->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat

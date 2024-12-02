@@ -2,14 +2,10 @@
 
 namespace App\Factory\Forms;
 
-use Nette\Application\UI\Form;
+use Nette\Forms\Form;
 use Nette\Forms\Form as FormAlias;
 
-/**
- * @deprecated
-*/
-//TODO: Change name to ForeignKeyFormFactory
-class ForeignKeyAddFormFactory
+class ZpusobUzavreniFormFactory
 {
     private FormFactory $formFactory;
 
@@ -21,16 +17,21 @@ class ForeignKeyAddFormFactory
         $this->formFactory = $formFactory;
     }
 
-    public function create(int $maxLength = 100): Form
+    public function create(): Form
     {
         $form = $this->formFactory->create();
         $form->addHidden('id');
-        $form->addText('nazev', 'Název:', null, $maxLength)
+        $form->addText('nazev', 'Název:', null, 255)
             ->addRule(FormAlias::FILLED);
+        $form->addText('koeficient_cena', 'Koeficient cena:', null, 13)
+            ->setType('number')
+            ->addRule(FormAlias::FLOAT)
+            ->setRequired();
         // Obrana před Cross-Site Request Forgery (CSRF)
-        $form->addProtection('Vypršel časový limit, odešlete formulář znovu');
+        $form->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat
         $form->addSubmit('btSbmt', 'Ulož');
         return $form;
     }
+
 }
