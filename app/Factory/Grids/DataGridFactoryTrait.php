@@ -29,4 +29,10 @@ trait DataGridFactoryTrait
             ->setConfirm("Do you really want to delete?");
     }
 
+    public function addColumnDateTime(DataGrid $dataGrid, string $key, string $name): void
+    {
+        $dataGrid->addColumnDateTime($key, $name)
+            ->setFormat('j.n.Y H:i:s');
+    }
+
 }
