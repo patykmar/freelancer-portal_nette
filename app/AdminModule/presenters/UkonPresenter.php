@@ -9,6 +9,7 @@
 namespace App\AdminModule\Presenters;
 
 use App\Factory\Forms\TaskFormFactory;
+use App\Factory\Grids\UkonDataGridFactory;
 use App\Grids\Admin\UkonGrid;
 use App\Model\UkonModel;
 use Exception;
@@ -18,6 +19,8 @@ use Nette\Application\UI\Form;
 use Nette\Database\Context;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class UkonPresenter extends AdminbasePresenter
 {
@@ -26,25 +29,29 @@ class UkonPresenter extends AdminbasePresenter
     private UkonModel $ukonModel;
     private Context $context;
     private TaskFormFactory $taskFormFactory;
+    private UkonDataGridFactory $gridFactory;
 
     public function __construct(
         Context         $context,
         UkonModel       $ukonModel,
-        TaskFormFactory $taskFormFactory
+        TaskFormFactory $taskFormFactory,
+        UkonDataGridFactory $gridFactory
     )
     {
         parent::__construct();
         $this->ukonModel = $ukonModel;
         $this->context = $context;
         $this->taskFormFactory = $taskFormFactory;
+        $this->gridFactory = $gridFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
+     * @throws DataGridException
      */
-    protected function createComponentGrid(): UkonGrid
+    protected function createComponentGrid(): DataGrid
     {
-        return new UkonGrid($this->context->table(UkonModel::TABLE_NAME));
+        return $this->gridFactory->create();
     }
 
     public function renderDefault()

@@ -10,43 +10,45 @@ namespace App\AdminModule\Presenters;
 
 use App\Factory\Forms\ImpactAddFormFactory;
 use App\Factory\Forms\ImpactEditFormFactory;
-use App\Grids\Admin\OvlivneniGrid;
+use App\Factory\Grids\OvlivneniDataGridFactory;
 use App\Model\OvlivneniModel;
 use Exception;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
-use Nette\Database\Context;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class OvlivneniPresenter extends AdminbasePresenter
 {
-    private Context $netteModel;
     private OvlivneniModel $model;
     private ImpactAddFormFactory $impactAddFormFactory;
     private ImpactEditFormFactory $impactEditFormFactory;
+    private OvlivneniDataGridFactory $gridFactory;
 
     public function __construct(
-        Context               $context,
-        OvlivneniModel        $ovlivneniModel,
-        ImpactAddFormFactory  $impactAddFormFactory,
-        ImpactEditFormFactory $impactEditFormFactory
+        OvlivneniModel           $ovlivneniModel,
+        ImpactAddFormFactory     $impactAddFormFactory,
+        ImpactEditFormFactory    $impactEditFormFactory,
+        OvlivneniDataGridFactory $gridFactory
     )
     {
         parent::__construct();
         $this->model = $ovlivneniModel;
-        $this->netteModel = $context;
         $this->impactAddFormFactory = $impactAddFormFactory;
         $this->impactEditFormFactory = $impactEditFormFactory;
+        $this->gridFactory = $gridFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
+     * @throws DataGridException
      */
-    protected function createComponentGrid(): OvlivneniGrid
+    protected function createComponentGrid(): DataGrid
     {
-        return new OvlivneniGrid($this->netteModel->table('ovlivneni'));
+        return $this->gridFactory->create();
     }
 
     public function renderDefault()

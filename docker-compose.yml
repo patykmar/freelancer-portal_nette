@@ -6,6 +6,8 @@ services:
       MYSQL_USER: portal_user
       MYSQL_PASSWORD: password
       MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    command:
+      --sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
     volumes:
       - "./docker/db:/docker-entrypoint-initdb.d"
     networks:
@@ -17,6 +19,8 @@ services:
       - "8088:8080"
     networks:
       - portal-docker
+    environment:
+      ADMINER_DESIGN: nette
   php-apache:
     build:
       context: .
@@ -37,10 +41,10 @@ services:
       - APP_KEY=SomeRandomStringToAddSecurity123
       - APP_ENV=development
       - APP_DEBUG=true
-#      - APACHE_RUN_USER=apache-www-volume
-#      - APACHE_RUN_GROUP=apache-www-volume
+      #      - APACHE_RUN_USER=apache-www-volume
+      #      - APACHE_RUN_GROUP=apache-www-volume
       - PHP_IDE_CONFIG=serverName=nette_freelancer-portal
-#      - XDEBUG_CONFIG=remote_host=172.20.0.1 remote_port=9001
+      #      - XDEBUG_CONFIG=remote_host=172.20.0.1 remote_port=9001
       - XDEBUG_MODE = DEBUG
       - PORTAL_ADMIN_USERNAME=admin@portal.cz
       - PORTAL_ADMIN_PASSWORD=admin123456

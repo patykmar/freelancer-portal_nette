@@ -38,7 +38,10 @@ services:
     - App\Factory\Forms\ZpusobUzavreniFormFactory
     - App\Factory\Grids\CiDataGridFactory
     - App\Factory\Grids\IncidentDataGridFactory
+    - App\Factory\Grids\OvlivneniDataGridFactory
     - App\Factory\Grids\SimpleDataGridFactory
+    - App\Factory\Grids\UkonDataGridFactory
+    - App\Factory\Grids\VyuctovaniDataGridFactory
     - App\Factory\Grids\TypIncidentDataGridFactory
     - App\Factory\Grids\ZpusobUzavreniDataGridFactory
     - App\Factory\ConnectionFactory

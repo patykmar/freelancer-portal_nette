@@ -5,6 +5,9 @@ namespace App\Grids\Admin;
 use http\Encoding\Stream\Inflate;
 use NiftyGrid\DuplicateButtonException;
 
+/**
+ * @deprecated
+ */
 trait AdminGridButtonTrait
 {
     /**
