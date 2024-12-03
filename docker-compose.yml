@@ -20,14 +20,18 @@ services:
   php-apache:
     build:
       context: .
+      extra_hosts:
+        - "host.docker.internal:host-gateway"
       args:
         - WITH_XDEBUG=true
       dockerfile: ./docker/php-apache/Dockerfile
     ports:
       - "8080:80"
       - "8443:443"
-      - "9001:9001"
+      - "9003:9003"
     volumes:
+      - ./docker/php-apache/confd/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - ./docker/php-apache/confd/error_reporting.ini:/usr/local/etc/php/conf.d/error_reporting.ini
       - .:/var/www/html
     environment:
       - APP_KEY=SomeRandomStringToAddSecurity123
