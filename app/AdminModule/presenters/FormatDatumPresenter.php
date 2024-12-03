@@ -10,42 +10,44 @@ namespace App\AdminModule\Presenters;
 
 use App\Factory\Forms\DateFormatAddFormFactory;
 use App\Factory\Forms\DateFormatEditFormFactory;
-use App\Grids\Admin\FormatDatumGrid;
+use App\Factory\Grids\SimpleDataGridFactory;
 use Exception;
 use App\Model\FormatDatumModel;
 use Nette\Application\AbortException as AbortExceptionAlias;
 use Nette\Application\UI\Form;
-use Nette\Database\Context;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class FormatDatumPresenter extends AdminbasePresenter
 {
     private FormatDatumModel $formatDatumModel;
-    private Context $formatDatumContext;
     private DateFormatAddFormFactory $dateFormatAddFormFactory;
     private DateFormatEditFormFactory $dateFormatEditFormFactory;
+    private SimpleDataGridFactory $gridFactory;
 
     public function __construct(
         FormatDatumModel          $formatDatumModel,
-        Context                   $formatDatumContext,
         DateFormatAddFormFactory  $dateFormatAddFormFactory,
-        DateFormatEditFormFactory $dateFormatEditFormFactory
+        DateFormatEditFormFactory $dateFormatEditFormFactory,
+        SimpleDataGridFactory     $gridFactory
     )
     {
         parent::__construct();
         $this->formatDatumModel = $formatDatumModel;
-        $this->formatDatumContext = $formatDatumContext;
         $this->dateFormatAddFormFactory = $dateFormatAddFormFactory;
         $this->dateFormatEditFormFactory = $dateFormatEditFormFactory;
+        $this->gridFactory = $gridFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
+     * @throws DataGridException
      */
-    protected function createComponentGrid(): FormatDatumGrid
+    protected function createComponentGrid(): DataGrid
     {
-        return new FormatDatumGrid($this->formatDatumContext->table(FormatDatumModel::TABLE_NAME));
+        return $this->gridFactory->createDateFormat();
     }
 
     public function renderDefault()

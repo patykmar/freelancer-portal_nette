@@ -4,10 +4,12 @@ namespace App\Factory\Grids;
 
 use App\Factory\DataGridFactory;
 use App\Model\ChangeStavModel;
+use App\Model\FormatDatumModel;
 use App\Model\FrontaModel;
 use App\Model\IncidentStavModel;
 use App\Model\PrioritaModel;
 use App\Model\StavCiModel;
+use App\Model\TimeZoneModel;
 use App\Model\TypChangeModel;
 use App\Model\TypOsobyModel;
 use App\Model\ZemeModel;
@@ -94,6 +96,26 @@ class SimpleDataGridFactory
     public function createZeme(): DataGrid
     {
         return $this->create(ZemeModel::TABLE_NAME);
+    }
+
+    /**
+     * @throws DataGridException
+     */
+    public function createTimeZoneDataGrid(): DataGrid
+    {
+        $dataGrid = $this->create(TimeZoneModel::TABLE_NAME);
+        $dataGrid->addColumnText('cas', 'Časový posun');
+        return $dataGrid;
+    }
+
+    /**
+     * @throws DataGridException
+     */
+    public function createDateFormat(): DataGrid
+    {
+        $dataGrid = $this->create(FormatDatumModel::TABLE_NAME);
+        $dataGrid->addColumnText('format', 'Format data a času');
+        return $dataGrid;
     }
 
     /**

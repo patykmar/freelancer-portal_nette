@@ -39,6 +39,7 @@ services:
     - App\Factory\Grids\CiDataGridFactory
     - App\Factory\Grids\FakturaDataGridFactory
     - App\Factory\Grids\IncidentDataGridFactory
+    - App\Factory\Grids\OsobaDataGridFactory
     - App\Factory\Grids\OvlivneniDataGridFactory
     - App\Factory\Grids\SimpleDataGridFactory
     - App\Factory\Grids\UkonDataGridFactory
