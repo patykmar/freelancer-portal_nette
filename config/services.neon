@@ -3,6 +3,7 @@ services:
     - App\Components\MojeFaktura\MojeFakturaControl
     - App\Config\AppParameterService(%wwwDir%)
     - App\Factory\Components\MojeFakturaControlFactory
+    - App\Factory\Components\WorkLogControlFactory
     - App\Factory\Forms\CiAddFormFactory
     - App\Factory\Forms\CiEditFormFactory
     - App\Factory\Forms\CompanyAddFormFactory
@@ -35,7 +36,10 @@ services:
     - App\Factory\Forms\TimeZoneFormFactory
     - App\Factory\Forms\TypIncidentFormFactory
     - App\Factory\Forms\ZpusobUzavreniFormFactory
+    - App\Factory\Grids\CiDataGridFactory
+    - App\Factory\Grids\IncidentDataGridFactory
     - App\Factory\Grids\SimpleDataGridFactory
+    - App\Factory\Grids\TypIncidentDataGridFactory
     - App\Factory\Grids\ZpusobUzavreniDataGridFactory
     - App\Factory\ConnectionFactory
     - App\Factory\DataGridFactory

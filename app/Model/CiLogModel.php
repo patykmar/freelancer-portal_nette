@@ -25,7 +25,7 @@ final class CiLogModel extends BaseModel
      */
     public function fetchAllByCi(int $id): array
     {
-        return $this->explorer->table($this->tableName)
+        return $this->explorer->table(self::TABLE_NAME)
             ->where('ci', $id)->fetchAll();
     }
 

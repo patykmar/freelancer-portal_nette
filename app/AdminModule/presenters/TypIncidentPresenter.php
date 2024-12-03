@@ -9,38 +9,42 @@
 namespace App\AdminModule\Presenters;
 
 use App\Factory\Forms\TypIncidentFormFactory;
-use App\Grids\Admin\TypIncidentGrid;
+use App\Factory\Grids\TypIncidentDataGridFactory;
 use App\Model\TypIncidentModel;
 use Exception;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
-use Nette\Database\Context;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
 use Tracy\ILogger;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class TypIncidentPresenter extends AdminbasePresenter
 {
     private TypIncidentModel $typIncidentModel;
-    private Context $typIncidentu;
     private TypIncidentFormFactory $typIncidentFormFactory;
+    private TypIncidentDataGridFactory $typIncidentDataGrid;
 
     public function __construct(
-        Context                $context,
         TypIncidentModel       $typIncidentModel,
-        TypIncidentFormFactory $typIncidentFormFactory
+        TypIncidentFormFactory $typIncidentFormFactory,
+        TypIncidentDataGridFactory $typIncidentDataGrid
     )
     {
         parent::__construct();
         $this->typIncidentModel = $typIncidentModel;
-        $this->typIncidentu = $context;
         $this->typIncidentFormFactory = $typIncidentFormFactory;
+        $this->typIncidentDataGrid = $typIncidentDataGrid;
     }
 
-    protected function createComponentGrid(): TypIncidentGrid
+    /**
+     * @throws DataGridException
+     */
+    protected function createComponentGrid(): DataGrid
     {
-        return new TypIncidentGrid($this->typIncidentu->table('typ_incident'));
+        return $this->typIncidentDataGrid->create();
     }
 
     public function renderDefault()
