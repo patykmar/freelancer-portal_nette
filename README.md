@@ -70,7 +70,7 @@ Docker command for developing inside docker container
 ```shell
 docker-compose up
 # or
-docker-compose up -t
+docker-compose up -d
 ```
 
 ### Links
