@@ -8,13 +8,11 @@
 
 namespace App\AdminModule\Presenters;
 
-use App\Components\MojeFaktura\MojeFakturaControl;
 use App\Config\AppParameterService;
 use App\Factory\Forms\InvoiceAddFormFactory;
 use App\Factory\Forms\InvoiceEditFormFactory;
 use App\Factory\Forms\SubscriberSupporterRelationFormFactory;
-use App\Grids\Admin\FakturaGrid;
-use App\Grids\Admin\PolozkyFakturyGrid;
+use App\Factory\Grids\FakturaDataGridFactory;
 use App\Model\FakturaModel;
 use App\Model\FakturaPolozkaModel;
 use App\Model\FirmaModel;
@@ -22,52 +20,47 @@ use Exception;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
-use Nette\Database\Context;
 use Nette\InvalidArgumentException;
 use Nette\NotImplementedException;
 use Nette\Utils\DateTime;
-use OndrejBrejla\Eciovni\DataBuilder;
-use OndrejBrejla\Eciovni\Eciovni;
-use OndrejBrejla\Eciovni\ItemImpl;
-use OndrejBrejla\Eciovni\ParticipantBuilder;
-use OndrejBrejla\Eciovni\TaxImpl;
 use Tracy\Debugger;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class FakturaPresenter extends AdminbasePresenter
 {
     private FakturaModel $fakturaModel;
     private FakturaPolozkaModel $fakturaPolozkaModel;
     private FirmaModel $modelFirma;
-    private Context $fakturaContext;
     private AppParameterService $appParameterService;
     private InvoiceAddFormFactory $invoiceAddFormFactory;
     private InvoiceEditFormFactory $invoiceEditFormFactory;
     private SubscriberSupporterRelationFormFactory $subscriberSupporterRelationFormFactory;
     //TODO some mess in MojeFakturaControl, cannot load page when uncomment
 //    private MojeFakturaControl $mojeFakturaControl;
+    private FakturaDataGridFactory $gridFactory;
 
     public function __construct(
         FakturaModel                           $fakturaModel,
         FakturaPolozkaModel                    $fakturaPolozkaModel,
         FirmaModel                             $modelFirma,
-        Context                                $fakturaContext,
         AppParameterService                    $appParameterService,
         InvoiceAddFormFactory                  $invoiceAddFormFactory,
         InvoiceEditFormFactory                 $invoiceEditFormFactory,
-        SubscriberSupporterRelationFormFactory $subscriberSupporterRelationFormFactory
-//        MojeFakturaControl                     $mojeFakturaControl
+        SubscriberSupporterRelationFormFactory $subscriberSupporterRelationFormFactory,
+        FakturaDataGridFactory                 $gridFactory
     )
     {
         parent::__construct();
         $this->fakturaModel = $fakturaModel;
         $this->fakturaPolozkaModel = $fakturaPolozkaModel;
         $this->modelFirma = $modelFirma;
-        $this->fakturaContext = $fakturaContext;
         $this->appParameterService = $appParameterService;
         $this->invoiceAddFormFactory = $invoiceAddFormFactory;
         $this->invoiceEditFormFactory = $invoiceEditFormFactory;
         $this->subscriberSupporterRelationFormFactory = $subscriberSupporterRelationFormFactory;
 //        $this->mojeFakturaControl = $mojeFakturaControl;
+        $this->gridFactory = $gridFactory;
     }
 
     public function getAppParameterService(): AppParameterService
@@ -75,16 +68,23 @@ class FakturaPresenter extends AdminbasePresenter
         return $this->appParameterService;
     }
 
-    /*************************************** DEFINE GRIDS **************************************/
+    /*************************************** DEFINE GRIDS *************************************
+     * @throws DataGridException
+     */
 
-    protected function createComponentGrid(): FakturaGrid
+    protected function createComponentGrid(): DataGrid
     {
-        return new FakturaGrid($this->fakturaContext);
+        return $this->gridFactory->create($this);
     }
 
-    protected function createComponentGridPolozkyFaktury(): PolozkyFakturyGrid
+    /**
+     * @throws DataGridException
+     */
+    protected function createComponentGridPolozkyFaktury(): DataGrid
     {
-        return new PolozkyFakturyGrid($this->fakturaContext->table(FakturaPolozkaModel::TABLE_NAME));
+        $invoiceId = $this->presenter->getParameter('id');
+        return $this->gridFactory->createPolozkyFaktury($invoiceId);
+//        return new PolozkyFakturyGrid($this->fakturaContext->table(FakturaPolozkaModel::TABLE_NAME));
     }
 
     /*************************************** PART ADD *************************************
@@ -222,21 +222,21 @@ class FakturaPresenter extends AdminbasePresenter
     /**
      * Funkce generuje PDF soubor faktury
      * @param int $id identifikator faktury
-     * @throws AbortException
      */
     public function actionGeneratePdf(int $id)
     {
+        throw new NotImplementedException();
 
 //        $this->mojeFakturaControl->exportToPdf($id);
 //        try {
-            // nazev souboru faktury
+        // nazev souboru faktury
 //            $faData->offsetSet('pdf_soubor', $faData['vs'] . '.pdf');
 
 //            $this['fa']->exportToPdf($mpdf, __DIR__ . '/../../../facka/' . $faData['pdf_soubor'], "F");
 
-            #$this->redirectUrl(__DIR__ . '/../../../facka/'.$faData['vs'].'.pdf');
+        #$this->redirectUrl(__DIR__ . '/../../../facka/'.$faData['vs'].'.pdf');
 
-            //nastavim u faktury nazev PDF souboru
+        //nastavim u faktury nazev PDF souboru
 //            $arr = new ArrayHash;
 //            $arr->offsetSet('pdf_so/ubor', $faData['pdf_soubor']);
 
