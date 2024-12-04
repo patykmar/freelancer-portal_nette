@@ -9,40 +9,42 @@
 namespace App\AdminModule\Presenters;
 
 use App\Factory\Forms\TimeZoneFormFactory;
-use App\Grids\Admin\TimeZoneGrid;
+use App\Factory\Grids\SimpleDataGridFactory;
 use App\Model\TimeZoneModel;
 use Exception;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
-use Nette\Database\Context;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class TimeZonePresenter extends AdminbasePresenter
 {
     private TimeZoneModel $timeZoneModel;
-    private Context $timeZoneContext;
     private TimeZoneFormFactory $timeZoneFormFactory;
+    private SimpleDataGridFactory $gridFactory;
 
     public function __construct(
-        TimeZoneModel       $timeZoneModel,
-        Context             $timeZoneContext,
-        TimeZoneFormFactory $timeZoneFormFactory
+        TimeZoneModel           $timeZoneModel,
+        TimeZoneFormFactory     $timeZoneFormFactory,
+        SimpleDataGridFactory $gridFactory
     )
     {
         parent::__construct();
         $this->timeZoneModel = $timeZoneModel;
-        $this->timeZoneContext = $timeZoneContext;
         $this->timeZoneFormFactory = $timeZoneFormFactory;
+        $this->gridFactory = $gridFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
+     * @throws DataGridException
      */
-    protected function createComponentGrid(): TimeZoneGrid
+    protected function createComponentGrid(): DataGrid
     {
-        return new TimeZoneGrid($this->timeZoneContext->table('time_zone'));
+        return $this->gridFactory->createTimeZoneDataGrid();
     }
 
     public function renderDefault()

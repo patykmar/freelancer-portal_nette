@@ -186,7 +186,8 @@
     <div class="container">
         <span class="text-body-secondary">PHP {=PHP_VERSION} |
             {ifset $_SERVER['SERVER_SOFTWARE']}Server {$_SERVER['SERVER_SOFTWARE']}{/ifset} |
-                Nette Framework {=Nette\Framework::VERSION}</span>
+             {*   Nette Framework {=Nette\Framework::VERSION} *}
+        </span>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"

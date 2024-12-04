@@ -10,49 +10,46 @@ namespace App\AdminModule\Presenters;
 
 use App\Factory\Forms\SlaAddFormFactory;
 use App\Factory\Forms\SlaEditFormFactory;
-use App\Grids\Admin\SlaGrid;
+use App\Factory\Grids\SlaDataGridFactory;
 use App\Model\SlaModel;
 use Exception;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
-use Nette\Database\Context;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
-
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class SlaPresenter extends AdminbasePresenter
 {
     private SlaModel $slaModel;
-    private Context $slaContext;
     private SlaAddFormFactory $slaAddFormFactory;
     private SlaEditFormFactory $slaEditFormFactory;
+    private SlaDataGridFactory $gridFactory;
 
     public function __construct(
         SlaModel           $slaModel,
-        Context            $slaContext,
         SlaAddFormFactory  $slaAddFormFactory,
-        SlaEditFormFactory $slaEditFormFactory
+        SlaEditFormFactory $slaEditFormFactory,
+        SlaDataGridFactory $gridFactory
     )
     {
         parent::__construct();
         $this->slaModel = $slaModel;
-        $this->slaContext = $slaContext;
         $this->slaAddFormFactory = $slaAddFormFactory;
         $this->slaEditFormFactory = $slaEditFormFactory;
+        $this->gridFactory = $gridFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
+     * @throws DataGridException
      */
-    protected function createComponentGrid(): SlaGrid
+    protected function createComponentGrid(): DataGrid
     {
         $id = $this->presenter->getParameter('id');
-        if (isset($id)) {
-            return new SlaGrid($this->slaContext->table('sla')->where(array('tarif' => $id)));
-        } else {
-            return new SlaGrid($this->slaContext->table('sla'));
-        }
+        return $this->gridFactory->create($id);
     }
 
     public function createComponentAdd(): Form

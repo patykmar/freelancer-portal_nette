@@ -8,41 +8,43 @@
 
 namespace App\AdminModule\Presenters;
 
-use App\Factory\Forms\ForeignKeyAddFormFactory;
-use App\Grids\FkGrid;
+use App\Factory\Forms\ForeignKeyFormFactory;
+use App\Factory\Grids\SimpleDataGridFactory;
 use App\Model\TypOsobyModel;
 use Exception;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
-use Nette\Application\UI\Form;
-use Nette\Database\Context;
+use Nette\Forms\Form;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class TypOsobyPresenter extends AdminbasePresenter
 {
     private TypOsobyModel $typOsobyModel;
-    private Context $typOsobyContext;
-    private ForeignKeyAddFormFactory $foreignKeyAddFormFactory;
+    private SimpleDataGridFactory $simpleDataGridFactory;
+    private ForeignKeyFormFactory $foreignKeyFormFactory;
 
     public function __construct(
-        TypOsobyModel            $typOsobyModel,
-        Context                  $typOsobyContext,
-        ForeignKeyAddFormFactory $foreignKeyAddFormFactory
+        TypOsobyModel         $typOsobyModel,
+        SimpleDataGridFactory $simpleDataGridFactory,
+        ForeignKeyFormFactory $foreignKeyFormFactory
     )
     {
         parent::__construct();
         $this->typOsobyModel = $typOsobyModel;
-        $this->typOsobyContext = $typOsobyContext;
-        $this->foreignKeyAddFormFactory = $foreignKeyAddFormFactory;
+        $this->simpleDataGridFactory = $simpleDataGridFactory;
+        $this->foreignKeyFormFactory = $foreignKeyFormFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
+     * @throws DataGridException
      */
-    protected function createComponentGrid(): FkGrid
+    protected function createComponentGrid(): DataGrid
     {
-        return new FkGrid($this->typOsobyContext->table('typ_osoby'));
+        return $this->simpleDataGridFactory->createTypOsoby();
     }
 
     public function renderDefault()
@@ -60,7 +62,7 @@ class TypOsobyPresenter extends AdminbasePresenter
 
     public function createComponentAdd(): Form
     {
-        $form = $this->foreignKeyAddFormFactory->create();
+        $form = $this->foreignKeyFormFactory->create();
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
@@ -94,12 +96,8 @@ class TypOsobyPresenter extends AdminbasePresenter
     {
         try {
             $this->setView('../_edit');
-            // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->typOsobyModel->fetchById($id);
-            // odeberu idecko z pole
-            $v->offsetUnset('id');
             // upravene hodnoty odeslu do formulare
-            $this['edit']->setDefaults($v);
+            $this['edit']->setDefaults($this->typOsobyModel->fetchById($id));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
             $this->redirect('default');
@@ -108,7 +106,7 @@ class TypOsobyPresenter extends AdminbasePresenter
 
     public function createComponentEdit(): Form
     {
-        $form = $this->foreignKeyAddFormFactory->create();
+        $form = $this->foreignKeyFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }

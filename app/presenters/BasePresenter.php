@@ -3,6 +3,7 @@
 namespace App\Presenters;
 
 use ArrayIterator;
+use Iterator;
 use Nette\Application\UI\Presenter;
 use Nette\Forms\Controls\CsrfProtection;
 use Nette\Forms\Controls\SelectBox;
@@ -27,7 +28,7 @@ abstract class BasePresenter extends Presenter
      * @param ArrayIterator $components Komponenty z odeslaneho formulare
      * @return string string pripraveny k ulozeni do databaze
      */
-    protected function createLog(ArrayIterator $components): string
+    protected function createLog(Iterator $components): string
     {
         //pripravim si obsah logu pro ulozeni do databaze
         $ci_log = '';

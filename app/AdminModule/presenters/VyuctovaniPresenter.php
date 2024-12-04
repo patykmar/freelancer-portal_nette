@@ -9,7 +9,7 @@
 namespace App\AdminModule\Presenters;
 
 use App\Factory\Forms\ForeignKeyAddFormFactory;
-use App\Grids\Admin\VyuctovaniGrid;
+use App\Factory\Grids\VyuctovaniDataGridFactory;
 use App\Model\FakturaModel;
 use App\Model\FirmaModel;
 use App\Model\IncidentModel;
@@ -17,57 +17,55 @@ use Exception;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
-use Nette\Database\Context;
 use Nette\Utils\DateTime;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class VyuctovaniPresenter extends AdminbasePresenter
 {
     private FakturaModel $fakturaModel;
     private IncidentModel $modelIncident;
-    private Context $vyuctovaniContext;
     private FirmaModel $firmaModel;
     private ForeignKeyAddFormFactory $foreignKeyAddFormFactory;
+    private VyuctovaniDataGridFactory $gridFactory;
 
     public function __construct(
-        FakturaModel             $fakturaModel,
-        IncidentModel            $modelIncident,
-        Context                  $vyuctovaniContext,
-        FirmaModel               $firmaModel,
-        ForeignKeyAddFormFactory $foreignKeyAddFormFactory
+        FakturaModel              $fakturaModel,
+        IncidentModel             $modelIncident,
+        FirmaModel                $firmaModel,
+        ForeignKeyAddFormFactory  $foreignKeyAddFormFactory,
+        VyuctovaniDataGridFactory $gridFactory
     )
     {
         parent::__construct();
         $this->fakturaModel = $fakturaModel;
         $this->modelIncident = $modelIncident;
-        $this->vyuctovaniContext = $vyuctovaniContext;
         $this->firmaModel = $firmaModel;
         $this->foreignKeyAddFormFactory = $foreignKeyAddFormFactory;
+        $this->gridFactory = $gridFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
      * incident_stav:=4 == vyreseno
+     * @throws DataGridException
      */
-    protected function createComponentGrid(): VyuctovaniGrid
+    protected function createComponentGrid(): DataGrid
     {
-        return new VyuctovaniGrid($this->vyuctovaniContext->table('incident'));
+        return $this->gridFactory->create();
     }
 
     /**
      * Zobrazi pocet nezauctovanych uzavrenych tiketu a celkovou cenu k proplaceni
      * pro kazdou firmu zvlast.
      * incident_stav:=5 == uzavreno
+     * @throws DataGridException
      */
-    protected function createComponentGridNezauctovanaPrace(): VyuctovaniGrid
+    protected function createComponentGridNezauctovanaPrace(): DataGrid
     {
-        return new VyuctovaniGrid($this->vyuctovaniContext
-            ->table('incident')
-            ->where(array(
-                'incident_stav' => 5,
-                'faktura' => null,
-            )));
+        return $this->gridFactory->create();
     }
 
     public function renderDefault()

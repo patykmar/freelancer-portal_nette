@@ -3,6 +3,7 @@ services:
     - App\Components\MojeFaktura\MojeFakturaControl
     - App\Config\AppParameterService(%wwwDir%)
     - App\Factory\Components\MojeFakturaControlFactory
+    - App\Factory\Components\WorkLogControlFactory
     - App\Factory\Forms\CiAddFormFactory
     - App\Factory\Forms\CiEditFormFactory
     - App\Factory\Forms\CompanyAddFormFactory
@@ -12,8 +13,8 @@ services:
     - App\Factory\Forms\DateFormatAddFormFactory
     - App\Factory\Forms\DateFormatEditFormFactory
     - App\Factory\Forms\EmailLinkToCiFormFactory
+    - App\Factory\Forms\ForeignKeyFormFactory
     - App\Factory\Forms\ForeignKeyAddFormFactory
-    - App\Factory\Forms\ForeignKeyEditFormFactory
     - App\Factory\Forms\FormFactory
     - App\Factory\Forms\ImpactAddFormFactory
     - App\Factory\Forms\ImpactEditFormFactory
@@ -34,7 +35,22 @@ services:
     - App\Factory\Forms\TicketTaskFormFactory
     - App\Factory\Forms\TimeZoneFormFactory
     - App\Factory\Forms\TypIncidentFormFactory
+    - App\Factory\Forms\ZpusobUzavreniFormFactory
+    - App\Factory\Grids\CiDataGridFactory
+    - App\Factory\Grids\EmptyDataGridFactory
+    - App\Factory\Grids\FakturaDataGridFactory
+    - App\Factory\Grids\IncidentDataGridFactory
+    - App\Factory\Grids\OsobaDataGridFactory
+    - App\Factory\Grids\OvlivneniDataGridFactory
+    - App\Factory\Grids\SimpleDataGridFactory
+    - App\Factory\Grids\SlaDataGridFactory
+    - App\Factory\Grids\UkonDataGridFactory
+    - App\Factory\Grids\VyuctovaniDataGridFactory
+    - App\Factory\Grids\TypIncidentDataGridFactory
+    - App\Factory\Grids\WebAlertsCiDataGridFactory
+    - App\Factory\Grids\ZpusobUzavreniDataGridFactory
     - App\Factory\ConnectionFactory
+    - App\Factory\DataGridFactory
     - App\Factory\ImapDriverFactory(%imapDriver.user%, %imapDriver.password%, %imapDriver.host%, %imapDriver.port%, %imapDriver.ssl%)
     - App\Factory\MPdfFactory
     - App\Factory\SmtpMailerFactory(%sendMail%, %email.receiver%)

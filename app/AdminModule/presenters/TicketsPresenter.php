@@ -9,52 +9,57 @@
 namespace App\AdminModule\Presenters;
 
 use App\Components\WorkLog\WorkLogControl;
+use App\Factory\Components\WorkLogControlFactory;
 use App\Factory\Forms\TicketAddFormFactory;
 use App\Factory\Forms\TicketEditFormFactory;
-use App\Grids\Admin\IncidentGrid;
-use App\Grids\TiketChildTaskGrid;
+use App\Factory\Grids\IncidentDataGridFactory;
 use App\Model\IncidentLogModel;
 use App\Model\IncidentModel;
 use Exception;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
-use Nette\Database\Context;
 use Tracy\Debugger;
 use Nette\Forms\Form;
 use Nette\InvalidArgumentException;
 use Nette\Utils\Strings;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class TicketsPresenter extends AdminbasePresenter
 {
     private IncidentModel $incidentModel;
     private IncidentLogModel $modelIncWl;
-    private Context $context;
     private TicketAddFormFactory $ticketAddFormFactory;
     private TicketEditFormFactory $ticketEditFormFactory;
+    private IncidentDataGridFactory $incidentDataGrid;
+    private WorkLogControlFactory $workLogControlFactory;
 
     public function __construct(
-        Context               $context,
-        IncidentModel         $incidentModel,
-        IncidentLogModel      $incidentLogModel,
-        TicketAddFormFactory  $ticketAddFormFactory,
-        TicketEditFormFactory $ticketEditFormFactory
+        IncidentModel           $incidentModel,
+        IncidentLogModel        $incidentLogModel,
+        TicketAddFormFactory    $ticketAddFormFactory,
+        TicketEditFormFactory   $ticketEditFormFactory,
+        IncidentDataGridFactory $incidentDataGrid,
+        WorkLogControlFactory   $workLogControlFactory
     )
     {
         parent::__construct();
         $this->incidentModel = $incidentModel;
         $this->modelIncWl = $incidentLogModel;
-        $this->context = $context;
-
-//        $this->childTaskDB = $context->table('incident');
         $this->ticketAddFormFactory = $ticketAddFormFactory;
         $this->ticketEditFormFactory = $ticketEditFormFactory;
+        $this->incidentDataGrid = $incidentDataGrid;
+        $this->workLogControlFactory = $workLogControlFactory;
     }
 
-    /*************************************** PART CREATE COMPONENTS **************************************/
+    // ************************************** PART CREATE COMPONENTS *************************************
 
-    protected function createComponentGrid()
+    /**
+     * @throws DataGridException
+     */
+    protected function createComponentGrid(): DataGrid
     {
-        return new IncidentGrid($this->context);
+        return $this->incidentDataGrid->create();
     }
 
     /*************************************** PART HANDLE DEFAULT VALUE **************************************/
@@ -95,7 +100,7 @@ class TicketsPresenter extends AdminbasePresenter
     //for load work load
     protected function createComponentWl(): WorkLogControl
     {
-        return new WorkLogControl($this->context);
+        return $this->workLogControlFactory->create();
     }
 
     //component for edit new item
@@ -107,10 +112,10 @@ class TicketsPresenter extends AdminbasePresenter
     }
 
     //grid child tickets
-    protected function createComponentChildTaskList($parrentId): TiketChildTaskGrid
+    protected function createComponentChildTaskList(string $parentId): DataGrid
     {
-        return new TiketChildTaskGrid($this->context->table('incident')
-            ->where('incident = ?', $parrentId));
+//        is_numeric($parentId) ;
+        return $this->incidentDataGrid->createTicketChildTask((int)$parentId);
     }
 
     /**

@@ -10,43 +10,45 @@ namespace App\AdminModule\Presenters;
 
 use App\Factory\Forms\QueueOsobaAddFormFactory;
 use App\Factory\Forms\QueueOsobaEditFormFactory;
+use App\Factory\Grids\OsobaDataGridFactory;
 use Exception;
-use Gridy\FrontaOsobaGrid;
 use App\Model\FrontaOsobaModel;
 use Nette\Application\AbortException as AbortExceptionAlias;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
-use Nette\Database\Context;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class FrontaOsobaPresenter extends AdminbasePresenter
 {
     private FrontaOsobaModel $frontaOsobaModel;
-    private Context $frontaOsobaContext;
     private QueueOsobaAddFormFactory $queueOsobaAddFormFactory;
     private QueueOsobaEditFormFactory $queueOsobaEditFormFactory;
+    private OsobaDataGridFactory $gridFactory;
 
     public function __construct(
         FrontaOsobaModel          $frontaOsobaModel,
-        Context                   $frontaOsobaContext,
         QueueOsobaAddFormFactory  $queueOsobaAddFormFactory,
-        QueueOsobaEditFormFactory $queueOsobaEditFormFactory
+        QueueOsobaEditFormFactory $queueOsobaEditFormFactory,
+        OsobaDataGridFactory      $gridFactory
     )
     {
         parent::__construct();
         $this->frontaOsobaModel = $frontaOsobaModel;
-        $this->frontaOsobaContext = $frontaOsobaContext;
         $this->queueOsobaAddFormFactory = $queueOsobaAddFormFactory;
         $this->queueOsobaEditFormFactory = $queueOsobaEditFormFactory;
+        $this->gridFactory = $gridFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
+     * @throws DataGridException
      */
-    protected function createComponentGrid(): FrontaOsobaGrid
+    protected function createComponentGrid(): DataGrid
     {
-        return new FrontaOsobaGrid($this->frontaOsobaContext->table('fronta_osoba'));
+        return $this->gridFactory->createFrontaOsobaGrid();
     }
 
     public function renderDefault()
@@ -116,6 +118,9 @@ class FrontaOsobaPresenter extends AdminbasePresenter
         return $form;
     }
 
+    /**
+     * @throws AbortExceptionAlias
+     */
     public function edit(Form $form)
     {
         try {
@@ -134,7 +139,7 @@ class FrontaOsobaPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortExceptionAlias
      */
-    public function actionDrop($id)
+    public function actionDrop(int $id)
     {
         try {
             try {

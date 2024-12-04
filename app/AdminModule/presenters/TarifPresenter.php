@@ -10,37 +10,52 @@ namespace App\AdminModule\Presenters;
 
 use App\Factory\Forms\TariffAddFormFactory;
 use App\Factory\Forms\TariffEditFormFactory;
-use App\Grids\Admin\TarifGrid;
+use App\Factory\Grids\SimpleDataGridFactory;
 use App\Model\TarifModel;
 use Exception;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
-use Nette\Database\Context;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
-
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class TarifPresenter extends AdminbasePresenter
 {
     private TarifModel $tarifModel;
-    private Context $tarifContext;
     private TariffAddFormFactory $tariffAddFormFactory;
     private TariffEditFormFactory $tariffEditFormFactory;
+    private SimpleDataGridFactory $gridFactory;
 
-    public function __construct(TarifModel $tarifModel, Context $tarifContext)
+    /**
+     * @param TarifModel $tarifModel
+     * @param TariffAddFormFactory $tariffAddFormFactory
+     * @param TariffEditFormFactory $tariffEditFormFactory
+     * @param SimpleDataGridFactory $gridFactory
+     */
+    public function __construct(
+        TarifModel            $tarifModel,
+        TariffAddFormFactory  $tariffAddFormFactory,
+        TariffEditFormFactory $tariffEditFormFactory,
+        SimpleDataGridFactory $gridFactory
+    )
     {
         parent::__construct();
         $this->tarifModel = $tarifModel;
-        $this->tarifContext = $tarifContext;
+        $this->tariffAddFormFactory = $tariffAddFormFactory;
+        $this->tariffEditFormFactory = $tariffEditFormFactory;
+        $this->gridFactory = $gridFactory;
     }
+
 
     /**
      * Cast DEFAULT, definice Gridu
+     * @throws DataGridException
      */
-    protected function createComponentGrid(): TarifGrid
+    protected function createComponentGrid(): DataGrid
     {
-        return new TarifGrid($this->tarifContext->table('tarif'));
+        return $this->gridFactory->createTariffDataGrid();
     }
 
     public function renderDefault()

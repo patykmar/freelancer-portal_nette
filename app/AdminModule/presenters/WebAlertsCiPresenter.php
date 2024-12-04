@@ -9,38 +9,42 @@
 namespace App\AdminModule\Presenters;
 
 use App\Factory\Forms\EmailLinkToCiFormFactory;
-use App\Grids\Admin\OdCiGrid;
+use App\Factory\Grids\WebAlertsCiDataGridFactory;
 use App\Model\OdCiModel;
 use Exception;
 use Nette\Application\AbortException;
+use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
-use Nette\Database\Context;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class WebAlertsCiPresenter extends AdminbasePresenter
 {
     private OdCiModel $odCiModel;
-    private Context $odCiContext;
     private EmailLinkToCiFormFactory $emailLinkToCiFormFactory;
+    private WebAlertsCiDataGridFactory $gridFactory;
 
     public function __construct(
-        OdCiModel                $odCiModel,
-        Context                  $odCiContext,
-        EmailLinkToCiFormFactory $emailLinkToCiFormFactory
+        OdCiModel                  $odCiModel,
+        EmailLinkToCiFormFactory   $emailLinkToCiFormFactory,
+        WebAlertsCiDataGridFactory $gridFactory
     )
     {
         parent::__construct();
         $this->odCiModel = $odCiModel;
-        $this->odCiContext = $odCiContext;
         $this->emailLinkToCiFormFactory = $emailLinkToCiFormFactory;
+        $this->gridFactory = $gridFactory;
     }
 
-    /*************************************** PART DEFINE GRIDS **************************************/
+    /*************************************** PART DEFINE GRIDS *************************************
+     * @throws DataGridException
+     */
 
-    protected function createComponentGrid(): OdCiGrid
+    protected function createComponentGrid(): DataGrid
     {
-        return new OdCiGrid($this->odCiContext->table('od_ci'));
+        return $this->gridFactory->create();
     }
 
     public function renderDefault()
@@ -84,6 +88,7 @@ class WebAlertsCiPresenter extends AdminbasePresenter
     /**
      * @param int $id Identifikator polozky
      * @throws AbortException
+     * @throws BadRequestException
      */
     public function renderEdit(int $id)
     {

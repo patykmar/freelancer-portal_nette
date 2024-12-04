@@ -11,49 +11,51 @@ namespace App\AdminModule\Presenters;
 use App\Components\SmtpController\SendMailService;
 use App\Factory\Forms\PersonAddFormFactory;
 use App\Factory\Forms\PersonEditFormFactory;
-use App\Grids\Admin\OsobaGrid;
+use App\Factory\Grids\OsobaDataGridFactory;
 use App\Model\UserManager;
 use Exception;
 use App\Model\OsobaModel;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
-use Nette\Database\Context;
 use Nette\Utils\ArrayHash;
 use Nette\Utils\DateTime;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class OsobaPresenter extends AdminbasePresenter
 {
     private OsobaModel $osobaModel;
-    private Context $osobaContext;
     private SendMailService $sendMailService;
     private PersonAddFormFactory $personAddFormFactory;
     private PersonEditFormFactory $personEditFormFactory;
+    private OsobaDataGridFactory $gridFactory;
 
     public function __construct(
         OsobaModel            $osobyModel,
-        Context               $osobaContext,
         SendMailService       $sendMailService,
         PersonAddFormFactory  $personAddFormFactory,
-        PersonEditFormFactory $personEditFormFactory
+        PersonEditFormFactory $personEditFormFactory,
+        OsobaDataGridFactory  $gridFactory
     )
     {
         parent::__construct();
         $this->osobaModel = $osobyModel;
-        $this->osobaContext = $osobaContext;
         $this->sendMailService = $sendMailService;
         $this->personAddFormFactory = $personAddFormFactory;
         $this->personEditFormFactory = $personEditFormFactory;
+        $this->gridFactory = $gridFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
+     * @throws DataGridException
      */
-    protected function createComponentGrid(): OsobaGrid
+    protected function createComponentGrid(): DataGrid
     {
-        return new OsobaGrid($this->osobaContext->table('osoba'));
+        return $this->gridFactory->create();
     }
 
     public function renderDefault()

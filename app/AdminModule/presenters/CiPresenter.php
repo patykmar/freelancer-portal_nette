@@ -10,49 +10,50 @@ namespace App\AdminModule\Presenters;
 
 use App\Factory\Forms\CiAddFormFactory;
 use App\Factory\Forms\CiEditFormFactory;
-use App\Grids\Admin\CiGrid;
-use App\Grids\Admin\PotomciCiGrid;
+use App\Factory\Grids\CiDataGridFactory;
 use App\Model\CiLogModel;
 use App\Model\CiModel;
 use Exception;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
-use Nette\Database\Context;
 use Nette\Utils\DateTime;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class CiPresenter extends AdminbasePresenter
 {
     private CiModel $ciModel;
     private CiLogModel $ciLogModel;
-    private Context $ciContext;
     private CiAddFormFactory $addFormFactory;
     private CiEditFormFactory $editFormFactory;
+    private CiDataGridFactory $gridFactory;
 
     public function __construct(
         CiModel           $ciModel,
         CiLogModel        $ciLogModel,
-        Context           $ciContext,
         CiAddFormFactory  $addFormFactory,
-        CiEditFormFactory $editFormFactory
+        CiEditFormFactory $editFormFactory,
+        CiDataGridFactory $gridFactory
     )
     {
         parent::__construct();
         $this->ciModel = $ciModel;
         $this->ciLogModel = $ciLogModel;
-        $this->ciContext = $ciContext;
         $this->addFormFactory = $addFormFactory;
         $this->editFormFactory = $editFormFactory;
+        $this->gridFactory = $gridFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
+     * @throws DataGridException
      */
-    protected function createComponentGrid(): CiGrid
+    protected function createComponentGrid(): DataGrid
     {
-        return new CiGrid($this->ciContext->table('ci')->where(array('zobrazit' => 1)));
+        return $this->gridFactory->create();
     }
 
     public function renderDefault()
@@ -62,15 +63,18 @@ class CiPresenter extends AdminbasePresenter
 
     /**
      * Cast ADD
-     * @param int $id identifikator predka. Pokud je nastavena hodnota
+     * @param ?int $id identifikator predka. Pokud je nastavena hodnota
      * vlozi se jako cizi klic do SelectBoxu.
      */
-    public function renderAdd($id = null)
+    public function renderAdd(int $id = null)
     {
         //nastaveni sablony
         $this->setView('../_add');
     }
 
+    /**
+     * @throws AbortException
+     */
     public function renderAddChild(int $id)
     {
         try {
@@ -125,12 +129,13 @@ class CiPresenter extends AdminbasePresenter
 
     /**
      * Cast Edit, definice Gridu, ktery zobrazuje potomky
+     * @throws DataGridException
      */
-    protected function createComponentPotomciGrid(): PotomciCiGrid
+    protected function createComponentPotomciGrid(): DataGrid
     {
         //nactu si idecko editovaneho predka
         $id = $this->presenter->getParameter('id');
-        return new PotomciCiGrid($this->ciContext->table('ci')->where(array('ci' => $id)));
+        return $this->gridFactory->createPotomciCi($id);
     }
 
     /**

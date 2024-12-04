@@ -21,7 +21,7 @@
         "greeny/maillibrary": "^3.2",
         "mpdf/mpdf": "^8.0",
         "texy/texy": "^2.9",
-        "miloslavkostir/datagrid": "^2.0",
+        "ublaboo/datagrid": "^5.7",
         "ondrejbrejla/eciovni": "^2.3"
     },
     "require-dev": {
