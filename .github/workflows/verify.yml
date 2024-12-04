@@ -1,0 +1,22 @@
+name: Verify Pull Request by PHPStan
+
+on:
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: php-actions/composer@v6 # or alternative dependency management
+        with:
+          php_version: 8.3
+          php_extensions: gd
+
+      - name: PHPStan Static Analysis - level 1
+        uses: php-actions/phpstan@v3
+        with:
+          path: app/
+          php_version: 8.3
+          memory_limit: 256M
+          level: 1
