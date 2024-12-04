@@ -22,19 +22,19 @@ class TaskFormFactory
         $form = $this->formFactory->create();
         $form->addHidden('id');
         $form->addText('nazev', 'Název:', null, 255)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $form->addText('cena', 'Cena:', null, 13)
             ->setType('number')
             ->setRequired()
-            ->addRule(FormAlias::FLOAT);
+            ->addRule(FormAlias::Float);
         $form->addText('cas_realizace', 'Čas realizace (Sec):', null, 255)
             ->setType('number')
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $form->addText('cas_reakce', 'Čas reakce (Sec):', null, 255)
             ->setType('number')
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $form->addTextArea('popis', 'Popis:')
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         // Obrana před Cross-Site Request Forgery (CSRF)
         $form->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat

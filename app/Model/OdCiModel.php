@@ -13,7 +13,7 @@ final class OdCiModel extends BaseModel
 {
     use FetchPairsTrait;
 
-    public const TABLE_NAME = 'od_ci';
+    public const string TABLE_NAME = 'od_ci';
 
     public function __construct(Explorer $explorer)
     {

@@ -51,21 +51,21 @@ class TicketAddFormFactory
         $form->addHidden('incident_stav');
         $form->addHidden('datum_vytvoreni');
         $form->addSelect('osoba_vytvoril', 'Vytvořil:', $this->osobaModel->fetchAllPairs())
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $form->addSelect('typ_incident', 'Typ tiketu:', $this->typIncidentModel->fetchPairs())
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $form->addSelect('priorita', 'Priorita:', $this->prioritaModel->fetchPairs())
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $form->addSelect('ovlivneni', 'Ovlivnění:', $this->ovlivneniModel->fetchPairs())
             ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $form->addSelect('ci', 'Produkt:', $this->ciModel->fetchPairs())
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $form->addSelect('ukon', 'Služba:', $this->ukonModel->fetchPairs())
             ->setPrompt(' - - - ');
         $form->addText('maly_popis', 'Malý popis:', null, 100)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $form->addTextArea('obsah', 'Popis požadavku')
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         // Obrana před Cross-Site Request Forgery (CSRF)
         $form->addProtection('Vypršel časový limit, odešlete formulář znovu');
         // Tlacitko odeslat

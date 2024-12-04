@@ -15,7 +15,7 @@ final class SlaModel extends BaseModel
 {
     use FetchPairsTrait;
 
-    public const TABLE_NAME = 'sla';
+    public const string TABLE_NAME = 'sla';
     private $prioritaModel;
     private $typIncidentModel;
 

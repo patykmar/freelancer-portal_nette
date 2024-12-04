@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Klient;
+namespace App\Forms;
 
 /**
  * Description of FormFactoryAdd
@@ -8,18 +8,17 @@ namespace App\Form\Klient;
  * @author Martin Patyk
  */
 
+use App\Factory\Forms\IForm;
 use App\Model\CiModel;
 use App\Model\FirmaModel;
 use App\Model\FrontaModel;
 use App\Model\StavCiModel;
 use App\Model\TarifModel;
 use Nette\Application\UI\Form as UIForm;
-use Nette\ComponentModel\IContainer;
 use Nette\Forms\Form;
 
 class FormFactoryAdd extends UIForm
 {
-    const EMPTY_PROMPT = IForm::INPUT_SELECT_PROMPT;
     private CiModel $ciModel;
     private FrontaModel $frontaModel;
     private FirmaModel $firmaModel;
@@ -32,18 +31,16 @@ class FormFactoryAdd extends UIForm
      * @param FirmaModel $firmaModel
      * @param TarifModel $tarifModel
      * @param StavCiModel $stavCiModel
-     * @param IContainer|null $parent
-     * @param null $name
      */
-    public function __construct(CiModel     $ciModel,
-                                FrontaModel $frontaModel,
-                                FirmaModel  $firmaModel,
-                                TarifModel  $tarifModel,
-                                StavCiModel $stavCiModel,
-                                IContainer  $parent = null,
-                                            $name = null)
+    public function __construct(
+        CiModel     $ciModel,
+        FrontaModel $frontaModel,
+        FirmaModel  $firmaModel,
+        TarifModel  $tarifModel,
+        StavCiModel $stavCiModel
+    )
     {
-        parent::__construct($parent, $name);
+        parent::__construct();
 
         $this->ciModel = $ciModel;
         $this->frontaModel = $frontaModel;
@@ -52,41 +49,41 @@ class FormFactoryAdd extends UIForm
         $this->stavCiModel = $stavCiModel;
 
         $this->addText('nazev', 'Název:', null, 250)
-            ->addRule(Form::FILLED);
+            ->addRule(Form::Filled);
         $this->addSelect('ci', 'Předek:', $this->ciModel->fetchPairs())
-            ->setPrompt(self::EMPTY_PROMPT);
+            ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $this->addSelect('stav_ci', 'Stav:', $this->stavCiModel->fetchPairs())
-            ->setPrompt(self::EMPTY_PROMPT)
+            ->setPrompt(IForm::INPUT_SELECT_PROMPT)
             ->addConditionOn($this['ci'], Form::EQUAL, false)
-            ->addRule(Form::FILLED);
+            ->addRule(Form::Filled);
         $this->addSelect('fronta_tier_1', 'Výchozí fronta TIER 1:', $this->frontaModel->fetchPairs())
-            ->setPrompt(self::EMPTY_PROMPT)
+            ->setPrompt(IForm::INPUT_SELECT_PROMPT)
             //pokud je stav nasazen je potreba vybrat i frontu
             ->addConditionOn($this['stav_ci'], Form::EQUAL, 3)
-            ->addRule(Form::FILLED);
+            ->addRule(Form::Filled);
         $this->addSelect('fronta_tier_2', 'Výchozí fronta TIER 2:', $this->frontaModel->fetchPairs())
-            ->setPrompt(self::EMPTY_PROMPT)
+            ->setPrompt(IForm::INPUT_SELECT_PROMPT)
             //pokud je stav nasazen je potreba vybrat i frontu
             ->addConditionOn($this['stav_ci'], Form::EQUAL, 3)
-            ->addRule(Form::FILLED);
+            ->addRule(Form::Filled);
         $this->addSelect('fronta_tier_3', 'Výchozí fronta TIER 3:', $this->frontaModel->fetchPairs())
-            ->setPrompt(self::EMPTY_PROMPT)
+            ->setPrompt(IForm::INPUT_SELECT_PROMPT)
             //pokud je stav nasazen je potreba vybrat i frontu
             ->addConditionOn($this['stav_ci'], Form::EQUAL, 3)
-            ->addRule(Form::FILLED);
+            ->addRule(Form::Filled);
         $this->addSelect('firma', 'Firma:', $this->firmaModel->fetchPairs())
-            ->setPrompt(self::EMPTY_PROMPT)
+            ->setPrompt(IForm::INPUT_SELECT_PROMPT)
             //pokud neni vybran predek je potreba vyplnit toto pole
             ->addConditionOn($this['ci'], Form::EQUAL, false)
-            ->addRule(Form::FILLED);
+            ->addRule(Form::Filled);
         $this->addSelect('tarif', 'Tarif:', $this->tarifModel->fetchPairs())
-            ->setPrompt(self::EMPTY_PROMPT)
+            ->setPrompt(IForm::INPUT_SELECT_PROMPT)
             //pokud neni vybran predek je potreba vyplnit toto pole
             ->addConditionOn($this['ci'], Form::EQUAL, false)
-            ->addRule(Form::FILLED);
+            ->addRule(Form::Filled);
         $this->addCheckbox('zobrazit', 'Zobrazit ?');
         $this->addTextArea('obsah', 'Obsah:')
-            ->addRule(Form::FILLED);
+            ->addRule(Form::Filled);
         //Obrana před Cross-Site Request Forgery (CSRF)
         $this->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         //Tlacitko odeslat

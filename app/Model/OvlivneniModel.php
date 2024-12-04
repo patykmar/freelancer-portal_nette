@@ -13,7 +13,7 @@ final class OvlivneniModel extends BaseModel
 {
     use FetchPairsTrait;
 
-    public const TABLE_NAME = 'ovlivneni';
+    public const string TABLE_NAME = 'ovlivneni';
 
     public function __construct(Explorer $explorer)
     {

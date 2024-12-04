@@ -43,13 +43,13 @@ class CiEditFormFactory
         $form->addHidden('id');
         $new = $form->addContainer('new');
         $new->addText('nazev', 'Název:', null, 250)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $new->addSelect('ci', 'Předek:', $this->ciModel->fetchPairs())
             ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $new->addSelect('stav_ci', 'Stav:', $this->stavCiModel->fetchPairs())
             ->setPrompt(IForm::INPUT_SELECT_PROMPT)
             ->addConditionOn($new['ci'], FormAlias::EQUAL, false)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $this->createFormQueuueField($new, 1);
         $this->createFormQueuueField($new, 2);
         $this->createFormQueuueField($new, 3);
@@ -57,15 +57,15 @@ class CiEditFormFactory
             ->setPrompt(IForm::INPUT_SELECT_PROMPT)
             //pokud neni vybran predek je potreba vyplnit toto pole
             ->addConditionOn($new['ci'], FormAlias::EQUAL, false)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $new->addSelect('tarif', 'Tarif:', $this->tarifModel->fetchPairs())
             ->setPrompt(IForm::INPUT_SELECT_PROMPT)
             //pokud neni vybran predek je potreba vyplnit toto pole
             ->addConditionOn($new['ci'], FormAlias::EQUAL, false)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $new->addCheckbox('zobrazit', 'Zobrazit ?');
         $new->addTextArea('obsah', 'Obsah:')
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         //Obrana před Cross-Site Request Forgery (CSRF)
         $form->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         //Tlacitko odeslat

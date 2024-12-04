@@ -24,9 +24,9 @@ use Nette\Utils\Strings;
 
 class ActionsPresenter extends CronBasePresenter
 {
-    private OdCiModel $ciModel;
-    private ConnectionFactory $connectionFactory;
-    private IncidentModel $incidentModel;
+    private readonly OdCiModel $ciModel;
+    private readonly ConnectionFactory $connectionFactory;
+    private readonly IncidentModel $incidentModel;
 
     public function __construct(OdCiModel $ciModel, ConnectionFactory $connectionFactory, IncidentModel $incidentModel)
     {
@@ -40,7 +40,7 @@ class ActionsPresenter extends CronBasePresenter
      * Funkce, ktera z emailu vytvori tiket v IS portal.patyk.cz
      * @throws AbortException|DriverException
      */
-    public function actionWebalerts()
+    public function actionWebalerts(): void
     {
         try {
             $connection = $this->connectionFactory->create();
@@ -58,8 +58,7 @@ class ActionsPresenter extends CronBasePresenter
                 #dump($item->getHeaders());
                 //nactu si potrebne udaje
                 /** @var ContactList $contact */
-                $contact = $mail->getHeader('from')
-                    ->getContacts();
+                $contact = $mail->getHeader('from');
                 $from = Strings::replace(Strings::lower($contact[0]), array('/</' => '', '/>/' => ''));
                 $subject = $mail->getHeader('subject');
 

@@ -20,11 +20,11 @@ class ImpactAddFormFactory
     {
         $form = $this->formFactory->create();
         $form->addText('nazev', 'Název:', null, 255)
-            ->addRule(Form::FILLED);
+            ->addRule(Form::Filled);
         $form->addInteger('koeficient_cena', 'Koeficient cena:')
-            ->addRule(Form::FLOAT);
+            ->addRule(Form::Float);
         $form->addInteger('koeficient_cas', 'Koeficient čas:')
-            ->addRule(Form::FLOAT);
+            ->addRule(Form::Float);
         // Obrana před Cross-Site Request Forgery (CSRF)
         $form->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat

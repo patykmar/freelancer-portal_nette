@@ -13,7 +13,7 @@ final class StavCiModel extends BaseModel
 {
     use FetchPairsTrait;
 
-    public const TABLE_NAME = 'stav_ci';
+    public const string TABLE_NAME = 'stav_ci';
 
     public function __construct(Explorer $explorer)
     {

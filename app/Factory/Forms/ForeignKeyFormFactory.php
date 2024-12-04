@@ -21,7 +21,7 @@ class ForeignKeyFormFactory
         $form = $this->formFactory->create();
         $form->addHidden('id');
         $form->addText('nazev', 'Název:', null, 100)
-            ->addRule(Form::FILLED, 'Prosím vyplňte: %label');
+            ->addRule(Form::Filled, 'Prosím vyplňte: %label');
         // Obrana před Cross-Site Request Forgery (CSRF)
         $form->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat

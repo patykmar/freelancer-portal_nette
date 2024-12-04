@@ -13,7 +13,7 @@ final class FakturaPolozkaCssModel extends BaseModel
 {
     use FetchPairsTrait;
 
-    public const TABLE_NAME = 'faktura_polozka_css';
+    public const string TABLE_NAME = 'faktura_polozka_css';
 
     public function __construct(Explorer $explorer)
     {

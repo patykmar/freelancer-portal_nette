@@ -13,7 +13,7 @@ final class TypIncidentModel extends BaseModel
 {
     use FetchPairsTrait;
 
-    public const TABLE_NAME = 'typ_incident';
+    public const string TABLE_NAME = 'typ_incident';
 
     public function __construct(Explorer $explorer)
     {

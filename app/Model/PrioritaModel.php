@@ -13,7 +13,7 @@ final class PrioritaModel extends BaseModel
 {
     use FetchPairsTrait;
 
-    public const TABLE_NAME = 'priorita';
+    public const string TABLE_NAME = 'priorita';
 
     public function __construct(Explorer $explorer)
     {

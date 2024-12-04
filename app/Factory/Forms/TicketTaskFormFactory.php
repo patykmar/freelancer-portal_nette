@@ -22,7 +22,7 @@ class TicketTaskFormFactory
         $form = $this->ticketAddFormFactory->create($userId);
         // rodic I tasku
         $form->addHidden('incident')
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         // neni treba vybirat typ incidentu
         $form->offsetUnset('typ_incident');
         return $form;

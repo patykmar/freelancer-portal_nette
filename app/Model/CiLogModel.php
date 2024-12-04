@@ -11,7 +11,7 @@ use Nette\Database\Explorer;
  */
 final class CiLogModel extends BaseModel
 {
-    public const TABLE_NAME = 'ci_log';
+    public const string TABLE_NAME = 'ci_log';
 
     public function __construct(Explorer $explorer)
     {

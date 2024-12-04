@@ -17,7 +17,7 @@ final class TarifModel extends BaseModel
 {
     use FetchPairsTrait;
 
-    public const TABLE_NAME = 'tarif';
+    public const string TABLE_NAME = 'tarif';
 
     private $slaModel;
 

@@ -11,13 +11,12 @@ use Nette\Database\Explorer;
  */
 final class IncidentLogModel extends BaseModel
 {
-    public const TABLE_NAME = 'incident_log';
+    public const string TABLE_NAME = 'incident_log';
 
     public function __construct(Explorer $explorer)
     {
         parent::__construct(self::TABLE_NAME, $explorer);
     }
-
 
     /**
      * @param int $id

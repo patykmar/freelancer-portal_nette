@@ -2,7 +2,7 @@
 
 namespace App\FrontModule\Presenters;
 
-use App\Form\Front\FeedBackNegativeForm;
+use App\Forms\Front\FeedBackNegativeForm;
 use App\Model\IncidentModel;
 use App\Presenters\BasePresenter;
 use Nette\Application\AbortException;
@@ -29,7 +29,7 @@ class FeedBackPresenter extends BasePresenter
      * nadefinuji nacteni prihlasovaciho formulare
      * @throws AbortException
      */
-    public function actionDefault()
+    public function actionDefault(): void
     {
         $this->forward('Sign:in');
     }
@@ -38,7 +38,7 @@ class FeedBackPresenter extends BasePresenter
      * Zpracuje pozitivni feedback
      * @throws BadRequestException
      */
-    public function renderPositive(int $id)
+    public function renderPositive(int $id): void
     {
         try {
             $v = $this->incidentModel->fetchForFeedBack($id);
@@ -57,9 +57,11 @@ class FeedBackPresenter extends BasePresenter
     /**
      * Zpracuji negativni feedback.
      */
-    public function renderNegative($id)
+    public function renderNegative($id): void
     {
-        $this['negative']->setDefaults(array('id' => $id));
+        /** @var FeedBackNegativeForm $negativeForm */
+        $negativeForm = $this->getComponent('negative');
+        $negativeForm->setDefaults(['id' => $id]);
     }
 
     /**
@@ -85,7 +87,7 @@ class FeedBackPresenter extends BasePresenter
      * Zpracovani negativniho feedbacku
      * @throws BadRequestException|AbortException
      */
-    public function negative(FeedBackNegativeForm $form)
+    public function negative(FeedBackNegativeForm $form): void
     {
         try {
             $v = $form->getValues();

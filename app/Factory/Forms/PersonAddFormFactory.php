@@ -28,23 +28,23 @@ class PersonAddFormFactory
     {
         $form = $this->formFactory->create();
         $form->addText('jmeno', 'Jméno:', null, 100)
-            ->addRule(Form::FILLED);
+            ->addRule(Form::Filled);
         $form->addText('prijmeni', 'Příjmení:', null, 100)
-            ->addRule(Form::FILLED);
+            ->addRule(Form::Filled);
         $form->addText('email', 'E-mail:', null, 150)
-            ->addRule(Form::FILLED)
+            ->addRule(Form::Filled)
             ->addRule(Form::EMAIL);
         $form->addSelect('firma', 'Firma:', $this->firmaModel->fetchPairs())
-            ->addRule(Form::FILLED)
+            ->addRule(Form::Filled)
             ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $form->addSelect('typ_osoby', 'Typ osoby:', $this->typOsobyModel->fetchPairs())
-            ->addRule(Form::FILLED)
+            ->addRule(Form::Filled)
             ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $form->addSelect('time_zone', 'Časová zona:', $this->timeZoneModel->fetchPairs())
-            ->addRule(Form::FILLED)
+            ->addRule(Form::Filled)
             ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $form->addSelect('format_datum', 'Formád datumu:', $this->formatDatumModel->fetchPairs())
-            ->addRule(Form::FILLED)
+            ->addRule(Form::Filled)
             ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $form->addCheckbox('je_admin', 'Jde o admina?');
         //Obrana před Cross-Site Request Forgery (CSRF)

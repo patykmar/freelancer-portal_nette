@@ -8,10 +8,10 @@ use Nette\Forms\Form as FormAlias;
 
 class SlaAddFormFactory
 {
-    const MONTHS = 12;
-    const DAYS = 31;
-    const HOURS = 23;
-    const MINUTES = 59;
+    const int MONTHS = 12;
+    const int DAYS = 31;
+    const int HOURS = 23;
+    const int MINUTES = 59;
 
     private FormFactory $formFactory;
     private PrioritaModel $prioritaModel;
@@ -41,28 +41,28 @@ class SlaAddFormFactory
         $hodnoty = $form->addContainer('hodnoty');
         // podle poctu priorit se vygeneruji dalsi hodnoty
         foreach ($priority as $key => $value) {
-            $hodnoty->addContainer($key);
-            $hodnoty[$key]->addSelect('priorita', 'Priorita', $priority)
+            $container = $hodnoty->addContainer($key);
+            $container->addSelect('priorita', 'Priorita', $priority)
                 ->setDefaultValue($key);
-            $hodnoty[$key]->addText('cena_koeficient', 'Koeficient', null, 5)
-                ->addRule(FormAlias::FILLED)
-                ->addRule(FormAlias::FLOAT);
-            $hodnoty[$key]->addSelect('mesic_reakce', 'Měsíců:', self::getTimeValue(self::MONTHS))
-                ->addRule(FormAlias::FILLED);
-            $hodnoty[$key]->addSelect('den_reakce', 'Dnů', self::getTimeValue(self::DAYS))
-                ->addRule(FormAlias::FILLED);
-            $hodnoty[$key]->addSelect('hodin_reakce', 'Hodin:', self::getTimeValue(self::HOURS))
-                ->addRule(FormAlias::FILLED);
-            $hodnoty[$key]->addSelect('minut_reakce', 'Minut:', self::getTimeValue(self::MINUTES))
-                ->addRule(FormAlias::FILLED);
-            $hodnoty[$key]->addSelect('mesic_vyhotoveni', 'Měsíců:', self::getTimeValue(self::MONTHS))
-                ->addRule(FormAlias::FILLED);
-            $hodnoty[$key]->addSelect('den_vyhotoveni', 'Dnů', self::getTimeValue(self::DAYS))
-                ->addRule(FormAlias::FILLED);
-            $hodnoty[$key]->addSelect('hodin_vyhotoveni', 'Hodin:', self::getTimeValue(self::HOURS))
-                ->addRule(FormAlias::FILLED);
-            $hodnoty[$key]->addSelect('minut_vyhotoveni', 'Minut:', self::getTimeValue(self::MINUTES))
-                ->addRule(FormAlias::FILLED);
+            $container->addText('cena_koeficient', 'Koeficient', null, 5)
+                ->addRule(FormAlias::Filled)
+                ->addRule(FormAlias::Float);
+            $container->addSelect('mesic_reakce', 'Měsíců:', self::getTimeValue(self::MONTHS))
+                ->addRule(FormAlias::Filled);
+            $container->addSelect('den_reakce', 'Dnů', self::getTimeValue(self::DAYS))
+                ->addRule(FormAlias::Filled);
+            $container->addSelect('hodin_reakce', 'Hodin:', self::getTimeValue(self::HOURS))
+                ->addRule(FormAlias::Filled);
+            $container->addSelect('minut_reakce', 'Minut:', self::getTimeValue(self::MINUTES))
+                ->addRule(FormAlias::Filled);
+            $container->addSelect('mesic_vyhotoveni', 'Měsíců:', self::getTimeValue(self::MONTHS))
+                ->addRule(FormAlias::Filled);
+            $container->addSelect('den_vyhotoveni', 'Dnů', self::getTimeValue(self::DAYS))
+                ->addRule(FormAlias::Filled);
+            $container->addSelect('hodin_vyhotoveni', 'Hodin:', self::getTimeValue(self::HOURS))
+                ->addRule(FormAlias::Filled);
+            $container->addSelect('minut_vyhotoveni', 'Minut:', self::getTimeValue(self::MINUTES))
+                ->addRule(FormAlias::Filled);
         }
         // Obrana před Cross-Site Request Forgery (CSRF)
         $form->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);

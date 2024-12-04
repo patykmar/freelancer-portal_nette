@@ -11,7 +11,7 @@ use Nette\Database\Explorer;
  */
 final class ChangeModel extends BaseModel
 {
-    public const TABLE_NAME = 'change';
+    public const string TABLE_NAME = 'change';
 
     public function __construct(Explorer $explorer)
     {

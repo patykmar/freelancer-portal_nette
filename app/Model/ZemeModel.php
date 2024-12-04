@@ -13,7 +13,7 @@ final class ZemeModel extends BaseModel
 {
     use FetchPairsTrait;
 
-    public const TABLE_NAME = 'zeme';
+    public const string TABLE_NAME = 'zeme';
 
     public function __construct(Explorer $explorer)
     {

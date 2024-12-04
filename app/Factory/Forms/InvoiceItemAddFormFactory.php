@@ -25,7 +25,7 @@ class InvoiceItemAddFormFactory
         $form = $this->formFactory->create();
         $form->addHidden('faktura');
         $form->addText('nazev', 'Nazev:', null, 250)
-            ->addRule(NetteForm::FILLED);
+            ->addRule(NetteForm::Filled);
         $form->addText('pocet_polozek', 'Pocet polozek:', null, 5)
             ->setType('number')
             ->addRule(NetteForm::INTEGER)
@@ -40,7 +40,7 @@ class InvoiceItemAddFormFactory
                 'faktura-nadpis'
             ), false);
         $form->addText('cena', 'Cena:', null, 10)
-            ->addRule(NetteForm::FLOAT);
+            ->addRule(NetteForm::Float);
         // Obrana před Cross-Site Request Forgery (CSRF)
         $form->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat

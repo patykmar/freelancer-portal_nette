@@ -18,8 +18,8 @@ use Nette\NotImplementedException;
  */
 final class FakturaModel extends BaseModel
 {
-    public const TABLE_NAME = 'faktura';
-    public const INVOICE_VS_LEN = 6;
+    public const string TABLE_NAME = 'faktura';
+    public const int INVOICE_VS_LEN = 6;
 
     private IncidentModel $incidentModel;
 

@@ -22,9 +22,9 @@ class TimeZoneFormFactory
         $form = $this->formFactory->create();
         $form->addHidden('id');
         $form->addText('nazev', 'Název:', null, 100)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $form->addText('cas', 'Časový posun:', null, 10)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         // Obrana před Cross-Site Request Forgery (CSRF)
         $form->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat

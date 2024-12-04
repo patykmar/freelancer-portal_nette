@@ -24,10 +24,10 @@ class QueueOsobaAddFormFactory
     {
         $form = $this->formFactory->create();
         $form->addSelect('fronta', 'Fronta:', $this->frontaModel->fetchPairs())
-            ->addRule(FormAlias::FILLED)
+            ->addRule(FormAlias::Filled)
             ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $form->addSelect('osoba', 'Osoba:', $this->osobaModel->fetchPairsSpecialistSystem())
-            ->addRule(FormAlias::FILLED)
+            ->addRule(FormAlias::Filled)
             ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         //Obrana před Cross-Site Request Forgery (CSRF)
         $form->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);

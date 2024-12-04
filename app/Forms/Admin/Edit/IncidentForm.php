@@ -8,16 +8,16 @@ namespace App\Forms\Admin\Edit;
  * @author Martin Patyk
  */
 
+use App\Factory\Forms\IForm;
 use Nette\Application\UI\Form as UIForm;
-use Nette\ComponentModel\IContainer;
 use Nette\Forms\Form;
 
 /** @deprecated */
 class IncidentForm extends UIForm
 {
-    public function __construct(IContainer $parent = null, $name = null)
+    public function __construct()
     {
-        parent::__construct($parent, $name);
+        parent::__construct();
         $this->addHidden('id');
         $new = $this->addContainer('new');
         $new->addText('idTxt', 'Incident:');
@@ -33,15 +33,15 @@ class IncidentForm extends UIForm
         $new->addSelect('osoba_vytvoril', 'Vytvořil:');
         $new->addSelect('zpusob_uzavreni', 'Způsob uzavření:');
         $new->addText('fronta', 'Fronta:')
-            ->setAttribute('readonly', 'readonly');
+            ->setHtmlAttribute('readonly', 'readonly');
         $new->addTextArea('obsah', 'Popis požadavku:')
-            ->addRule(Form::FILLED);
+            ->addRule(Form::Filled);
         $new->addText('datum_vytvoreni', 'Vytvořeno:')
-            ->setAttribute('readonly', 'readonly');
+            ->setHtmlAttribute('readonly', 'readonly');
         $new->addText('datum_ukonceni', 'Dokončení:')
-            ->setAttribute('readonly', 'readonly');
+            ->setHtmlAttribute('readonly', 'readonly');
         $new->addText('datum_reakce', 'Reakce:')
-            ->setAttribute('readonly', 'readonly');
+            ->setHtmlAttribute('readonly', 'readonly');
         $new->addTextArea('wl', 'Záznam práce:');
         $new->addTextArea('obsah_uzavreni', 'Odůvodnění:');
         // Obrana před Cross-Site Request Forgery (CSRF)

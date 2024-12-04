@@ -26,7 +26,7 @@ class ForeignKeyAddFormFactory
         $form = $this->formFactory->create();
         $form->addHidden('id');
         $form->addText('nazev', 'Název:', null, $maxLength)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         // Obrana před Cross-Site Request Forgery (CSRF)
         $form->addProtection('Vypršel časový limit, odešlete formulář znovu');
         // Tlacitko odeslat

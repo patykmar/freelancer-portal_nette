@@ -2,13 +2,17 @@
 
 namespace App\Factory;
 
-use mPDF;
+use Mpdf\Mpdf;
+use Mpdf\MpdfException;
 
 class MPdfFactory
 {
+    /**
+     * @throws MpdfException
+     */
     public function create(): mPDF
     {
-        $mPdf = new mPDF('utf-8');
+        $mPdf = new mPDF();
         $mPdf->SetDisplayMode('fullpage');
         return $mPdf;
     }

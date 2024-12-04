@@ -10,16 +10,12 @@ namespace App\Model;
 
 use Nette\Application\BadRequestException;
 use Nette\Database\Explorer;
-use Nette\Database\Table\IRow;
 use Nette\Database\Table\Selection;
-use Nette\SmartObject;
 use Nette\Utils\ArrayHash;
 
 abstract class BaseModel implements BaseModelInterface
 {
-    use SmartObject;
-
-    private string $tableName;
+    protected string $tableName;
     protected Explorer $explorer;
     protected Selection $selection;
 
@@ -39,10 +35,8 @@ abstract class BaseModel implements BaseModelInterface
     {
         $result = $this->explorer->table($this->tableName)->get($id);
         if ($this->checkNullOrFalse($result)) {
-            throw new BadRequestException("Item with id: $id didn't found in table {$this->tableName}");
+            throw new BadRequestException("Item with id: $id didn't found in table $this->tableName");
         }
-//        dump($result->toArray());
-//        exit();
         return ArrayHash::from($result->toArray());
     }
 
@@ -50,14 +44,14 @@ abstract class BaseModel implements BaseModelInterface
     {
         $result = $this->explorer->table($this->tableName)->fetchAll();
         if (empty($result)) {
-            throw new BadRequestException("Table {$this->tableName} is empty");
+            throw new BadRequestException("Table $this->tableName is empty");
         }
         return ArrayHash::from($result);
     }
 
     /**
      * @param ArrayHash $newItem
-     * @return bool|int|IRow
+     * @return ArrayHash
      */
     public function insertNewItem(ArrayHash $newItem): ArrayHash
     {
@@ -84,8 +78,7 @@ abstract class BaseModel implements BaseModelInterface
     }
 
     /**
-     * @return bool|IRow
-     * @throws BadRequestException
+     * @return int
      */
     public function getLastId(): int
     {
@@ -95,16 +88,22 @@ abstract class BaseModel implements BaseModelInterface
             ->limit(1)
             ->fetch()['id'];
         if ($this->checkNullOrFalse($result) && !is_int($result)) {
-            throw new BadRequestException("No ID has been found in table: {$this->tableName}");
+            throw new BadRequestException("No ID has been found in table: $this->tableName");
         }
         return $result;
     }
 
     /**
      * @param mixed $input
+     * @return bool
      */
-    public function checkNullOrFalse($input): bool
+    public function checkNullOrFalse(mixed $input): bool
     {
         return is_null($input) || false === $input;
+    }
+
+    protected function getSelection(): Selection
+    {
+        return $this->selection;
     }
 }
