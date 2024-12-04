@@ -2,6 +2,7 @@
 
 namespace App\Factory\Grids;
 
+use Ublaboo\DataGrid\Column\Action\Confirmation\StringConfirmation;
 use Ublaboo\DataGrid\DataGrid;
 use Ublaboo\DataGrid\Exception\DataGridException;
 
@@ -26,7 +27,7 @@ trait DataGridFactoryTrait
         $dataGrid->addAction('delete', 'Delete', 'drop')
             ->setClass('btn btn-danger btn-sm')
             ->setTitle('Delete row')
-            ->setConfirm("Do you really want to delete?");
+            ->setConfirmation(new StringConfirmation("Do you really want to delete?"));
     }
 
     public function addColumnDateTime(DataGrid $dataGrid, string $key, string $name): void

@@ -24,13 +24,13 @@ Developed on Nette framework ~2014.
     - Update `mPdf` and `ondrejbrejla/eciovni` to `^8.0` respective `^2.3`
 - 2024/12
     - Migrate `datagrid` from `miloslavkostir/datagrid` to `ublaboo/datagrid`
-    - Upgraded to Nette framework 3.0
+    - Upgraded to Nette framework 3.1 and PHP 8.0
 
 ## Versions of components
 
 | Nette | PHP |
 |-------|-----|
-| 3.0   | 7.4 |
+| 3.1   | 8.0 |
 
 ## Create missing folders
 

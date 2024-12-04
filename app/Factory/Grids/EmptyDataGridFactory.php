@@ -3,7 +3,7 @@
 namespace App\Factory\Grids;
 
 use App\Factory\DataGridFactory;
-use Nette\Database\Context;
+use Nette\Database\Explorer;
 use Ublaboo\DataGrid\DataGrid;
 use Ublaboo\DataGrid\Exception\DataGridException;
 
@@ -11,16 +11,16 @@ class EmptyDataGridFactory
 {
     use DataGridFactoryTrait;
 
-    private Context $context;
+    private Explorer $explorer;
     private DataGridFactory $dataGridFactory;
 
     /**
-     * @param Context $context
+     * @param Explorer $explorer
      * @param DataGridFactory $dataGridFactory
      */
-    public function __construct(Context $context, DataGridFactory $dataGridFactory)
+    public function __construct(Explorer $explorer, DataGridFactory $dataGridFactory)
     {
-        $this->context = $context;
+        $this->explorer = $explorer;
         $this->dataGridFactory = $dataGridFactory;
     }
 
@@ -30,7 +30,7 @@ class EmptyDataGridFactory
     public function create(string $tableName): DataGrid
     {
         $dataGrid = $this->dataGridFactory->create()
-            ->setDataSource($this->context->table($tableName));
+            ->setDataSource($this->explorer->table($tableName));
 
         $this->addEditButton($dataGrid);
         $this->addDeleteButton($dataGrid);

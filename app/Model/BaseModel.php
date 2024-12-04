@@ -9,7 +9,7 @@
 namespace App\Model;
 
 use Nette\Application\BadRequestException;
-use Nette\Database\Context;
+use Nette\Database\Explorer;
 use Nette\Database\Table\IRow;
 use Nette\Database\Table\Selection;
 use Nette\SmartObject;
@@ -20,10 +20,10 @@ abstract class BaseModel implements BaseModelInterface
     use SmartObject;
 
     private string $tableName;
-    protected Context $explorer;
+    protected Explorer $explorer;
     protected Selection $selection;
 
-    public function __construct(string $tableName, Context $context)
+    public function __construct(string $tableName, Explorer $context)
     {
         $this->tableName = $tableName;
         $this->explorer = $context;
@@ -41,7 +41,9 @@ abstract class BaseModel implements BaseModelInterface
         if ($this->checkNullOrFalse($result)) {
             throw new BadRequestException("Item with id: $id didn't found in table {$this->tableName}");
         }
-        return ArrayHash::from($result);
+//        dump($result->toArray());
+//        exit();
+        return ArrayHash::from($result->toArray());
     }
 
     public function fetchAll(): ArrayHash

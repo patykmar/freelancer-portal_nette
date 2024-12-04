@@ -6,7 +6,7 @@ use App\AdminModule\Presenters\FakturaPresenter;
 use App\Factory\DataGridFactory;
 use App\Model\FakturaModel;
 use App\Model\FakturaPolozkaModel;
-use Nette\Database\Context;
+use Nette\Database\Explorer;
 use Nette\Utils\Html;
 use Ublaboo\DataGrid\DataGrid;
 use Ublaboo\DataGrid\Exception\DataGridException;
@@ -15,16 +15,16 @@ class FakturaDataGridFactory
 {
     use DataGridFactoryTrait;
 
-    private Context $context;
+    private Explorer $explorer;
     private DataGridFactory $dataGridFactory;
 
     /**
-     * @param Context $context
+     * @param Explorer $explorer
      * @param DataGridFactory $dataGridFactory
      */
-    public function __construct(Context $context, DataGridFactory $dataGridFactory)
+    public function __construct(Explorer $explorer, DataGridFactory $dataGridFactory)
     {
-        $this->context = $context;
+        $this->explorer = $explorer;
         $this->dataGridFactory = $dataGridFactory;
     }
 
@@ -34,7 +34,7 @@ class FakturaDataGridFactory
     public function create(FakturaPresenter $presenter): DataGrid
     {
         $dataGrid = $this->dataGridFactory->create()->setDataSource(
-            $this->context->table(FakturaModel::TABLE_NAME)
+            $this->explorer->table(FakturaModel::TABLE_NAME)
                 ->select('faktura.id')
                 ->select('vs')
                 ->select('dodavatel_nazev')
@@ -81,7 +81,7 @@ class FakturaDataGridFactory
     public function createPolozkyFaktury(int $invoiceId): DataGrid
     {
         $dataGrid = $this->dataGridFactory->create()->setDataSource(
-            $this->context->table(FakturaPolozkaModel::TABLE_NAME)
+            $this->explorer->table(FakturaPolozkaModel::TABLE_NAME)
                 ->select('faktura_polozka.id AS id')
                 ->select('cssclass')
                 ->select('faktura_polozka.nazev')

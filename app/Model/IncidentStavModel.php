@@ -2,7 +2,7 @@
 
 namespace App\Model;
 
-use Nette\Database\Context;
+use Nette\Database\Explorer;
 
 /**
  * Description of IncidentStavModel
@@ -15,9 +15,9 @@ final class IncidentStavModel extends BaseModel
 
     public const TABLE_NAME = 'incident_stav';
 
-    public function __construct(Context $context)
+    public function __construct(Explorer $explorer)
     {
-        parent::__construct(self::TABLE_NAME, $context);
+        parent::__construct(self::TABLE_NAME, $explorer);
     }
 
 }

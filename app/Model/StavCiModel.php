@@ -2,7 +2,7 @@
 
 namespace App\Model;
 
-use Nette\Database\Context;
+use Nette\Database\Explorer;
 
 /**
  * Description of StavCiModel
@@ -15,9 +15,9 @@ final class StavCiModel extends BaseModel
 
     public const TABLE_NAME = 'stav_ci';
 
-    public function __construct(Context $context)
+    public function __construct(Explorer $explorer)
     {
-        parent::__construct(self::TABLE_NAME, $context);
+        parent::__construct(self::TABLE_NAME, $explorer);
     }
 
 }

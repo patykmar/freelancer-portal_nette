@@ -18,7 +18,6 @@ use App\Model\OsobaModel;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
-use Nette\Utils\ArrayHash;
 use Nette\Utils\DateTime;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
@@ -203,7 +202,7 @@ class OsobaPresenter extends AdminbasePresenter
             $item->offsetSet('password', UserManager::hashPassword($item['password']));
 
             //save to db
-            $this->osobaModel->updateItem(ArrayHash::from($item), $id);
+            $this->osobaModel->updateItem($item, $id);
 
             $flashMessage = sprintf('Uzivateli %s %s bylo vygenerovano nove heslo', $item['jmeno'], $item['prijmeni']);
 

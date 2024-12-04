@@ -3,7 +3,7 @@
 namespace App\Model;
 
 use Nette\Database\Connection;
-use Nette\Database\Context;
+use Nette\Database\Explorer;
 
 /**
  * Description of FakturaPolozkaModel
@@ -15,9 +15,9 @@ final class FakturaPolozkaModel extends BaseModel
     public const TABLE_NAME = 'faktura_polozka';
     private $connection;
 
-    public function __construct(Context $context, Connection $connection)
+    public function __construct(Explorer $explorer, Connection $connection)
     {
-        parent::__construct(self::TABLE_NAME, $context);
+        parent::__construct(self::TABLE_NAME, $explorer);
         $this->connection = $connection;
     }
 

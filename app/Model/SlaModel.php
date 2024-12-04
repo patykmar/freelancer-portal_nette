@@ -3,7 +3,7 @@
 namespace App\Model;
 
 use Nette\Application\BadRequestException;
-use Nette\Database\Context;
+use Nette\Database\Explorer;
 use Nette\Utils\ArrayHash;
 
 /**
@@ -19,9 +19,9 @@ final class SlaModel extends BaseModel
     private $prioritaModel;
     private $typIncidentModel;
 
-    public function __construct(Context $context, PrioritaModel $prioritaModel, TypIncidentModel $typIncidentModel)
+    public function __construct(Explorer $explorer, PrioritaModel $prioritaModel, TypIncidentModel $typIncidentModel)
     {
-        parent::__construct(self::TABLE_NAME, $context);
+        parent::__construct(self::TABLE_NAME, $explorer);
         $this->prioritaModel = $prioritaModel;
         $this->typIncidentModel = $typIncidentModel;
     }
@@ -54,7 +54,7 @@ final class SlaModel extends BaseModel
         if ($this->checkNullOrFalse($result)) {
             throw new BadRequestException("SLA no found for ID: $id");
         }
-        return ArrayHash::from($result);
+        return ArrayHash::from($result->toArray());
     }
 
     /**

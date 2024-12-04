@@ -4,7 +4,7 @@ namespace App\Factory\Grids;
 
 use App\Factory\DataGridFactory;
 use App\Model\IncidentModel;
-use Nette\Database\Context;
+use Nette\Database\Explorer;
 use Nette\Database\Table\Selection;
 use Ublaboo\DataGrid\DataGrid;
 use Ublaboo\DataGrid\Exception\DataGridException;
@@ -13,16 +13,16 @@ class IncidentDataGridFactory
 {
     use DataGridFactoryTrait;
 
-    private Context $context;
+    private Explorer $explorer;
     private DataGridFactory $dataGridFactory;
 
     /**
-     * @param Context $context
+     * @param Explorer $explorer
      * @param DataGridFactory $dataGridFactory
      */
-    public function __construct(Context $context, DataGridFactory $dataGridFactory)
+    public function __construct(Explorer $explorer, DataGridFactory $dataGridFactory)
     {
-        $this->context = $context;
+        $this->explorer = $explorer;
         $this->dataGridFactory = $dataGridFactory;
     }
 
@@ -67,7 +67,7 @@ class IncidentDataGridFactory
 
     private function provideSelectionDataSource(): Selection
     {
-        return $this->context->table(IncidentModel::TABLE_NAME)
+        return $this->explorer->table(IncidentModel::TABLE_NAME)
             ->order('id DESC')
             ->select('incident.id AS id')
             ->select('typ_incident.zkratka AS incidentZkratka')
