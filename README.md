@@ -89,6 +89,14 @@ docker-compose up -d
 docker build -t freelancer-portal-nette .
 ```
 
+### PHPStan
+
+Run static analises by PHPStan
+
+```shell
+./vendor/bin/phpstan analyse app --memory-limit 256m --level 1
+```
+
 ## TODO
 
 - for section Create missing folders add .gitignore file 
