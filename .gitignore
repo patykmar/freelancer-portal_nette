@@ -16,6 +16,5 @@ www/webtemp/*.css
 
 app/.DS_Store
 
-*.lock
 *lock.json
 node_modules/

@@ -4,7 +4,7 @@ namespace App\Factory\Grids;
 
 use App\Factory\DataGridFactory;
 use App\Model\TypIncidentModel;
-use Nette\Database\Context;
+use Nette\Database\Explorer;
 use Ublaboo\DataGrid\DataGrid;
 use Ublaboo\DataGrid\Exception\DataGridException;
 
@@ -12,16 +12,16 @@ class TypIncidentDataGridFactory
 {
     use DataGridFactoryTrait;
 
-    private Context $context;
+    private Explorer $explorer;
     private DataGridFactory $dataGridFactory;
 
     /**
-     * @param Context $context
+     * @param Explorer $explorer
      * @param DataGridFactory $dataGridFactory
      */
-    public function __construct(Context $context, DataGridFactory $dataGridFactory)
+    public function __construct(Explorer $explorer, DataGridFactory $dataGridFactory)
     {
-        $this->context = $context;
+        $this->explorer = $explorer;
         $this->dataGridFactory = $dataGridFactory;
     }
 
@@ -31,7 +31,7 @@ class TypIncidentDataGridFactory
     public function create(): DataGrid
     {
         $dataGrid = $this->dataGridFactory->create()
-            ->setDataSource($this->context->table(TypIncidentModel::TABLE_NAME));
+            ->setDataSource($this->explorer->table(TypIncidentModel::TABLE_NAME));
 
         $dataGrid->addColumnText('nazev', 'Název');
         $dataGrid->addColumnText('zkratka', 'Zkratka');

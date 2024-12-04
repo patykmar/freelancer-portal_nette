@@ -10,13 +10,11 @@ namespace App\AdminModule\Presenters;
 
 use App\Factory\Forms\TaskFormFactory;
 use App\Factory\Grids\UkonDataGridFactory;
-use App\Grids\Admin\UkonGrid;
 use App\Model\UkonModel;
 use Exception;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
-use Nette\Database\Context;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
 use Ublaboo\DataGrid\DataGrid;
@@ -27,12 +25,10 @@ class UkonPresenter extends AdminbasePresenter
     private const TIME_TWO_MONTHS = 5184000;
     private const TIME_ONE_MONTH = 2592000;
     private UkonModel $ukonModel;
-    private Context $context;
     private TaskFormFactory $taskFormFactory;
     private UkonDataGridFactory $gridFactory;
 
     public function __construct(
-        Context         $context,
         UkonModel       $ukonModel,
         TaskFormFactory $taskFormFactory,
         UkonDataGridFactory $gridFactory
@@ -40,7 +36,6 @@ class UkonPresenter extends AdminbasePresenter
     {
         parent::__construct();
         $this->ukonModel = $ukonModel;
-        $this->context = $context;
         $this->taskFormFactory = $taskFormFactory;
         $this->gridFactory = $gridFactory;
     }

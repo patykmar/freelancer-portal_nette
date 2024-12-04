@@ -2,9 +2,8 @@
 
 namespace App\Router;
 
-use Nette\Application\IRouter;
 use Nette\Application\Routers\RouteList;
-use Nette\Application\Routers\Route;
+use Nette\Routing\Router;
 use Nette\StaticClass;
 
 /**
@@ -23,19 +22,19 @@ final class RouterFactory
 
         // Route::$defaultFlags = IRouter::SECURED;
         // TODO: could be fine to have it as parameter instead of hard code SECURED/INSECURED
-        $router[] = new Route('index.php', 'Front:Home:default', iRouter::ONE_WAY);
+        $router->addRoute('index.php', 'Front:Home:default', Router::ONE_WAY);
 
-        $router[] = $adminRouter = new RouteList('Admin');
-        $adminRouter[] = new Route('admin/<presenter>/<action>[/<id>]', 'Homepage:default');
+        $router->withModule('Admin')
+            ->addRoute('admin/<presenter>/<action>[/<id>]', 'Homepage:default');
 
         // $router[] = $clientRouter = new RouteList('Klient');
         // $clientRouter[] = new Route('klient/<presenter>/<action>[/<id>]', 'Homepage:default');
 
-        $router[] = $frontRouter = new RouteList('Cron');
-        $frontRouter[] = new Route('cron/<presenter>/<action>[/<id>]', 'Homepage:default');
+        $router->withModule('Cron')
+            ->addRoute('cron/<presenter>/<action>[/<id>]', 'Homepage:default');
 
-        $router[] = $frontRouter = new RouteList('Front');
-        $frontRouter[] = new Route('<presenter>/<action>[/<id>]', 'Homepage:default');
+        $router->withModule('Front')
+            ->addRoute('<presenter>/<action>[/<id>]', 'Homepage:default');
 
         return $router;
     }

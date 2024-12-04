@@ -3,21 +3,21 @@
 namespace App\Factory\Components;
 
 use App\Components\WorkLog\WorkLogControl;
-use Nette\Database\Context;
+use Nette\Database\Explorer;
 
 class WorkLogControlFactory
 {
-    private Context $context;
+    private Explorer $explorer;
 
     /**
-     * @param Context $context
+     * @param Explorer $explorer
      */
-    public function __construct(Context $context)
+    public function __construct(Explorer $explorer)
     {
-        $this->context = $context;
+        $this->explorer = $explorer;
     }
 
     public function create(): WorkLogControl{
-        return new WorkLogControl($this->context);
+        return new WorkLogControl($this->explorer);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Model;
 
-use Nette\Database\Context;
+use Nette\Database\Explorer;
 
 /**
  * Description of ChangeModel
@@ -13,9 +13,9 @@ final class ChangeModel extends BaseModel
 {
     public const TABLE_NAME = 'change';
 
-    public function __construct(Context $context)
+    public function __construct(Explorer $explorer)
     {
-        parent::__construct(self::TABLE_NAME, $context);
+        parent::__construct(self::TABLE_NAME, $explorer);
     }
 
 }

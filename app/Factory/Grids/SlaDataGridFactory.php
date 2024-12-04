@@ -4,7 +4,7 @@ namespace App\Factory\Grids;
 
 use App\Factory\DataGridFactory;
 use App\Model\SlaModel;
-use Nette\Database\Context;
+use Nette\Database\Explorer;
 use Nette\Database\Table\Selection;
 use Ublaboo\DataGrid\DataGrid;
 use Ublaboo\DataGrid\Exception\DataGridException;
@@ -13,16 +13,16 @@ class SlaDataGridFactory
 {
     use DataGridFactoryTrait;
 
-    private Context $context;
+    private Explorer $explorer;
     private DataGridFactory $dataGridFactory;
 
     /**
-     * @param Context $context
+     * @param Explorer $explorer
      * @param DataGridFactory $dataGridFactory
      */
-    public function __construct(Context $context, DataGridFactory $dataGridFactory)
+    public function __construct(Explorer $explorer, DataGridFactory $dataGridFactory)
     {
-        $this->context = $context;
+        $this->explorer = $explorer;
         $this->dataGridFactory = $dataGridFactory;
     }
 
@@ -50,7 +50,7 @@ class SlaDataGridFactory
 
     private function provideDataSource(): Selection
     {
-        return $this->context->table(SlaModel::TABLE_NAME)
+        return $this->explorer->table(SlaModel::TABLE_NAME)
             ->select('sla.id AS id')
             ->select('tarif.nazev AS tarif')
             ->select('priorita.nazev AS priorita')

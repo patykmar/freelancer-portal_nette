@@ -4,7 +4,7 @@ namespace App\Model;
 
 use Exception;
 use Nette\Database\Connection;
-use Nette\Database\Context;
+use Nette\Database\Explorer;
 use Nette\Database\Table\IRow;
 use Nette\Utils\ArrayHash;
 use Nette\Utils\DateTime;
@@ -33,7 +33,7 @@ final class IncidentModel extends BaseModel
     private $frontaOsobaModel;
 
     public function __construct(
-        Context           $context,
+        Explorer          $explorer,
         Connection        $connection,
         IncidentStavModel $incidentStavModel,
         IncidentLogModel  $incidentLogModel,
@@ -42,7 +42,7 @@ final class IncidentModel extends BaseModel
         FrontaOsobaModel  $frontaOsobaModel
     )
     {
-        parent::__construct(self::TABLE_NAME, $context);
+        parent::__construct(self::TABLE_NAME, $explorer);
         $this->connection = $connection;
         $this->incidentStavModel = $incidentStavModel;
         $this->incidentLogModel = $incidentLogModel;

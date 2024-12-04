@@ -4,7 +4,7 @@ namespace App\Factory\Grids;
 
 use App\Factory\DataGridFactory;
 use App\Model\ZpusobUzavreniModel;
-use Nette\Database\Context;
+use Nette\Database\Explorer;
 use Ublaboo\DataGrid\DataGrid;
 use Ublaboo\DataGrid\Exception\DataGridException;
 
@@ -12,16 +12,16 @@ class ZpusobUzavreniDataGridFactory
 {
     use DataGridFactoryTrait;
 
-    private Context $context;
+    private Explorer $explorer;
     private DataGridFactory $dataGridFactory;
 
     /**
-     * @param Context $context
+     * @param Explorer $explorer
      * @param DataGridFactory $dataGridFactory
      */
-    public function __construct(Context $context, DataGridFactory $dataGridFactory)
+    public function __construct(Explorer $explorer, DataGridFactory $dataGridFactory)
     {
-        $this->context = $context;
+        $this->explorer = $explorer;
         $this->dataGridFactory = $dataGridFactory;
     }
 
@@ -31,7 +31,7 @@ class ZpusobUzavreniDataGridFactory
     public function create(): DataGrid
     {
         $dataGrid = $this->dataGridFactory->create()
-            ->setDataSource($this->context->table(ZpusobUzavreniModel::TABLE_NAME));
+            ->setDataSource($this->explorer->table(ZpusobUzavreniModel::TABLE_NAME));
         $dataGrid->addColumnText('nazev', 'Název');
         $dataGrid->addColumnText('koeficient_cena', 'Cenový koeficient');
 

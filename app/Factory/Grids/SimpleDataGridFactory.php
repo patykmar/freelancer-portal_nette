@@ -2,7 +2,6 @@
 
 namespace App\Factory\Grids;
 
-use App\Factory\DataGridFactory;
 use App\Model\ChangeStavModel;
 use App\Model\FirmaModel;
 use App\Model\FormatDatumModel;
@@ -15,7 +14,6 @@ use App\Model\TimeZoneModel;
 use App\Model\TypChangeModel;
 use App\Model\TypOsobyModel;
 use App\Model\ZemeModel;
-use Nette\Database\Context;
 use Ublaboo\DataGrid\DataGrid;
 use Ublaboo\DataGrid\Exception\DataGridException;
 

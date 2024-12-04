@@ -4,7 +4,7 @@ namespace App\Model;
 
 use DateTime;
 use Exception;
-use Nette\Database\Context;
+use Nette\Database\Explorer;
 use Nette\Database\IRow;
 use Nette\Utils\ArrayHash;
 use Nette\InvalidArgumentException;
@@ -23,9 +23,9 @@ final class FakturaModel extends BaseModel
 
     private IncidentModel $incidentModel;
 
-    public function __construct(Context $context, IncidentModel $incidentModel)
+    public function __construct(Explorer $explorer, IncidentModel $incidentModel)
     {
-        parent::__construct(self::TABLE_NAME, $context);
+        parent::__construct(self::TABLE_NAME, $explorer);
         $this->incidentModel = $incidentModel;
     }
 

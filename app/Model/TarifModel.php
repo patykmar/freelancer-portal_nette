@@ -3,7 +3,7 @@
 namespace App\Model;
 
 use LogicException;
-use Nette\Database\Context;
+use Nette\Database\Explorer;
 use Nette\Utils\ArrayHash;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
@@ -21,9 +21,9 @@ final class TarifModel extends BaseModel
 
     private $slaModel;
 
-    public function __construct(Context $context, SlaModel $slaModel)
+    public function __construct(Explorer $explorer, SlaModel $slaModel)
     {
-        parent::__construct(self::TABLE_NAME, $context);
+        parent::__construct(self::TABLE_NAME, $explorer);
         $this->slaModel = $slaModel;
     }
 

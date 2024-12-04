@@ -5,7 +5,7 @@ namespace App\Factory\Grids;
 use App\Factory\DataGridFactory;
 use App\Model\FrontaOsobaModel;
 use App\Model\OsobaModel;
-use Nette\Database\Context;
+use Nette\Database\Explorer;
 use Ublaboo\DataGrid\DataGrid;
 use Ublaboo\DataGrid\Exception\DataGridException;
 
@@ -13,16 +13,16 @@ class OsobaDataGridFactory
 {
     use DataGridFactoryTrait;
 
-    private Context $context;
+    private Explorer $explorer;
     private DataGridFactory $dataGridFactory;
 
     /**
-     * @param Context $context
+     * @param Explorer $explorer
      * @param DataGridFactory $dataGridFactory
      */
-    public function __construct(Context $context, DataGridFactory $dataGridFactory)
+    public function __construct(Explorer $explorer, DataGridFactory $dataGridFactory)
     {
-        $this->context = $context;
+        $this->explorer = $explorer;
         $this->dataGridFactory = $dataGridFactory;
     }
 
@@ -32,7 +32,7 @@ class OsobaDataGridFactory
     public function create(): DataGrid
     {
         $dataGrid = $this->dataGridFactory->create()->setDataSource(
-            $this->context->table(OsobaModel::TABLE_NAME)
+            $this->explorer->table(OsobaModel::TABLE_NAME)
                 ->select('osoba.id, jmeno, prijmeni')
                 ->select('typ_osoby.nazev AS typ_osoby')
                 ->select('firma.nazev AS firma')
@@ -59,7 +59,7 @@ class OsobaDataGridFactory
     public function createFrontaOsobaGrid(): DataGrid
     {
         $dataGrid = $this->dataGridFactory->create()->setDataSource(
-            $this->context->table(FrontaOsobaModel::TABLE_NAME)
+            $this->explorer->table(FrontaOsobaModel::TABLE_NAME)
                 ->select('fronta_osoba.id')
                 ->select('fronta.nazev AS fronta')
                 ->select('CONCAT(osoba.jmeno, " ",osoba.prijmeni) AS osoba')
