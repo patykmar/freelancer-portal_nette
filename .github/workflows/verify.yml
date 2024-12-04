@@ -13,11 +13,10 @@ jobs:
           php_version: 8.3
           php_extensions: gd
 
-      - name: PHPStan Static Analysis
+      - name: PHPStan Static Analysis - level 1
         uses: php-actions/phpstan@v3
         with:
           path: app/
-          php_extensions: gd
           php_version: 8.3
           memory_limit: 256M
           level: 1
