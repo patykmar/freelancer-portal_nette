@@ -26,6 +26,7 @@ Developed on Nette framework ~2014.
     - Migrate `datagrid` from `miloslavkostir/datagrid` to `ublaboo/datagrid`
     - Upgraded to Nette framework 3.1 and PHP 8.0
     - Upgraded to Nette framework 3.2 and PHP 8.3
+    - Added Static Analysis by PHPStan level 1 into GitHub action
 
 ## Versions of components
 
