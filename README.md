@@ -91,7 +91,7 @@ docker build -t freelancer-portal-nette .
 
 ### PHPStan
 
-Run static analises by PHPStan
+Run static analys by PHPStan
 
 ```shell
 ./vendor/bin/phpstan analyse app --memory-limit 256m --level 1
