@@ -58,7 +58,7 @@ class Sd24hPresenter extends CronBasePresenter
             $update->offsetSet('incident_stav', self::INCIDENT_STAV_UZAVREN);  // nastaven stav uzavreno
             $update->offsetSet('identity', self::IDENTITY_SD24); // identita uzivattele
             $update->offsetSet('odezva_cekam', null); // neumoznim odeslat feedback
-            $this->incidentModel->update($update, $item['id']);
+            $this->incidentModel->updateItem($update, $item['id']);
             unset($update);
         }
         unset($tickets);
@@ -77,7 +77,7 @@ class Sd24hPresenter extends CronBasePresenter
             $update->offsetSet('incident_stav', self::INCIDENT_STAV_UZAVREN);  // nastaven stav uzavreno
             $update->offsetSet('identity', self::IDENTITY_SD24); // identita uzivattele
             $update->offsetSet('odezva_cekam', false); // neumoznim odeslat feedback
-            $this->incidentModel->update($update, $item['id']);
+            $this->incidentModel->updateItem($update, $item['id']);
             unset($update);
         }
         unset($tickets);
@@ -99,7 +99,7 @@ class Sd24hPresenter extends CronBasePresenter
             $update->offsetSet('incident_stav', self::INCIDENT_STAV_UZAVREN);
             $update->offsetSet('identity', self::IDENTITY_SD24);
             $update->offsetSet('odezva_cekam', false); // neumoznim odeslat feedback
-            $this->incidentModel->update($update, $item['id']);
+            $this->incidentModel->updateItem($update, $item['id']);
             unset($update);
         }
         unset($model);
@@ -149,7 +149,7 @@ class Sd24hPresenter extends CronBasePresenter
             // nastavim hodnotu v DB ze byl odeslan pozadavek
             $change = new ArrayHash;
             $change->offsetSet('odezva_odeslan_pozadavek', true);
-            $this->incidentModel->update($change, $value['id']);
+            $this->incidentModel->updateItem($change, $value['id']);
 
             unset($change);
         }

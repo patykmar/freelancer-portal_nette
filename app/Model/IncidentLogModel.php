@@ -9,7 +9,7 @@ use Nette\Database\Context;
  *
  * @author Martin Patyk
  */
-final class IncidentLogModel extends BaseNDbModel
+final class IncidentLogModel extends BaseModel
 {
     public const TABLE_NAME = 'incident_log';
 

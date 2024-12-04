@@ -12,6 +12,7 @@ use Nette\Application\UI\Form as UIForm;
 use Nette\ComponentModel\IContainer;
 use Nette\Forms\Form;
 
+/** @deprecated */
 class IncidentForm extends UIForm
 {
     public function __construct(IContainer $parent = null, $name = null)
@@ -44,7 +45,7 @@ class IncidentForm extends UIForm
         $new->addTextArea('wl', 'Záznam práce:');
         $new->addTextArea('obsah_uzavreni', 'Odůvodnění:');
         // Obrana před Cross-Site Request Forgery (CSRF)
-        $this->addProtection('Vypršel časový limit, odešlete formulář znovu');
+        $this->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat
         $this->addSubmit('btSbmt', 'Ulož');
         return $this;

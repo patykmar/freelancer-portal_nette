@@ -10,7 +10,7 @@ use stdClass;
  *
  * @author Martin Patyk
  */
-final class FrontaOsobaModel extends BaseNDbModel
+final class FrontaOsobaModel extends BaseModel
 {
     public const TABLE_NAME = 'fronta_osoba';
 

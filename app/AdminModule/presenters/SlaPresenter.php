@@ -8,41 +8,56 @@
 
 namespace App\AdminModule\Presenters;
 
-use App\Grids\Admin\SlaGrid;
+use App\Factory\Forms\SlaAddFormFactory;
+use App\Factory\Forms\SlaEditFormFactory;
+use App\Factory\Grids\SlaDataGridFactory;
 use App\Model\SlaModel;
 use Exception;
-use App\Forms\Admin\Edit;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
-use Nette\Database\Context;
+use Nette\Application\UI\Form;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
-
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class SlaPresenter extends AdminbasePresenter
 {
     private SlaModel $slaModel;
-    private Context $slaContext;
+    private SlaAddFormFactory $slaAddFormFactory;
+    private SlaEditFormFactory $slaEditFormFactory;
+    private SlaDataGridFactory $gridFactory;
 
-    public function __construct(SlaModel $slaModel, Context $slaContext)
+    public function __construct(
+        SlaModel           $slaModel,
+        SlaAddFormFactory  $slaAddFormFactory,
+        SlaEditFormFactory $slaEditFormFactory,
+        SlaDataGridFactory $gridFactory
+    )
     {
         parent::__construct();
         $this->slaModel = $slaModel;
-        $this->slaContext = $slaContext;
+        $this->slaAddFormFactory = $slaAddFormFactory;
+        $this->slaEditFormFactory = $slaEditFormFactory;
+        $this->gridFactory = $gridFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
+     * @throws DataGridException
      */
-    protected function createComponentGrid(): SlaGrid
+    protected function createComponentGrid(): DataGrid
     {
         $id = $this->presenter->getParameter('id');
-        if (isset($id)) {
-            return new SlaGrid($this->slaContext->table('sla')->where(array('tarif' => $id)));
-        } else {
-            return new SlaGrid($this->slaContext->table('sla'));
-        }
+        return $this->gridFactory->create($id);
     }
+
+    public function createComponentAdd(): Form
+    {
+        return $this->slaAddFormFactory->create();
+    }
+
+    //TODO: Add handling new item form
 
     public function renderDefault($id = null)
     {
@@ -59,7 +74,7 @@ class SlaPresenter extends AdminbasePresenter
     {
         try {
             //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->slaModel->fetch($id);
+            $v = $this->slaModel->fetchById($id);
             //odeberu idecko z pole a jine nepotrebne veci
 //            $v->offsetUnset('id');
             //upravene hodnoty odeslu do formulare
@@ -70,9 +85,9 @@ class SlaPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit(): Edit\SlaForm
+    public function createComponentEdit(): Form
     {
-        $form = new Edit\SlaForm();
+        $form = $this->slaEditFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
@@ -80,11 +95,11 @@ class SlaPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function edit(Edit\SlaForm $form)
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->slaModel->update($v['new'], $v['id']);
+            $this->slaModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');

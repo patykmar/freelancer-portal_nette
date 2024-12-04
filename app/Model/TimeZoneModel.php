@@ -9,7 +9,7 @@ use Nette\Database\Context;
  *
  * @author Martin Patyk
  */
-final class TimeZoneModel extends BaseNDbModel
+final class TimeZoneModel extends BaseModel
 {
     use FetchPairsTrait;
 

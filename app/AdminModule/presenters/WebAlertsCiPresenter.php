@@ -8,37 +8,43 @@
 
 namespace App\AdminModule\Presenters;
 
-use App\Grids\Admin\OdCiGrid;
+use App\Factory\Forms\EmailLinkToCiFormFactory;
+use App\Factory\Grids\WebAlertsCiDataGridFactory;
 use App\Model\OdCiModel;
-use App\Forms\Admin\Add\OdCiForm as AddOdCiForm;
-use App\Forms\Admin\Edit\OdCiForm as EditOdCiForm;
 use Exception;
 use Nette\Application\AbortException;
-use Nette\Database\Context;
+use Nette\Application\BadRequestException;
+use Nette\Application\UI\Form;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class WebAlertsCiPresenter extends AdminbasePresenter
 {
     private OdCiModel $odCiModel;
-    private Context $odCiContext;
-    private AddOdCiForm $addodCiForm;
-    private EditOdCiForm $editOdCiForm;
+    private EmailLinkToCiFormFactory $emailLinkToCiFormFactory;
+    private WebAlertsCiDataGridFactory $gridFactory;
 
-    public function __construct(OdCiModel $odCiModel, Context $odCiContext, AddOdCiForm $addOdCiForm, EditOdCiForm $editOdCiForm)
+    public function __construct(
+        OdCiModel                  $odCiModel,
+        EmailLinkToCiFormFactory   $emailLinkToCiFormFactory,
+        WebAlertsCiDataGridFactory $gridFactory
+    )
     {
         parent::__construct();
         $this->odCiModel = $odCiModel;
-        $this->odCiContext = $odCiContext;
-        $this->addodCiForm = $addOdCiForm;
-        $this->editOdCiForm = $editOdCiForm;
+        $this->emailLinkToCiFormFactory = $emailLinkToCiFormFactory;
+        $this->gridFactory = $gridFactory;
     }
 
-    /*************************************** PART DEFINE GRIDS **************************************/
+    /*************************************** PART DEFINE GRIDS *************************************
+     * @throws DataGridException
+     */
 
-    protected function createComponentGrid(): OdCiGrid
+    protected function createComponentGrid(): DataGrid
     {
-        return new OdCiGrid($this->odCiContext->table('od_ci'));
+        return $this->gridFactory->create();
     }
 
     public function renderDefault()
@@ -53,20 +59,22 @@ class WebAlertsCiPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd(): AddOdCiForm
+    public function createComponentAdd(): Form
     {
-        $this->addodCiForm->onSuccess[] = [$this, 'add'];
-        return $this->addodCiForm;
+        $form = $this->emailLinkToCiFormFactory->create();
+        $form->onSuccess[] = [$this, 'add'];
+        return $form;
     }
 
     /**
      * @throws AbortException
      */
-    public function add(AddOdCiForm $form)
+    public function add(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->odCiModel->insert($v);
+            $v->offsetUnset('id');
+            $this->odCiModel->insertNewItem($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -80,39 +88,35 @@ class WebAlertsCiPresenter extends AdminbasePresenter
     /**
      * @param int $id Identifikator polozky
      * @throws AbortException
+     * @throws BadRequestException
      */
     public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
-            // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->odCiModel->fetch($id);
-
-            // odeberu idecko z pole
-//            $v->offsetUnset('id');
-
             // upravene hodnoty odeslu do formulare
-            $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
+            $this['edit']->setDefaults($this->odCiModel->fetchById($id));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
             $this->redirect('default');
         }
     }
 
-    public function createComponentEdit(): EditOdCiForm
+    public function createComponentEdit(): Form
     {
-        $this->editOdCiForm->onSuccess[] = [$this, 'edit'];
-        return $this->editOdCiForm;
+        $form = $this->emailLinkToCiFormFactory->create();
+        $form->onSuccess[] = [$this, 'edit'];
+        return $form;
     }
 
     /**
      * @throws AbortException
      */
-    public function edit(EditOdCiForm $form)
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->odCiModel->update($v['new'], $v['id']);
+            $this->odCiModel->updateItem($v, $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -130,7 +134,7 @@ class WebAlertsCiPresenter extends AdminbasePresenter
     public function actionDrop(int $id)
     {
         try {
-            $this->odCiModel->fetch($id);
+            $this->odCiModel->fetchById($id);
             $this->odCiModel->removeItem($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('WebAlertsCi:default');    // change it !!!

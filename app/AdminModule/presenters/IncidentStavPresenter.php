@@ -8,35 +8,43 @@
 
 namespace App\AdminModule\Presenters;
 
-use App\Grids\FkGrid;
+use App\Factory\Forms\ForeignKeyFormFactory;
+use App\Factory\Grids\SimpleDataGridFactory;
 use App\Model\IncidentStavModel;
 use Exception;
-use App\Forms\Admin\Add\FkBaseForm as AddFkBaseForm;
-use App\Forms\Admin\Edit\FkBaseForm as EditFkBaseForm;
 use Nette\Application\AbortException;
-use Nette\Database\Context;
-use Nette\Database\IRow;
+use Nette\Application\BadRequestException;
+use Nette\Forms\Form;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class IncidentStavPresenter extends AdminbasePresenter
 {
     private IncidentStavModel $incidentStavModel;
-    private Context $netteModel;
+    private SimpleDataGridFactory $simpleDataGridFactory;
+    private ForeignKeyFormFactory $foreignKeyFormFactory;
 
-    public function __construct(Context $context, IncidentStavModel $model)
+    public function __construct(
+        IncidentStavModel     $model,
+        SimpleDataGridFactory $simpleDataGridFactory,
+        ForeignKeyFormFactory $foreignKeyFormFactory
+    )
     {
         parent::__construct();
-        $this->netteModel = $context;
         $this->incidentStavModel = $model;
+        $this->simpleDataGridFactory = $simpleDataGridFactory;
+        $this->foreignKeyFormFactory = $foreignKeyFormFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
+     * @throws DataGridException
      */
-    protected function createComponentGrid(): FkGrid
+    protected function createComponentGrid(): DataGrid
     {
-        return new FkGrid($this->netteModel->table(IncidentStavModel::TABLE_NAME));
+        return $this->simpleDataGridFactory->createIncidentStav();
     }
 
     public function renderDefault()
@@ -51,9 +59,9 @@ class IncidentStavPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd(): AddFkBaseForm
+    public function createComponentAdd(): Form
     {
-        $form = new AddFkBaseForm;
+        $form = $this->foreignKeyFormFactory->create();
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
@@ -61,11 +69,12 @@ class IncidentStavPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function add(AddFkBaseForm $form)
+    public function add(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->incidentStavModel->insert($v);
+            $v->offsetUnset('id');
+            $this->incidentStavModel->insertNewItem($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -79,25 +88,23 @@ class IncidentStavPresenter extends AdminbasePresenter
     /**
      * @param int $id Identifikator polozky
      * @throws AbortException
+     * @throws BadRequestException
      */
     public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
-            /** @var bool|IRow $v nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji */
-            $v = $this->incidentStavModel->fetch($id);
-
             // upravene hodnoty odeslu do formulare
-            $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
+            $this['edit']->setDefaults($this->incidentStavModel->fetchById($id));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
             $this->redirect('default');
         }
     }
 
-    public function createComponentEdit(): EditFkBaseForm
+    public function createComponentEdit(): Form
     {
-        $form = new EditFkBaseForm;
+        $form = $this->foreignKeyFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
@@ -105,11 +112,11 @@ class IncidentStavPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function edit(EditFkBaseForm $form)
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->incidentStavModel->update($v['new'], $v['id']);
+            $this->incidentStavModel->updateItem($v, $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -128,7 +135,7 @@ class IncidentStavPresenter extends AdminbasePresenter
     {
         try {
             try {
-                $this->incidentStavModel->fetch($id);
+                $this->incidentStavModel->fetchById($id);
                 $this->incidentStavModel->removeItem($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
                 $this->redirect('IncidentStav:default');    // change it !!!

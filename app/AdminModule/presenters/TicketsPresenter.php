@@ -9,83 +9,57 @@
 namespace App\AdminModule\Presenters;
 
 use App\Components\WorkLog\WorkLogControl;
-use App\Grids\Admin\IncidentGrid;
-use App\Grids\TiketChildTaskGrid;
-use App\Model\CiModel;
-use App\Model\FrontaOsobaModel;
+use App\Factory\Components\WorkLogControlFactory;
+use App\Factory\Forms\TicketAddFormFactory;
+use App\Factory\Forms\TicketEditFormFactory;
+use App\Factory\Grids\IncidentDataGridFactory;
 use App\Model\IncidentLogModel;
 use App\Model\IncidentModel;
-use App\Model\IncidentStavModel;
-use App\Model\OsobaModel;
-use App\Model\OvlivneniModel;
-use App\Model\PrioritaModel;
-use App\Model\TypIncidentModel;
-use App\Model\UkonModel;
-use App\Model\ZpusobUzavreniModel;
-use App\Forms\Admin\Add;
-use App\Forms\Admin\Edit;
 use Exception;
 use Nette\Application\AbortException;
 use Nette\Application\BadRequestException;
-use Nette\Database\Context;
-use Nette\Utils\DateTime;
 use Tracy\Debugger;
 use Nette\Forms\Form;
 use Nette\InvalidArgumentException;
 use Nette\Utils\Strings;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class TicketsPresenter extends AdminbasePresenter
 {
-    private IncidentModel $model;
+    private IncidentModel $incidentModel;
     private IncidentLogModel $modelIncWl;
-    private OsobaModel $osobaModel;
-    private TypIncidentModel $typIncidentModel;
-    private PrioritaModel $prioritaModel;
-    private OvlivneniModel $ovlivneniModel;
-    private CiModel $ciModel;
-    private UkonModel $ukonModel;
-    private Context $netteModel;
-    private ZpusobUzavreniModel $zpusobUzavreniModel;
-    private IncidentStavModel $incidentStavModel;
-    private FrontaOsobaModel $frontaOsobaModel;
+    private TicketAddFormFactory $ticketAddFormFactory;
+    private TicketEditFormFactory $ticketEditFormFactory;
+    private IncidentDataGridFactory $incidentDataGrid;
+    private WorkLogControlFactory $workLogControlFactory;
 
     public function __construct(
-        Context             $context,
-        IncidentModel       $model,
-        IncidentLogModel    $incidentLogModel,
-        OsobaModel          $osobaModel,
-        TypIncidentModel    $typIncidentModel,
-        PrioritaModel       $prioritaModel,
-        OvlivneniModel      $ovlivneniModel,
-        CiModel             $ciModel,
-        UkonModel           $ukonModel,
-        ZpusobUzavreniModel $zpusobUzavreniModel,
-        IncidentStavModel   $incidentStavModel,
-        FrontaOsobaModel    $frontaOsobaModel
+        IncidentModel           $incidentModel,
+        IncidentLogModel        $incidentLogModel,
+        TicketAddFormFactory    $ticketAddFormFactory,
+        TicketEditFormFactory   $ticketEditFormFactory,
+        IncidentDataGridFactory $incidentDataGrid,
+        WorkLogControlFactory   $workLogControlFactory
     )
     {
         parent::__construct();
-        $this->model = $model;
+        $this->incidentModel = $incidentModel;
         $this->modelIncWl = $incidentLogModel;
-        $this->osobaModel = $osobaModel;
-        $this->typIncidentModel = $typIncidentModel;
-        $this->netteModel = $context;
-        $this->prioritaModel = $prioritaModel;
-        $this->ovlivneniModel = $ovlivneniModel;
-        $this->ciModel = $ciModel;
-        $this->ukonModel = $ukonModel;
-        $this->zpusobUzavreniModel = $zpusobUzavreniModel;
-        $this->incidentStavModel = $incidentStavModel;
-        $this->frontaOsobaModel = $frontaOsobaModel;
-
-//        $this->childTaskDB = $context->table('incident');
+        $this->ticketAddFormFactory = $ticketAddFormFactory;
+        $this->ticketEditFormFactory = $ticketEditFormFactory;
+        $this->incidentDataGrid = $incidentDataGrid;
+        $this->workLogControlFactory = $workLogControlFactory;
     }
 
-    /*************************************** PART CREATE COMPONENTS **************************************/
+    // ************************************** PART CREATE COMPONENTS *************************************
 
-    protected function createComponentGrid()
+    /**
+     * @throws DataGridException
+     */
+    protected function createComponentGrid(): DataGrid
     {
-        return new IncidentGrid($this->netteModel);
+        return $this->incidentDataGrid->create();
     }
 
     /*************************************** PART HANDLE DEFAULT VALUE **************************************/
@@ -97,46 +71,24 @@ class TicketsPresenter extends AdminbasePresenter
 
     /*************************************** PART ADD **************************************/
 
-    protected function createComponentAdd(): Add\IncidentForm
+    protected function createComponentAdd(): Form
     {
-        $form = new Add\IncidentForm;
-        $form['osoba_vytvoril']->setItems($this->osobaModel->fetchAllPairs());
-        $form['typ_incident']->setItems($this->typIncidentModel->fetchPairs());
-        $form['priorita']->setItems($this->prioritaModel->fetchPairs());
-        $form['ovlivneni']->setItems($this->ovlivneniModel->fetchPairs());
-        $form['ci']->setItems($this->ciModel->fetchPairs());
-        $form['ukon']->setItems($this->ukonModel->fetchPairs());
+        $form = $this->ticketAddFormFactory->create($this->getUser()->getId());
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
-    public function actionAdd()
-    {
-//        $this->cssFiles->addFile('incForm.css');
-        $this->setView('../_add');
-
-        //nastavim vychozi hodnoty pro furmular
-        $this['add']->setDefaults(array(
-            'osoba_vytvoril' => $this->userId,
-            'priorita' => 3, // nastavim normalni prioritu
-            'ovlivneni' => 2, // normalni
-        ));
-    }
-
-
     /**
      * @throws AbortException
+     * @throws BadRequestException
      */
-    public function add(Add\IncidentForm $form)
+    public function add(Form $form)
     {
         try {
             $v = $form->getValues();
-            $v->offsetSet('datum_vytvoreni', new DateTime);
-            #$v->offsetSet('osoba_vytvoril', $this->identity->getId());
-            $v->offsetSet('incident_stav', 1);
-            $this->model->insert($v);
+            $this->incidentModel->insertNewItem($v);
             $this->presenter->flashMessage('Nový záznam byl přidán');
-            $this->presenter->redirect('edit', $this->model->fetchLastItem());
+            $this->presenter->redirect('edit', $this->incidentModel->getLastId());
         } catch (InvalidArgumentException $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -148,22 +100,22 @@ class TicketsPresenter extends AdminbasePresenter
     //for load work load
     protected function createComponentWl(): WorkLogControl
     {
-        return new WorkLogControl($this->netteModel);
+        return $this->workLogControlFactory->create();
     }
 
     //component for edit new item
-    protected function createComponentEditTiket(): Edit\IncidentForm
+    protected function createComponentEditTiket(): Form
     {
-        $form = new Edit\IncidentForm;
+        $form = $this->ticketEditFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
     //grid child tickets
-    protected function createComponentChildTaskList($parrentId): TiketChildTaskGrid
+    protected function createComponentChildTaskList(string $parentId): DataGrid
     {
-        return new TiketChildTaskGrid($this->netteModel->table('incident')
-            ->where('incident = ?', $parrentId));
+//        is_numeric($parentId) ;
+        return $this->incidentDataGrid->createTicketChildTask((int)$parentId);
     }
 
     /**
@@ -176,74 +128,21 @@ class TicketsPresenter extends AdminbasePresenter
         try {
 
             $this->template->incId = $id;
-            //podminka pro zobrazeni tiketu s potomkama
-//            $this->childTaskDB->where('incident = ?', $id);
-
-//            $this['childTaskList']->setIncident($id);
-            $this['editTiket']['new']['idTxt']
-                ->setAttribute('readonly', 'readonly');
-            $this['editTiket']['new']['firma_nazev']
-                ->setAttribute('readonly', 'readonly');
-            $this['editTiket']['new']['ci']
-                ->setItems($this->ciModel->fetchAllPairsWithCompanyName());
-            $this['editTiket']['new']['fronta_osoba']
-                ->setItems($this->frontaOsobaModel->fetchSpecialistPairsWithQueueName())
-                ->setPrompt(' - - - ');
-            $this['editTiket']['new']['ukon']
-                ->setItems($this->ukonModel->fetchPairs())
-                ->setPrompt(' - - - ');
-            $this['editTiket']['new']['ovlivneni']
-                ->setItems($this->ovlivneniModel->fetchPairs())
-                ->setPrompt(' - - - ');
-            $this['editTiket']['new']['zpusob_uzavreni']
-                ->setItems($this->zpusobUzavreniModel->fetchPairs())
-                ->setPrompt(' - - - ');
-            $this['editTiket']['new']['typ_incident']
-                ->setItems($this->typIncidentModel->fetchPairs())
-                ->setPrompt(' - - - ')
-                ->addRule(Form::FILLED);
-            $this['editTiket']['new']['priorita']
-                ->setItems($this->prioritaModel->fetchPairs())
-                ->addRule(Form::FILLED);
-            $this['editTiket']['new']['incident_stav']
-                ->setItems($this->incidentStavModel->fetchPairs())
-                ->addRule(Form::FILLED);
-            $this['editTiket']['new']['osoba_vytvoril']
-                ->setItems($this->osobaModel->fetchAllPairsWithCompanyName())
-                ->addRule(Form::FILLED);
-            //pokud je nastaven stav na vyresen je potreba vybrat zpusob uzavreni
-            $this['editTiket']['new']['zpusob_uzavreni']
-                ->addConditionOn($this['editTiket']['new']['incident_stav'], Form::EQUAL, 4)
-                ->addRule(Form::FILLED);
-            //pokud vyberu zpusob uzavreni pak je potreba neco napsat do oduvodneni
-            $this['editTiket']['new']['obsah_uzavreni']
-                ->addConditionOn($this['editTiket']['new']['zpusob_uzavreni'], Form::MIN_LENGTH, 1)
-                ->addRule(Form::FILLED)
-                ->addConditionOn($this['editTiket']['new']['incident_stav'], Form::EQUAL, 4)
-                ->addRule(Form::FILLED);
-            // pokud vyberru zpusob uzavreni je potreba vybrat take ukon ktery byl proveden
-            $this['editTiket']['new']['ukon']
-                ->addConditionOn($this['editTiket']['new']['zpusob_uzavreni'], Form::MIN_LENGTH, 1)
-                ->addRule(Form::FILLED);
-            // pokud vyberu zpusob uzavreni je potreba vybrat take ovlivneni
-            $this['editTiket']['new']['ovlivneni']
-                ->addConditionOn($this['editTiket']['new']['zpusob_uzavreni'], Form::MIN_LENGTH, 1)
-                ->addRule(Form::FILLED);
             // nacitam data pro formular
-            $v = $this->model->fetchWith3thPartyTable($id);
+            $ticket = $this->incidentModel->fetchWith3thPartyTable($id);
             //Pokud je inciden ve stavu vyresen, nebo uzavren neni mozne formular odeslat ke zpracovani
 
-            // if ($v['incident_stav'] >= 4):
+            // if ($ticket['incident_stav'] >= 4):
             // $this['editTiket']['btSbmt']->setDisabled();
             // endif;
 
             //nactu work-log
             $this->template->wl = $this->modelIncWl->fetchAllByIncidentId($id);
-            $this->template->pocetPotomku = $v['pocetPotomku'];
+            $this->template->pocetPotomku = $ticket['pocetPotomku'];
             //odeberu idecko z pole
-//            $v->offsetUnset('id');
+            $ticket->offsetUnset('id');
             //upravene hodnoty odeslu do formulare
-            $this['editTiket']->setDefaults(array('id' => $id, 'new' => $v));
+            $this['editTiket']->setDefaults(array('id' => $id, 'new' => $ticket));
         } catch (InvalidArgumentException $exc) {
             // zapisu chybu do logy
             Debugger::log($exc->getMessage());
@@ -255,7 +154,7 @@ class TicketsPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function edit(Edit\IncidentForm $form)
+    public function edit(Form $form)
     {
         try {
             /**
@@ -269,7 +168,7 @@ class TicketsPresenter extends AdminbasePresenter
             if (!empty($v['new']['wl'])):
                 $v['new']->offsetSet('wl', '**Popis činnosti:** <br />' . Strings::trim($v['new']['wl']));
             endif;
-            $this->model->update($v['new'], $v['id']);
+            $this->incidentModel->updateItem($v['new'], $v['id']);
             $this->presenter->flashMessage('Záznam byl úspěšně změněn');
             $this->redirect('edit', $v['id']);
         } catch (InvalidArgumentException $exc) {
@@ -287,8 +186,8 @@ class TicketsPresenter extends AdminbasePresenter
     public function actionDrop($id)
     {
         try {
-            $this->model->fetch($id);
-            $this->model->remove($id);
+            $this->incidentModel->fetchById($id);
+            $this->incidentModel->remove($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('Tickets:default'); //change it !!!
         } catch (InvalidArgumentException $exc) {

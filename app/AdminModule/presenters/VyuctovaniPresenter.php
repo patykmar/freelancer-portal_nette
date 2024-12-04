@@ -8,62 +8,64 @@
 
 namespace App\AdminModule\Presenters;
 
-use App\Grids\Admin\VyuctovaniGrid;
+use App\Factory\Forms\ForeignKeyAddFormFactory;
+use App\Factory\Grids\VyuctovaniDataGridFactory;
 use App\Model\FakturaModel;
 use App\Model\FirmaModel;
 use App\Model\IncidentModel;
-use App\Forms\Admin\Add\FkBaseForm as AddFkBaseForm;
-use App\Forms\Admin\Edit\FkBaseForm as EditFkBaseForm;
 use Exception;
 use Nette\Application\AbortException;
-use Nette\Database\Context;
+use Nette\Application\BadRequestException;
+use Nette\Application\UI\Form;
 use Nette\Utils\DateTime;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class VyuctovaniPresenter extends AdminbasePresenter
 {
     private FakturaModel $fakturaModel;
     private IncidentModel $modelIncident;
-    private Context $vyuctovaniContext;
     private FirmaModel $firmaModel;
+    private ForeignKeyAddFormFactory $foreignKeyAddFormFactory;
+    private VyuctovaniDataGridFactory $gridFactory;
 
     public function __construct(
-        FakturaModel  $fakturaModel,
-        IncidentModel $modelIncident,
-        Context       $vyuctovaniContext,
-        FirmaModel    $firmaModel
+        FakturaModel              $fakturaModel,
+        IncidentModel             $modelIncident,
+        FirmaModel                $firmaModel,
+        ForeignKeyAddFormFactory  $foreignKeyAddFormFactory,
+        VyuctovaniDataGridFactory $gridFactory
     )
     {
         parent::__construct();
         $this->fakturaModel = $fakturaModel;
         $this->modelIncident = $modelIncident;
-        $this->vyuctovaniContext = $vyuctovaniContext;
         $this->firmaModel = $firmaModel;
+        $this->foreignKeyAddFormFactory = $foreignKeyAddFormFactory;
+        $this->gridFactory = $gridFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
      * incident_stav:=4 == vyreseno
+     * @throws DataGridException
      */
-    protected function createComponentGrid(): VyuctovaniGrid
+    protected function createComponentGrid(): DataGrid
     {
-        return new VyuctovaniGrid($this->vyuctovaniContext->table('incident'));
+        return $this->gridFactory->create();
     }
 
     /**
      * Zobrazi pocet nezauctovanych uzavrenych tiketu a celkovou cenu k proplaceni
      * pro kazdou firmu zvlast.
      * incident_stav:=5 == uzavreno
+     * @throws DataGridException
      */
-    protected function createComponentGridNezauctovanaPrace(): VyuctovaniGrid
+    protected function createComponentGridNezauctovanaPrace(): DataGrid
     {
-        return new VyuctovaniGrid($this->vyuctovaniContext
-            ->table('incident')
-            ->where(array(
-                'incident_stav' => 5,
-                'faktura' => null,
-            )));
+        return $this->gridFactory->create();
     }
 
     public function renderDefault()
@@ -75,7 +77,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
     /**
      * Vychozi zobrazeni nevyfakturovanou praci
      */
-    public function renderOld()
+    public function renderOld(): void
     {
         $model = $this->modelIncident->retrieveListOfUnpaidWork();
         $this->template->items = $model;
@@ -88,7 +90,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
      * @throws AbortException
      * @throws Exception
      */
-    public function actionGenerujFakturu(int $id)
+    public function actionGenerujFakturu(int $id): void
     {
         try {
             //zjistim identitu prave prihlaseneho cloveka
@@ -129,9 +131,9 @@ class VyuctovaniPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd(): AddFkBaseForm
+    public function createComponentAdd(): Form
     {
-        $form = new AddFkBaseForm;
+        $form = $this->foreignKeyAddFormFactory->create();
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
@@ -139,10 +141,11 @@ class VyuctovaniPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function add(AddFkBaseForm $form)
+    public function add(Form $form)
     {
         try {
             $v = $form->getValues();
+            $v->offsetUnset('id');
             $this->fakturaModel->insert($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
@@ -157,26 +160,26 @@ class VyuctovaniPresenter extends AdminbasePresenter
     /**
      * @param int $id Identifikator polozky
      * @throws AbortException
+     * @throws BadRequestException
      */
     public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
-            //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->fakturaModel->fetch($id);
             //odeberu idecko z pole
 //            $v->offsetUnset('id');
             //upravene hodnoty odeslu do formulare
-            $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
+            //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
+            $this['edit']->setDefaults($this->fakturaModel->fetchById($id));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
             $this->redirect('default');
         }
     }
 
-    public function createComponentEdit(): EditFkBaseForm
+    public function createComponentEdit(): Form
     {
-        $form = new EditFkBaseForm;
+        $form = $this->foreignKeyAddFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
@@ -184,11 +187,11 @@ class VyuctovaniPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function edit(EditFkBaseForm $form)
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->fakturaModel->update($v['new'], $v['id']);
+            $this->fakturaModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -206,7 +209,7 @@ class VyuctovaniPresenter extends AdminbasePresenter
     public function actionDrop(int $id)
     {
         try {
-            $this->fakturaModel->fetch($id);
+            $this->fakturaModel->fetchById($id);
             $this->fakturaModel->remove($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('VyuctovaniPresenter:default'); //change it !!!

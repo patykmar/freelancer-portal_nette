@@ -8,34 +8,46 @@
 
 namespace App\AdminModule\Presenters;
 
-use App\Grids\Admin\FormatDatumGrid;
+use App\Factory\Forms\DateFormatAddFormFactory;
+use App\Factory\Forms\DateFormatEditFormFactory;
+use App\Factory\Grids\SimpleDataGridFactory;
 use Exception;
-use App\Forms\Admin\Add\FormatDatumForm as AddFormatDatumForm;
-use App\Forms\Admin\Edit\FormatDatumForm as EditFormatDatumForm;
 use App\Model\FormatDatumModel;
 use Nette\Application\AbortException as AbortExceptionAlias;
-use Nette\Database\Context;
+use Nette\Application\UI\Form;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class FormatDatumPresenter extends AdminbasePresenter
 {
     private FormatDatumModel $formatDatumModel;
-    private Context $formatDatumContext;
+    private DateFormatAddFormFactory $dateFormatAddFormFactory;
+    private DateFormatEditFormFactory $dateFormatEditFormFactory;
+    private SimpleDataGridFactory $gridFactory;
 
-    public function __construct(FormatDatumModel $formatDatumModel, Context $formatDatumContext)
+    public function __construct(
+        FormatDatumModel          $formatDatumModel,
+        DateFormatAddFormFactory  $dateFormatAddFormFactory,
+        DateFormatEditFormFactory $dateFormatEditFormFactory,
+        SimpleDataGridFactory     $gridFactory
+    )
     {
         parent::__construct();
         $this->formatDatumModel = $formatDatumModel;
-        $this->formatDatumContext = $formatDatumContext;
+        $this->dateFormatAddFormFactory = $dateFormatAddFormFactory;
+        $this->dateFormatEditFormFactory = $dateFormatEditFormFactory;
+        $this->gridFactory = $gridFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
+     * @throws DataGridException
      */
-    protected function createComponentGrid()
+    protected function createComponentGrid(): DataGrid
     {
-        return new FormatDatumGrid($this->formatDatumContext->table('format_datum'));
+        return $this->gridFactory->createDateFormat();
     }
 
     public function renderDefault()
@@ -51,18 +63,21 @@ class FormatDatumPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd()
+    public function createComponentAdd(): Form
     {
-        $form = new AddFormatDatumForm;
+        $form = $this->dateFormatAddFormFactory->create();
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
-    public function add(AddFormatDatumForm $form)
+    /**
+     * @throws AbortExceptionAlias
+     */
+    public function add(Form $form)
     {
         try {
-            $v = $form->getValuFormatDatumes();
-            $this->formatDatumModel->insert($v);
+            $v = $form->getValues();
+            $this->formatDatumModel->insertNewItem($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -70,7 +85,6 @@ class FormatDatumPresenter extends AdminbasePresenter
         $this->flashMessage('Nový záznam byl přidán');
         $this->redirect('default');
     }
-
 
     /**
      * Cast EDIT
@@ -82,7 +96,7 @@ class FormatDatumPresenter extends AdminbasePresenter
         try {
             $this->setView('../_edit');
             // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->formatDatumModel->fetch($id);
+            $v = $this->formatDatumModel->fetchById($id);
 
             // odeberu idecko z pole
 //            $v->offsetUnset('id');
@@ -94,9 +108,9 @@ class FormatDatumPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit()
+    public function createComponentEdit(): Form
     {
-        $form = new EditFormatDatumForm;
+        $form = $this->dateFormatEditFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
@@ -104,11 +118,11 @@ class FormatDatumPresenter extends AdminbasePresenter
     /**
      * @throws AbortExceptionAlias
      */
-    public function edit(EditFormatDatumForm $form)
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->formatDatumModel->update($v['new'], $v['id']);
+            $this->formatDatumModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -126,7 +140,7 @@ class FormatDatumPresenter extends AdminbasePresenter
     {
         try {
             try {
-                $this->formatDatumModel->fetch($id);
+                $this->formatDatumModel->fetchById($id);
                 $this->formatDatumModel->remove($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
                 $this->redirect('FormatDatum:default');    // change it !!!

@@ -9,7 +9,7 @@ use Nette\Database\Context;
  *
  * @author Martin Patyk
  */
-final class FakturaPolozkaCssModel extends BaseNDbModel
+final class FakturaPolozkaCssModel extends BaseModel
 {
     use FetchPairsTrait;
 

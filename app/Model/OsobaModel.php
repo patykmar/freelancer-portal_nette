@@ -9,7 +9,7 @@ use Nette\Database\Context;
  *
  * @author Martin Patyk
  */
-final class OsobaModel extends BaseNDbModel
+final class OsobaModel extends BaseModel
 {
     public const TABLE_NAME = 'osoba';
 
@@ -27,7 +27,9 @@ final class OsobaModel extends BaseNDbModel
     {
         return $this->explorer->table(self::TABLE_NAME)
             ->where("typ_osoby", [2, 3])
-            ->fetchPairs('id', 'CONCAT(jmeno," ",prijmeni) as nazev');
+            ->select('id')
+            ->select('CONCAT(jmeno," ",prijmeni) AS nazev')
+            ->fetchPairs('id', 'nazev');
     }
 
     /**

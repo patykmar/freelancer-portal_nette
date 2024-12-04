@@ -90,7 +90,7 @@ class ActionsPresenter extends CronBasePresenter
 
                 //zapisu data do databaze
 
-                $this->incidentModel->insert($newTicketValues);
+                $this->incidentModel->insertNewItem($newTicketValues);
 
                 // nastavim mail jako precteny
                 $mail->setFlags(array(Mail::FLAG_SEEN => true));

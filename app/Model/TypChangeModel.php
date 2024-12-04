@@ -10,7 +10,7 @@ use Nette\Database\Context;
  *
  * @author Martin Patyk
  */
-final class TypChangeModel extends BaseNDbModel
+final class TypChangeModel extends BaseModel
 {
     use FetchPairsTrait;
 

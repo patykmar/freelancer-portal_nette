@@ -9,7 +9,7 @@ use Nette\Database\Context;
  *
  * @author Martin Patyk
  */
-final class IncidentStavModel extends BaseNDbModel
+final class IncidentStavModel extends BaseModel
 {
     use FetchPairsTrait;
 

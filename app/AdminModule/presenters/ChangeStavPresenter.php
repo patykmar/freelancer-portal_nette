@@ -6,41 +6,51 @@
  * @author Martin Patyk
  */
 
-
 namespace App\AdminModule\Presenters;
 
-use App\Grids\FkGrid;
+use App\Factory\Forms\ForeignKeyFormFactory;
+use App\Factory\Grids\SimpleDataGridFactory;
 use Exception;
-use App\Forms\Admin\Add;
-use App\Forms\Admin\Edit;
 use App\Model\ChangeStavModel;
 use InvalidArgumentException;
-use Nette\Application\AbortException as AbortExceptionAlias;
-use Nette\Database\Context;
+use Nette\Application\AbortException;
+use Nette\Application\BadRequestException;
+use Nette\Forms\Form;
 use Tracy\Debugger;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 
 class ChangeStavPresenter extends AdminbasePresenter
 {
     private ChangeStavModel $changeStavModel;
-    private Context $changeStavContext;
+    private SimpleDataGridFactory $simpleDataGridFactory;
+    private ForeignKeyFormFactory $foreignKeyFormFactory;
 
+    /**
+     * @param ChangeStavModel $changeStavModel
+     * @param SimpleDataGridFactory $simpleDataGridFactory
+     * @param ForeignKeyFormFactory $foreignKeyFormFactory
+     */
     public function __construct(
-        ChangeStavModel $changeStavModel,
-        Context         $changeStavContext
+        ChangeStavModel       $changeStavModel,
+        SimpleDataGridFactory $simpleDataGridFactory,
+        ForeignKeyFormFactory $foreignKeyFormFactory
     )
     {
         parent::__construct();
         $this->changeStavModel = $changeStavModel;
-        $this->changeStavContext = $changeStavContext;
+        $this->simpleDataGridFactory = $simpleDataGridFactory;
+        $this->foreignKeyFormFactory = $foreignKeyFormFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
+     * @throws DataGridException
      */
-    protected function createComponentGrid(): FkGrid
+    protected function createComponentGrid(): DataGrid
     {
-        return new FkGrid($this->changeStavContext->table('change_stav'));
+        return $this->simpleDataGridFactory->createChangeStav();
     }
 
     public function renderDefault()
@@ -56,21 +66,22 @@ class ChangeStavPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd(): Add\FkBaseForm
+    public function createComponentAdd(): Form
     {
-        $form = new Add\FkBaseForm;
+        $form = $this->foreignKeyFormFactory->create();
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
 
     /**
-     * @throws AbortExceptionAlias
+     * @throws AbortException
      */
-    public function add(Add\FkBaseForm $form)
+    public function add(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->changeStavModel->insert($v);
+            $v->offsetUnset('id');
+            $this->changeStavModel->insertNewItem($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -82,39 +93,36 @@ class ChangeStavPresenter extends AdminbasePresenter
     /**
      * Cast EDIT
      * @param int $id Identifikator polozky
-     * @throws AbortExceptionAlias
+     * @throws AbortException
+     * @throws BadRequestException
      */
     public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
-            // nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->changeStavModel->fetch($id);
-            // odeberu idecko z pole
-//            $v->offsetUnset('id');
             // upravene hodnoty odeslu do formulare
-            $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
+            $this['edit']->setDefaults($this->changeStavModel->fetchById($id));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
             $this->redirect('default');
         }
     }
 
-    public function createComponentEdit(): Edit\FkBaseForm
+    public function createComponentEdit(): Form
     {
-        $form = new Edit\FkBaseForm;
+        $form = $this->foreignKeyFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
     /**
-     * @throws AbortExceptionAlias
+     * @throws AbortException
      */
-    public function edit(Edit\FkBaseForm $form)
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->changeStavModel->update($v['new'], $v['id']);
+            $this->changeStavModel->updateItem($v, $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -126,20 +134,18 @@ class ChangeStavPresenter extends AdminbasePresenter
     /**
      * Cast DROP
      * @param int $id Identifikator polozky
-     * @throws AbortExceptionAlias
+     * @throws AbortException
      */
     public function actionDrop(int $id)
     {
         try {
-            try {
-                $this->changeStavModel->fetch($id);
-                $this->changeStavModel->removeItem($id);
-                $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
-                $this->redirect('ChangeStav:default');    // change it !!!
-            } catch (InvalidArgumentException $exc) {
-                $this->flashMessage($exc->getMessage());
-                $this->redirect('ChangeStav:default');    // change it !!!
-            }
+            $this->changeStavModel->fetchById($id);
+            $this->changeStavModel->removeItem($id);
+            $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
+            $this->redirect('ChangeStav:default');    // change it !!!
+        } catch (InvalidArgumentException $exc) {
+            $this->flashMessage($exc->getMessage());
+            $this->redirect('ChangeStav:default');    // change it !!!
         } catch (Exception $exc) {
             $this->flashMessage('Položka nebyla odabrána, zkontrolujte závislosti na položku');
             $this->redirect('ChangeStav:default');    // change it !!!

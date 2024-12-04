@@ -8,45 +8,47 @@
 
 namespace App\AdminModule\Presenters;
 
-use App\Model\FrontaModel;
-use App\Model\OsobaModel;
+use App\Factory\Forms\QueueOsobaAddFormFactory;
+use App\Factory\Forms\QueueOsobaEditFormFactory;
+use App\Factory\Grids\OsobaDataGridFactory;
 use Exception;
-use Gridy\FrontaOsobaGrid;
-use App\Forms\Admin\Add\FrontaOsobaForm as AddFrontaOsobaForm;
-use App\Forms\Admin\Edit\FrontaOsobaForm as EditFrontaOsobaForm;
 use App\Model\FrontaOsobaModel;
 use Nette\Application\AbortException as AbortExceptionAlias;
-use Nette\Database\Context;
+use Nette\Application\BadRequestException;
+use Nette\Application\UI\Form;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class FrontaOsobaPresenter extends AdminbasePresenter
 {
-    private $frontaOsobaModel;
-    private $frontaOsobaContext;
-    private $frontaModel;
-    private $osobaModel;
+    private FrontaOsobaModel $frontaOsobaModel;
+    private QueueOsobaAddFormFactory $queueOsobaAddFormFactory;
+    private QueueOsobaEditFormFactory $queueOsobaEditFormFactory;
+    private OsobaDataGridFactory $gridFactory;
 
     public function __construct(
-        FrontaOsobaModel $frontaOsobaModel,
-        Context          $frontaOsobaContext,
-        FrontaModel      $frontaModel,
-        OsobaModel       $osobaModel
+        FrontaOsobaModel          $frontaOsobaModel,
+        QueueOsobaAddFormFactory  $queueOsobaAddFormFactory,
+        QueueOsobaEditFormFactory $queueOsobaEditFormFactory,
+        OsobaDataGridFactory      $gridFactory
     )
     {
         parent::__construct();
         $this->frontaOsobaModel = $frontaOsobaModel;
-        $this->frontaOsobaContext = $frontaOsobaContext;
-        $this->frontaModel = $frontaModel;
-        $this->osobaModel = $osobaModel;
+        $this->queueOsobaAddFormFactory = $queueOsobaAddFormFactory;
+        $this->queueOsobaEditFormFactory = $queueOsobaEditFormFactory;
+        $this->gridFactory = $gridFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
+     * @throws DataGridException
      */
-    protected function createComponentGrid()
+    protected function createComponentGrid(): DataGrid
     {
-        return new FrontaOsobaGrid($this->frontaOsobaContext->table('fronta_osoba'));
+        return $this->gridFactory->createFrontaOsobaGrid();
     }
 
     public function renderDefault()
@@ -62,9 +64,9 @@ class FrontaOsobaPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd(): AddFrontaOsobaForm
+    public function createComponentAdd(): Form
     {
-        $form = new AddFrontaOsobaForm($this->frontaModel, $this->osobaModel);
+        $form = $this->queueOsobaAddFormFactory->create();
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
@@ -72,7 +74,7 @@ class FrontaOsobaPresenter extends AdminbasePresenter
     /**
      * @throws AbortExceptionAlias
      */
-    public function add(AddFrontaOsobaForm $form)
+    public function add(Form $form)
     {
         try {
             $v = $form->getValues();
@@ -89,13 +91,14 @@ class FrontaOsobaPresenter extends AdminbasePresenter
      * Cast EDIT
      * @param int $id Identifikator polozky
      * @throws AbortExceptionAlias
+     * @throws BadRequestException
      */
-    public function renderEdit($id)
+    public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
             //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->frontaOsobaModel->fetch($id);
+            $v = $this->frontaOsobaModel->fetchById($id);
 
             //odeberu idecko z pole
 //            $v->offsetUnset('id');
@@ -108,18 +111,21 @@ class FrontaOsobaPresenter extends AdminbasePresenter
         }
     }
 
-    public function createComponentEdit(): EditFrontaOsobaForm
+    public function createComponentEdit(): Form
     {
-        $form = new EditFrontaOsobaForm($this->frontaModel, $this->osobaModel);
+        $form = $this->queueOsobaEditFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
 
-    public function edit(EditFrontaOsobaForm $form)
+    /**
+     * @throws AbortExceptionAlias
+     */
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->frontaOsobaModel->update($v['new'], $v['id']);
+            $this->frontaOsobaModel->updateItem($v['new'], $v['id']);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Záznam nebyl změněn');
@@ -133,11 +139,11 @@ class FrontaOsobaPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortExceptionAlias
      */
-    public function actionDrop($id)
+    public function actionDrop(int $id)
     {
         try {
             try {
-                $this->frontaOsobaModel->fetch($id);
+                $this->frontaOsobaModel->fetchById($id);
                 $this->frontaOsobaModel->remove($id);
                 $this->flashMessage('Položka byla odebrána'); //Položka byla odebrána
                 $this->redirect('FrontaOsobaPresenter:default');    //change it !!!

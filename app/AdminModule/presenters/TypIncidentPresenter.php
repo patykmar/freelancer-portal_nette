@@ -8,31 +8,43 @@
 
 namespace App\AdminModule\Presenters;
 
-use App\Grids\Admin\TypIncidentGrid;
+use App\Factory\Forms\TypIncidentFormFactory;
+use App\Factory\Grids\TypIncidentDataGridFactory;
 use App\Model\TypIncidentModel;
 use Exception;
-use App\Forms\Admin\Add\TypIncidentForm as AddTypIncidentForm;
-use App\Forms\Admin\Edit\TypIncidentForm as EditTypIncidentForm;
 use Nette\Application\AbortException;
-use Nette\Database\Context;
+use Nette\Application\BadRequestException;
+use Nette\Application\UI\Form;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
+use Tracy\ILogger;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class TypIncidentPresenter extends AdminbasePresenter
 {
     private TypIncidentModel $typIncidentModel;
-    private Context $typIncidentu;
+    private TypIncidentFormFactory $typIncidentFormFactory;
+    private TypIncidentDataGridFactory $typIncidentDataGrid;
 
-    public function __construct(Context $context, TypIncidentModel $typIncidentModel)
+    public function __construct(
+        TypIncidentModel       $typIncidentModel,
+        TypIncidentFormFactory $typIncidentFormFactory,
+        TypIncidentDataGridFactory $typIncidentDataGrid
+    )
     {
         parent::__construct();
         $this->typIncidentModel = $typIncidentModel;
-        $this->typIncidentu = $context;
+        $this->typIncidentFormFactory = $typIncidentFormFactory;
+        $this->typIncidentDataGrid = $typIncidentDataGrid;
     }
 
-    protected function createComponentGrid(): TypIncidentGrid
+    /**
+     * @throws DataGridException
+     */
+    protected function createComponentGrid(): DataGrid
     {
-        return new TypIncidentGrid($this->typIncidentu->table('typ_incident'));
+        return $this->typIncidentDataGrid->create();
     }
 
     public function renderDefault()
@@ -47,10 +59,9 @@ class TypIncidentPresenter extends AdminbasePresenter
         $this->setView('../_add');
     }
 
-    public function createComponentAdd(): AddTypIncidentForm
+    public function createComponentAdd(): Form
     {
-        $form = new AddTypIncidentForm();
-        $form['typ_incident']->setItems($this->typIncidentModel->fetchPairs());
+        $form = $this->typIncidentFormFactory->create();
         $form->onSuccess[] = [$this, 'add'];
         return $form;
     }
@@ -58,13 +69,14 @@ class TypIncidentPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function add(AddTypIncidentForm $form)
+    public function add(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->typIncidentModel->insert($v);
+            $v->offsetUnset('id');
+            $this->typIncidentModel->insertNewItem($v);
         } catch (Exception $exc) {
-            Debugger::log($exc->getMessage());
+            Debugger::log($exc->getMessage(), ILogger::ERROR);
             $form->addError('Nový záznam nebyl přidán');
         }
         $this->flashMessage('Nový záznam byl přidán');
@@ -76,28 +88,23 @@ class TypIncidentPresenter extends AdminbasePresenter
     /**
      * @param int $id Identifikator polozky
      * @throws AbortException
+     * @throws BadRequestException
      */
     public function renderEdit(int $id)
     {
         try {
             $this->setView('../_edit');
-            //nactu hodnoty pro editaci, pritom overim jestli hodnoty existuji
-            $v = $this->typIncidentModel->fetch($id);
-
-            //odeberu idecko z pole
-//            $v->offsetUnset('id');
-
             //upravene hodnoty odeslu do formulare
-            $this['edit']->setDefaults(array('id' => $id, 'new' => $v));
+            $this['edit']->setDefaults($this->typIncidentModel->fetchById($id));
         } catch (InvalidArgumentException $exc) {
             $this->flashMessage($exc->getMessage());
             $this->redirect('default');
         }
     }
 
-    public function createComponentEdit(): EditTypIncidentForm
+    public function createComponentEdit(): Form
     {
-        $form = new EditTypIncidentForm($this->typIncidentModel);
+        $form = $this->typIncidentFormFactory->create();
         $form->onSuccess[] = [$this, 'edit'];
         return $form;
     }
@@ -105,13 +112,13 @@ class TypIncidentPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function edit(EditTypIncidentForm $form)
+    public function edit(Form $form)
     {
         try {
             $v = $form->getValues();
-            $this->typIncidentModel->update($v['new'], $v['id']);
+            $this->typIncidentModel->updateItem($v, $v['id']);
         } catch (Exception $exc) {
-            Debugger::log($exc->getMessage());
+            Debugger::log($exc->getMessage(), ILogger::ERROR);
             $form->addError('Záznam nebyl změněn');
         }
         $this->flashMessage('Záznam byl úspěšně změněn');
@@ -127,7 +134,7 @@ class TypIncidentPresenter extends AdminbasePresenter
     public function actionDrop(int $id)
     {
         try {
-            $this->typIncidentModel->fetch($id);
+            $this->typIncidentModel->fetchById($id);
             $this->typIncidentModel->removeItem($id);
             $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
             $this->redirect('TypIncident:default');    //change it !!!

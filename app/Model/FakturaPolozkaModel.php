@@ -10,7 +10,7 @@ use Nette\Database\Context;
  *
  * @author Martin Patyk
  */
-final class FakturaPolozkaModel extends BaseNDbModel
+final class FakturaPolozkaModel extends BaseModel
 {
     public const TABLE_NAME = 'faktura_polozka';
     private $connection;

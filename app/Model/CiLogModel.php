@@ -9,7 +9,7 @@ use Nette\Database\Context;
  *
  * @author Martin Patyk
  */
-final class CiLogModel extends BaseNDbModel
+final class CiLogModel extends BaseModel
 {
     public const TABLE_NAME = 'ci_log';
 
@@ -25,7 +25,7 @@ final class CiLogModel extends BaseNDbModel
      */
     public function fetchAllByCi(int $id): array
     {
-        return $this->explorer->table($this->tableName)
+        return $this->explorer->table(self::TABLE_NAME)
             ->where('ci', $id)->fetchAll();
     }
 

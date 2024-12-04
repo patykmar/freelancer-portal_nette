@@ -16,7 +16,7 @@ use Nette\NotImplementedException;
  *
  * @author Martin Patyk
  */
-final class FakturaModel extends BaseNDbModel
+final class FakturaModel extends BaseModel
 {
     public const TABLE_NAME = 'faktura';
     public const INVOICE_VS_LEN = 6;
@@ -204,7 +204,7 @@ final class FakturaModel extends BaseNDbModel
         $this->explorer->beginTransaction();
 
         //test jestli faktura existuje
-        if ($this->fetch($id)) {
+        if ($this->fetchById($id)) {
             //tikety, ktere jsou zapocitane do faktury uvolnim
             $this->explorer->table(IncidentModel::TABLE_NAME)
                 ->where('faktura', $id)
