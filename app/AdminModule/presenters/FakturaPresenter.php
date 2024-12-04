@@ -91,7 +91,7 @@ class FakturaPresenter extends AdminbasePresenter
      * @throws AbortException
      */
 
-    public function renderAdd(int $odberatel, int $dodavatel = null)
+    public function renderAdd(int $odberatel, ?int $dodavatel)
     {
         try {
             //pokud neni nastaveny dodavatel nastavim jako dodavatele
