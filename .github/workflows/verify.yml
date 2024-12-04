@@ -14,6 +14,7 @@ jobs:
         uses: php-actions/phpstan@v3
         with:
           path: app/
+          php_extensions: gd
           php_version: 8.3
           memory_limit: 256M
           level: 1
