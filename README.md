@@ -89,6 +89,9 @@ docker build -t freelancer-portal-nette .
 
 ## TODO
 
+- upgrade to nette 3.2
+- upgrade PHP to at least 8.2
+- upgrade xDebug to 3.4
 - WorkLogControl - use DI for dependencies
 - Navigation - most probably can be removed from project
 - for section Create missing folders add .gitignore file 
