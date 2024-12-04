@@ -10,48 +10,60 @@ namespace App\AdminModule\Presenters;
 
 use App\Factory\Forms\CompanyAddFormFactory;
 use App\Factory\Forms\CompanyEditFormFactory;
-use App\Grids\Admin\FirmaGrid;
+use App\Factory\Grids\FirmaDataGridFactory;
+use App\Factory\Grids\SimpleDataGridFactory;
 use Exception;
 use App\Model\FirmaModel;
 use Nette\Application\AbortException as AbortExceptionAlias;
+use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
-use Nette\Database\Context;
 use Nette\Utils\DateTime;
 use Tracy\Debugger;
 use Nette\InvalidArgumentException;
+use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class FirmaPresenter extends AdminbasePresenter
 {
     private FirmaModel $firmaModel;
-    private Context $firmaContext;
     private CompanyAddFormFactory $companyAddFormFactory;
     private CompanyEditFormFactory $companyEditFormFactory;
+    private SimpleDataGridFactory $gridFactory;
 
     public function __construct(
         FirmaModel             $firmaModel,
-        Context                $firmaContext,
         CompanyAddFormFactory  $companyAddFormFactory,
-        CompanyEditFormFactory $companyEditFormFactory
+        CompanyEditFormFactory $companyEditFormFactory,
+        SimpleDataGridFactory $gridFactory
     )
     {
         parent::__construct();
         $this->firmaModel = $firmaModel;
-        $this->firmaContext = $firmaContext;
         $this->companyAddFormFactory = $companyAddFormFactory;
         $this->companyEditFormFactory = $companyEditFormFactory;
+        $this->gridFactory = $gridFactory;
     }
 
     /**
      * Cast DEFAULT, definice Gridu
+     * @throws DataGridException
      */
-    protected function createComponentGrid(): FirmaGrid
+    protected function createComponentGrid(): DataGrid
     {
-        return new FirmaGrid($this->firmaContext->table('firma'));
+        return $this->gridFactory->createCompanyDataGrid();
     }
 
     public function renderDefault()
     {
         $this->setView('../_default');
+    }
+
+    /**
+     * @throws AbortExceptionAlias
+     */
+    public function newInvoice(int $companyId)
+    {
+        $this->redirect('Faktura:add', ['companyId' => $companyId]);
     }
 
     /**
@@ -91,6 +103,7 @@ class FirmaPresenter extends AdminbasePresenter
      * Cast EDIT
      * @param int $id Identifikator polozky
      * @throws AbortExceptionAlias
+     * @throws BadRequestException
      */
     public function renderEdit(int $id)
     {
@@ -144,7 +157,7 @@ class FirmaPresenter extends AdminbasePresenter
         try {
             try {
                 $this->firmaModel->fetchById($id);
-                $this->firmaModel->remove($id);
+                $this->firmaModel->removeItem($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
                 $this->redirect('Firma:default'); // change it !!!
             } catch (InvalidArgumentException $exc) {

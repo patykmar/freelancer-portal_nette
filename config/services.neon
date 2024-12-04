@@ -37,6 +37,7 @@ services:
     - App\Factory\Forms\TypIncidentFormFactory
     - App\Factory\Forms\ZpusobUzavreniFormFactory
     - App\Factory\Grids\CiDataGridFactory
+    - App\Factory\Grids\EmptyDataGridFactory
     - App\Factory\Grids\FakturaDataGridFactory
     - App\Factory\Grids\IncidentDataGridFactory
     - App\Factory\Grids\OsobaDataGridFactory

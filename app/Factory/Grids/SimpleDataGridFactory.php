@@ -4,11 +4,13 @@ namespace App\Factory\Grids;
 
 use App\Factory\DataGridFactory;
 use App\Model\ChangeStavModel;
+use App\Model\FirmaModel;
 use App\Model\FormatDatumModel;
 use App\Model\FrontaModel;
 use App\Model\IncidentStavModel;
 use App\Model\PrioritaModel;
 use App\Model\StavCiModel;
+use App\Model\TarifModel;
 use App\Model\TimeZoneModel;
 use App\Model\TypChangeModel;
 use App\Model\TypOsobyModel;
@@ -19,19 +21,14 @@ use Ublaboo\DataGrid\Exception\DataGridException;
 
 class SimpleDataGridFactory
 {
-    use DataGridFactoryTrait;
-
-    private Context $context;
-    private DataGridFactory $dataGridFactory;
+    private EmptyDataGridFactory $emptyDataGridFactory;
 
     /**
-     * @param Context $context
-     * @param DataGridFactory $dataGridFactory
+     * @param EmptyDataGridFactory $emptyDataGridFactory
      */
-    public function __construct(Context $context, DataGridFactory $dataGridFactory)
+    public function __construct(EmptyDataGridFactory $emptyDataGridFactory)
     {
-        $this->context = $context;
-        $this->dataGridFactory = $dataGridFactory;
+        $this->emptyDataGridFactory = $emptyDataGridFactory;
     }
 
     /**
@@ -121,15 +118,40 @@ class SimpleDataGridFactory
     /**
      * @throws DataGridException
      */
+    public function createCompanyDataGrid(): DataGrid
+    {
+        $dataGrid = $this->create(FirmaModel::TABLE_NAME);
+        $dataGrid->addColumnText('ico', 'IČO');
+        $dataGrid->addColumnText('dic', 'DIČ');
+        $dataGrid->addColumnText('ulice', 'Ulice');
+        $dataGrid->addColumnText('obec', 'Obec');
+
+        $dataGrid->addAction('fakturka', 'Nova faktura', 'newInvoice')
+            ->setTitle('New invoice')
+            ->setClass('btn btn-success btn-sm');
+        return $dataGrid;
+    }
+
+    /**
+     * @throws DataGridException
+     */
+    public function createTariffDataGrid(): DataGrid
+    {
+        $dataGrid = $this->create(TarifModel::TABLE_NAME);
+        $dataGrid->addColumnText('cena', 'Cana tarifu');
+        $dataGrid->addAction('goToSla', 'Go to SLA', 'Sla:')
+            ->setTitle('Go to SLA')
+            ->setClass('btn btn-info btn-sm');
+        return $dataGrid;
+    }
+
+    /**
+     * @throws DataGridException
+     */
     private function create(string $tableName): DataGrid
     {
-        $dataGrid = $this->dataGridFactory->create()
-            ->setDataSource($this->context->table($tableName));
+        $dataGrid = $this->emptyDataGridFactory->create($tableName);
         $dataGrid->addColumnText('nazev', 'Název');
-
-        $this->addEditButton($dataGrid);
-        $this->addDeleteButton($dataGrid);
-
         return $dataGrid;
     }
 }
