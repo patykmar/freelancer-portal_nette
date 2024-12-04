@@ -14,7 +14,7 @@ final class TypChangeModel extends BaseModel
 {
     use FetchPairsTrait;
 
-    public const TABLE_NAME = 'typ_change';
+    public const string TABLE_NAME = 'typ_change';
 
     public function __construct(Explorer $explorer)
     {

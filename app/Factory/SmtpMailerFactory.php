@@ -21,7 +21,12 @@ class SmtpMailerFactory
 
     public function create(): SmtpMailer
     {
-        return new SmtpMailer($this->config);
+        return new SmtpMailer(
+            host: $this->config['host'],
+            username: $this->config['username'],
+            password: $this->config['password'],
+            encryption: $this->config['encryption']
+        );
     }
 
     public function getEmailReceiver(): string

@@ -27,20 +27,20 @@ class CompanyEditFormFactory
         $form->addHidden('id');
         $new = $form->addContainer('new');
         $new->addText('nazev', 'Název:', null, 250)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $new->addText('ico', 'IČO:', null, 20)
-            ->addRule(FormAlias::FILLED)
-            ->addRule(FormAlias::FLOAT);
+            ->addRule(FormAlias::Filled)
+            ->addRule(FormAlias::Float);
         $new->addText('dic', 'DIČ:', null, 20);
         $new->addText('ulice', 'Ulice:', null, 100)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $new->addText('obec', 'Obec:', null, 100)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $new->addText('psc', 'PSČ:', null, 15)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $new->addSelect('zeme', 'Stát:', $this->zemeModel->fetchPairs())
             ->setPrompt(IForm::INPUT_SELECT_PROMPT)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $new->addText('cislo_uctu', 'Číslo účtu:', null, 50);
         //Obrana před Cross-Site Request Forgery (CSRF)
         $form->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);

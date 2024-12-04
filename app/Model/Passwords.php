@@ -17,7 +17,7 @@ use Nette;
  */
 class Passwords
 {
-    const BCRYPT_COST = 10;
+    const int BCRYPT_COST = 10;
 
     /**
      * Computes salted password hash.
@@ -25,7 +25,7 @@ class Passwords
      * @param array|null $options with cost (4-31), salt (22 chars)
      * @return string  60 chars long
      */
-    public static function hash(string $password, array $options = null): string
+    public static function hash(string $password, ?array $options): string
     {
         $cost = isset($options['cost']) ? (int)$options['cost'] : self::BCRYPT_COST;
         $salt = isset($options['salt']) ? (string)$options['salt'] : Nette\Utils\Random::generate(22, '0-9A-Za-z./');
@@ -64,7 +64,7 @@ class Passwords
      * @param array|null $options with cost (4-31)
      * @return bool
      */
-    public static function needsRehash(string $hash, array $options = null): bool
+    public static function needsRehash(string $hash, ?array $options): bool
     {
         $cost = isset($options['cost']) ? (int)$options['cost'] : self::BCRYPT_COST;
         return !preg_match('#^\$2y\$(?P<cost>\d\d)\$(?P<salt>.{22})#', $hash, $m)

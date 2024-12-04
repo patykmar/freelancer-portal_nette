@@ -13,6 +13,7 @@ use App\Factory\Forms\InvoiceItemEditFormFactory;
 use App\Model\FakturaPolozkaModel;
 use App\Model\FakturaModel;
 use Exception;
+use JetBrains\PhpStorm\NoReturn;
 use Nette\Application\AbortException as AbortExceptionAlias;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
@@ -23,10 +24,10 @@ use Nette\InvalidArgumentException;
 
 class FakturaPolozkaPresenter extends AdminbasePresenter
 {
-    private FakturaPolozkaModel $fakturaPolozkaModel;
-    private FakturaModel $modelFaktura;
-    private InvoiceItemAddFormFactory $fakturaPolozkaAddFormFactory;
-    private InvoiceItemEditFormFactory $fakturaPolozkaEditFormFactory;
+    private readonly FakturaPolozkaModel $fakturaPolozkaModel;
+    private readonly FakturaModel $modelFaktura;
+    private readonly InvoiceItemAddFormFactory $fakturaPolozkaAddFormFactory;
+    private readonly InvoiceItemEditFormFactory $fakturaPolozkaEditFormFactory;
 
     public function __construct(
         FakturaPolozkaModel        $fakturaPolozkaModel,
@@ -46,7 +47,7 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
      * presmeruju na faktury
      * @throws AbortExceptionAlias
      */
-    public function actionDefault()
+    public function actionDefault(): void
     {
         $this->redirect('Faktura:');
     }
@@ -57,7 +58,7 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
      * @throws AbortExceptionAlias
      * @var $id int identifikator faktury
      */
-    public function renderAdd(int $id)
+    public function renderAdd(int $id): void
     {
         try {
             $this->setView('../_add');
@@ -82,11 +83,11 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
     /**
      * @param Form $form
      */
-    public function add(Form $form)
+    public function add(Form $form): void
     {
         try {
             $v = $form->getValues();
-            $this->fakturaPolozkaModel->insert($v);
+            $this->fakturaPolozkaModel->insertNewItem($v);
             $this->flashMessage('Nový záznam byl přidán');
             $this->redirect('Faktura:edit', $v['faktura']);
         } catch (Exception $exc) {
@@ -101,7 +102,7 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortExceptionAlias
      */
-    public function renderEdit(int $id)
+    public function renderEdit(int $id): void
     {
         try {
             $this->setView('../_edit');
@@ -110,15 +111,15 @@ class FakturaPolozkaPresenter extends AdminbasePresenter
 
             // pravidla pro formular
             $this['edit']['new']['nazev']
-                ->addRule(FormAlias::FILLED);
+                ->addRule(FormAlias::Filled);
 
             $this['edit']['new']['pocet_polozek']
                 ->setType('number')
-                ->addRule(FormAlias::FLOAT)
+                ->addRule(FormAlias::Float)
                 ->addRule(FormAlias::RANGE, null, array(0, 999));
 
             $this['edit']['new']['cena']
-                ->addRule(FormAlias::FLOAT);
+                ->addRule(FormAlias::Float);
 
             // odeberu idecko z pole
 //            $v->offsetUnset('id');

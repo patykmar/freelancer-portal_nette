@@ -13,7 +13,7 @@ use Nette\Utils\ArrayHash;
 
 class SendMailService extends Control
 {
-    private const REGISTER_HELPER_LOADER = '\Nette\Templating\Helpers::loader';
+//    private const string REGISTER_HELPER_LOADER = '\Nette\Templating\Helpers::loader';
     private SmtpMailer $smtpMailer;
     private Engine $latteEngine;
     private string $emailAddressReceiver;
@@ -32,16 +32,16 @@ class SendMailService extends Control
      * Odesle zakaznikovi email s uzivatelskym jmenem a heslem
      * @param ArrayHash $value obsahuje pole kde je vyplnen komu poslat email, idecko a heslo noveho klienta
      */
-    public function novaOsoba(ArrayHash $value)
+    public function novaOsoba(ArrayHash $value): void
     {
         /*
          * Vytvorim sablonu a naplnim ji daty
          */
         $template = $this->createTemplate()
-            ->setFile(__DIR__ . '/novaOsoba.latte')
-            ->registerFilter($this->latteEngine)
-            ->registerHelperLoader(self::REGISTER_HELPER_LOADER);
-        $template->items = $value;
+            ->setFile(__DIR__ . '/novaOsoba.latte');
+//            ->registerFilter($this->latteEngine)
+//            ->registerHelperLoader(self::REGISTER_HELPER_LOADER);
+//        $template->items = $value;
         /*
          * Vytvorim emailovou zpravu, kterou pak odeslu
          */

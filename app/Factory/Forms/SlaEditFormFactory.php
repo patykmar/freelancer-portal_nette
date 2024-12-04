@@ -27,25 +27,25 @@ class SlaEditFormFactory
         $new->addSelect('priorita', 'Priorita')
             ->setDisabled();
         $new->addText('cena_koeficient', 'Koeficient', null, 5)
-            ->addRule(FormAlias::FILLED)
-            ->addRule(FormAlias::FLOAT);
+            ->addRule(FormAlias::Filled)
+            ->addRule(FormAlias::Float);
         // casy reakce
         $new->addSelect('reakce_mesic', 'Měsíců:', SlaAddFormFactory::getTimeValue(SlaAddFormFactory::MONTHS))
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $new->addSelect('reakce_den', 'Dnů', SlaAddFormFactory::getTimeValue(SlaAddFormFactory::DAYS))
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $new->addSelect('reakce_hod', 'Hodin:', SlaAddFormFactory::getTimeValue(SlaAddFormFactory::HOURS))
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $new->addSelect('reakce_min', 'Minut:', SlaAddFormFactory::getTimeValue(SlaAddFormFactory::MINUTES))
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $new->addSelect('hotovo_mesic', 'Měsíců:', SlaAddFormFactory::getTimeValue(SlaAddFormFactory::MONTHS))
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $new->addSelect('hotovo_den', 'Dnů', SlaAddFormFactory::getTimeValue(SlaAddFormFactory::DAYS))
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $new->addSelect('hotovo_hod', 'Hodin:', SlaAddFormFactory::getTimeValue(SlaAddFormFactory::HOURS))
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $new->addSelect('hotovo_min', 'Minut:', SlaAddFormFactory::getTimeValue(SlaAddFormFactory::MINUTES))
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         // Obrana před Cross-Site Request Forgery (CSRF)
         $form->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat

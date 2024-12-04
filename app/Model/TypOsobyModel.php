@@ -13,7 +13,7 @@ final class TypOsobyModel extends BaseModel
 {
     use FetchPairsTrait;
 
-    public const TABLE_NAME = 'typ_osoby';
+    public const string TABLE_NAME = 'typ_osoby';
 
     public function __construct(Explorer $explorer)
     {

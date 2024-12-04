@@ -13,7 +13,7 @@ final class UkonModel extends BaseModel
 {
     use FetchPairsTrait;
 
-    public const TABLE_NAME = 'ukon';
+    public const string TABLE_NAME = 'ukon';
 
     public function __construct(Explorer $explorer)
     {

@@ -11,7 +11,7 @@ use Nette\Database\Explorer;
  */
 final class JednotkaModel extends BaseModel
 {
-    public const TABLE_NAME = 'jednotka';
+    public const string TABLE_NAME = 'jednotka';
 
     public function __construct(Explorer $explorer)
     {

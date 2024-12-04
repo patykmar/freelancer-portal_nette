@@ -13,7 +13,7 @@ final class TimeZoneModel extends BaseModel
 {
     use FetchPairsTrait;
 
-    public const TABLE_NAME = 'time_zone';
+    public const string TABLE_NAME = 'time_zone';
 
     public function __construct(Explorer $explorer)
     {

@@ -6,6 +6,7 @@ use Exception;
 use Nette\Database\Connection;
 use Nette\Database\Explorer;
 use Nette\Database\Table\IRow;
+use Nette\Database\Table\Selection;
 use Nette\Utils\ArrayHash;
 use Nette\Utils\DateTime;
 use Nette\InvalidArgumentException;
@@ -16,21 +17,22 @@ use Tracy\Debugger;
  * Description of IncidentModel
  *
  * @author Martin Patyk
+ * @method Selection getSelection()
  */
 final class IncidentModel extends BaseModel
 {
-    public const TABLE_NAME = 'incident';
-    private const INCIDENT_STAV_UZAVREN = 5;
-    private const INCIDENT_STAV_CEKAM_NA_VYJADRENI_ZAKAZNIKA = 6;
-    private const TYP_OSOBY_SYSTEM = 3;
-    private const OSOBA_SS = 9;
+    public const string TABLE_NAME = 'incident';
+    private const int INCIDENT_STAV_UZAVREN = 5;
+    private const int INCIDENT_STAV_CEKAM_NA_VYJADRENI_ZAKAZNIKA = 6;
+    private const int TYP_OSOBY_SYSTEM = 3;
+    private const int OSOBA_SS = 9;
 
-    private $connection;
-    private $incidentStavModel;
-    private $incidentLogModel;
-    private $typIncidentModel;
-    private $prioritaModel;
-    private $frontaOsobaModel;
+    private Connection $connection;
+    private IncidentStavModel $incidentStavModel;
+    private IncidentLogModel $incidentLogModel;
+    private TypIncidentModel $typIncidentModel;
+    private PrioritaModel $prioritaModel;
+    private FrontaOsobaModel $frontaOsobaModel;
 
     public function __construct(
         Explorer          $explorer,
@@ -253,9 +255,9 @@ final class IncidentModel extends BaseModel
 
     /**
      * Nactu si tikety, ktere byli pro daneho odberatele uzavrene.
-     * @param int ID firma odberatel
+     * @param int $id ID firma odberatel
      */
-    public function selectAllTicketsForInvoicingByIdCompanyOld($id)
+    public function selectAllTicketsForInvoicingByIdCompanyOld(int $id): array
     {
         $query = 'SELECT ' .
             'CONCAT(typ_incident.zkratka, incident.id) AS idTxt ' .
@@ -523,7 +525,7 @@ final class IncidentModel extends BaseModel
                     $wl[] = '**Fronta:** ' . $new['fronta_nazev'];
                 }
                 //   uvolnim z pameti docasne promenne
-                unset($tmp, $old, $new, $modelOsoba);
+                unset($tmp, $old, $new);
             endif;
 
             //   pokud je $novyCas = TRUE pak prepocitej casy
@@ -581,7 +583,7 @@ final class IncidentModel extends BaseModel
                 }
                 $item->offsetSet('obsah', $wlTmp);
                 $item->offsetSet('osoba', $arr['identity']);
-                $this->incidentLogModel->insert($item);
+                $this->incidentLogModel->insertNewItem($item);
             }
             /*
              * Pred odeslanim hodnot do databaze odeberu polozky, ktere se

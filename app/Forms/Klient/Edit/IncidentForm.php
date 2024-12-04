@@ -8,34 +8,36 @@ namespace App\Forms\Klient\Edit;
  * @author Martin Patyk
  */
 
-use Nette\ComponentModel\IContainer;
-use App\Forms\Admin\Edit;
+use App\Forms\Admin;
+use Nette\Forms\Container;
 
 /** @deprecated */
-class IncidentForm extends Edit\IncidentForm
+class IncidentForm extends Admin\Edit\IncidentForm
 {
-    public function __construct(IContainer $parent = null, $name = null)
+    public function __construct()
     {
-        parent::__construct($parent, $name);
+        parent::__construct();
         // vymenim selectbox za inpust text
-        $this['new']->offsetUnset('incident_stav');
-        $this['new']->addText('incident_stav', 'Stav incidentu:')
-            ->setAttribute('readonly', 'readonly');
-        $this['new']->offsetUnset('osoba_prirazen');
-        $this['new']->addText('osoba_prirazen', 'Přiřazeno:')
-            ->setAttribute('readonly', 'readonly');
+        /** @var Container $container */
+        $container = $this['new'];
+        $container->offsetUnset('incident_stav');
+        $container->addText('incident_stav', 'Stav incidentu:')
+            ->setHtmlAttribute('readonly', 'readonly');
+        $container->offsetUnset('osoba_prirazen');
+        $container->addText('osoba_prirazen', 'Přiřazeno:')
+            ->setHtmlAttribute('readonly', 'readonly');
 
-        $this['new']->offsetUnset('fronta');
-        $this['new']->addText('fronta', 'Fronta:')
-            ->setAttribute('readonly', 'readonly');
-        $this['new']->offsetUnset('ci');
-        $this['new']->addText('ci', 'Produkt:')
-            ->setAttribute('readonly', 'readonly');
-        $this['new']->offsetUnset('osoba_vytvoril');
-        $this['new']->addText('osoba_vytvoril', 'Vytvořil:')
-            ->setAttribute('readonly', 'readonly');
-        $this['new']->offsetUnset('zpusob_uzavreni');
-        $this['new']->offsetUnset('obsah_uzavreni');
+        $container->offsetUnset('fronta');
+        $container->addText('fronta', 'Fronta:')
+            ->setHtmlAttribute('readonly', 'readonly');
+        $container->offsetUnset('ci');
+        $container->addText('ci', 'Produkt:')
+            ->setHtmlAttribute('readonly', 'readonly');
+        $container->offsetUnset('osoba_vytvoril');
+        $container->addText('osoba_vytvoril', 'Vytvořil:')
+            ->setHtmlAttribute('readonly', 'readonly');
+        $container->offsetUnset('zpusob_uzavreni');
+        $container->offsetUnset('obsah_uzavreni');
         return $this;
     }
 }

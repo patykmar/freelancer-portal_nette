@@ -13,7 +13,7 @@ final class FormaUhradyModel extends BaseModel
 {
     use FetchPairsTrait;
 
-    public const TABLE_NAME = 'forma_uhrady';
+    public const string TABLE_NAME = 'forma_uhrady';
 
     public function __construct(Explorer $explorer)
     {

@@ -57,7 +57,7 @@ class OsobaPresenter extends AdminbasePresenter
         return $this->gridFactory->create();
     }
 
-    public function renderDefault()
+    public function renderDefault(): void
     {
         $this->setView('../_default');
     }
@@ -65,7 +65,7 @@ class OsobaPresenter extends AdminbasePresenter
     /**
      * Cast ADD
      */
-    public function renderAdd()
+    public function renderAdd(): void
     {
         $this->setView('../_add');
     }
@@ -80,7 +80,7 @@ class OsobaPresenter extends AdminbasePresenter
     /**
      * @throws AbortException
      */
-    public function add(Form $form)
+    public function add(Form $form): void
     {
         try {
             $v = $form->getValues();
@@ -95,8 +95,8 @@ class OsobaPresenter extends AdminbasePresenter
             $v->offsetSet('datum_vytvoreni', new DateTime);
 
             $this->sendMailService->novaOsoba($v);
-            $v->offsetSet('password', UserManager::hashPassword($v['password']));
-            $this->osobaModel->insert($v);
+            $v->offsetSet('password', UserManager::hashPassword($v['password'], null));
+            $this->osobaModel->insertNewItem($v);
         } catch (Exception $exc) {
             Debugger::log($exc->getMessage());
             $form->addError('Nový záznam nebyl přidán');
@@ -111,7 +111,7 @@ class OsobaPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function renderEdit(int $id)
+    public function renderEdit(int $id): void
     {
         try {
             $this->setView('../_edit');
@@ -161,12 +161,12 @@ class OsobaPresenter extends AdminbasePresenter
      * @param int $id Identifikator polozky
      * @throws AbortException
      */
-    public function actionDrop(int $id)
+    public function actionDrop(int $id): void
     {
         try {
             try {
                 $this->osobaModel->fetchById($id);
-                $this->osobaModel->remove($id);
+                $this->osobaModel->removeItem($id);
                 $this->flashMessage('Položka byla odebrána'); // Položka byla odebrána
                 $this->redirect('Osoba:default'); //change it !!!
             } catch (InvalidArgumentException $exc) {
@@ -184,7 +184,7 @@ class OsobaPresenter extends AdminbasePresenter
      * @param int $id identifikator uzivatele
      * @throws AbortException
      */
-    public function actionGenerujNoveHeslo(int $id)
+    public function actionGenerujNoveHeslo(int $id): void
     {
         try {
             // Informace o uzivateli nactene z databaze
@@ -199,7 +199,7 @@ class OsobaPresenter extends AdminbasePresenter
             $this->sendMailService->vygenerujNoveHeslo($item);
 
             //password encrypt
-            $item->offsetSet('password', UserManager::hashPassword($item['password']));
+            $item->offsetSet('password', UserManager::hashPassword($item['password'], null));
 
             //save to db
             $this->osobaModel->updateItem($item, $id);

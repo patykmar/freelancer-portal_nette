@@ -21,10 +21,10 @@ class TariffAddFormFactory
     {
         $form = $this->formFactory->create();
         $form->addText('nazev', 'Název:', null, 100)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $form->addText('cena', 'Cena:', null, 13)
-            ->addRule(FormAlias::FILLED)
-            ->addRule(FormAlias::FLOAT);
+            ->addRule(FormAlias::Filled)
+            ->addRule(FormAlias::Float);
         // Obrana před Cross-Site Request Forgery (CSRF)
         $form->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat

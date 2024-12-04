@@ -3,6 +3,7 @@
 namespace App\Factory\Forms;
 
 use Nette\Application\UI\Form;
+use Nette\Forms\Form as FormAlias;
 
 class ImpactEditFormFactory
 {
@@ -20,15 +21,14 @@ class ImpactEditFormFactory
     {
         $form = $this->formFactory->create();
         $form->addHidden('id');
-        $new = $this->addContainer('new');
-        $new->addText('nazev', 'Název:', null, 255)
-            ->addRule(Form::FILLED);
-        $new->addText('koeficient_cena', 'Koeficient cena:', null, 10)
+        $form->addText('nazev', 'Název:', null, 255)
+            ->addRule(FormAlias::Filled);
+        $form->addText('koeficient_cena', 'Koeficient cena:', null, 10)
             ->setType('number')
-            ->addRule(Form::FLOAT);
-        $new->addText('koeficient_cas', 'Koeficient čas:', null, 10)
+            ->addRule(FormAlias::Float);
+        $form->addText('koeficient_cas', 'Koeficient čas:', null, 10)
             ->setType('number')
-            ->addRule(Form::FLOAT);
+            ->addRule(FormAlias::Float);
         // Obrana před Cross-Site Request Forgery (CSRF)
         $form->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat

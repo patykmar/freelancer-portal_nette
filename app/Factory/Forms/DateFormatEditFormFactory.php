@@ -23,9 +23,9 @@ class DateFormatEditFormFactory
         $form->addHidden('id');
         $new = $form->addContainer('new');
         $new->addText('nazev', 'Název:', null, 100)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $new->addText('format', 'Formát datumu a času:', null, 10)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         // Obrana před Cross-Site Request Forgery (CSRF)
         $form->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat

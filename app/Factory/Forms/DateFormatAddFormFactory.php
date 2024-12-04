@@ -20,9 +20,9 @@ class DateFormatAddFormFactory
     {
         $form = $this->formFactory->create();
         $form->addText('nazev', 'Název:', null, 100)
-            ->addRule(Form::FILLED);
+            ->addRule(Form::Filled);
         $form->addText('format', 'Formát datumu a času:', null, 10)
-            ->addRule(Form::FILLED);
+            ->addRule(Form::Filled);
         // Obrana před Cross-Site Request Forgery (CSRF)
         $form->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat

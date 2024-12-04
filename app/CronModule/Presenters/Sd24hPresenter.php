@@ -8,7 +8,7 @@
 
 namespace App\CronModule\Presenters;
 
-use App\components\SmtpController\SendMailService;
+use App\Components\SmtpController\SendMailService;
 use App\Model\IncidentModel;
 use Nette\Application\AbortException;
 use Nette\Application\UI\InvalidLinkException;
@@ -16,9 +16,9 @@ use Nette\Utils\ArrayHash;
 
 class Sd24hPresenter extends CronBasePresenter
 {
-    private const IDENTITY_SD24 = 8;
-    private const INCIDENT_STAV_UZAVREN = 5;
-    private const INCIDENT_STAV_CEKAM_NA_VYJADRENI_ZAKAZNIKA = 6;
+    private const int IDENTITY_SD24 = 8;
+    private const int INCIDENT_STAV_UZAVREN = 5;
+    private const int INCIDENT_STAV_CEKAM_NA_VYJADRENI_ZAKAZNIKA = 6;
     private IncidentModel $incidentModel;
     private SendMailService $sendMailService;
 
@@ -102,9 +102,7 @@ class Sd24hPresenter extends CronBasePresenter
             $this->incidentModel->updateItem($update, $item['id']);
             unset($update);
         }
-        unset($model);
     }
-
 
     /**
      * Nactu si tikety ktere cekaji na zpetnou vazbu a pokud nebyl mail jeste
@@ -114,25 +112,25 @@ class Sd24hPresenter extends CronBasePresenter
      */
     public function odesliVyzvyKeZpetneVazbe()
     {
-        $model = $this->incidentModel->fetchFactory();
-        $model->select('CONCAT([typ_incident].[zkratka],[incident].[id])')->as('idTxt')
+        $model = $this->incidentModel->getSelection();
+        $model->select('CONCAT(typ_incident.zkratka,incident.id) AS idTxt')
             ->select('maly_popis, incident.obsah, obsah_uzavreni')
             ->select('incident.datum_ukonceni, incident.datum_vytvoreni')
-            ->select('firma.nazev')->as('firma')
-            ->select('ci.nazev')->as('ci')
-            ->select('zpusob_uzavreni.nazev')->as('zpusob_uzavreni')
-            ->select('osoba.email')->as('email')  // nactu mail od uzivatele
-            ->select('osoba.typ_osoby')->as('typ_osoby')
-            ->innerJoin('typ_incident')->on('[incident].[typ_incident] = [typ_incident].[id]')
-            ->innerJoin('osoba')->on('[incident].[osoba_vytvoril] = [osoba].[id]')
-            ->innerJoin('zpusob_uzavreni')->on('[incident].[zpusob_uzavreni] = [zpusob_uzavreni].[id]')
-            ->innerJoin('ci')->on('[incident].[ci] = [ci].[id]')
-            ->innerJoin('firma')->on('[ci].[firma] = [firma].[id]')
-            ->where('incident_stav = %i', self::INCIDENT_STAV_CEKAM_NA_VYJADRENI_ZAKAZNIKA)  // tikety ve stavu cekajici na vyjadreni
-            ->and('odezva_cekam = %b', true) // tikety kde se ceka na odezvu
-            ->and('odezva_odeslan_pozadavek')->is(null) // tikety kde se nebyla jeste odeslan pozadavek na feedback
-            ->and('incident')->is(null) // tikety ktere nemaji predka
-            ->and('typ_osoby')->notIn('(3)');  // maily neposilam na systemove emaily
+            ->select('firma.nazev AS firma')
+            ->select('ci.nazev AS ci')
+            ->select('zpusob_uzavreni.nazev AS zpusob_uzavreni')
+            ->select('osoba.email AS email')  // nactu mail od uzivatele
+            ->select('osoba.typ_osoby AS typ_osoby')
+//            ->innerJoin('typ_incident ON incident.typ_incident = typ_incident.id')
+//            ->innerJoin('osoba ON incident.osoba_vytvoril = osoba.id')
+//            ->innerJoin('zpusob_uzavreni')->on('incident.zpusob_uzavreni = zpusob_uzavreni.id')
+//            ->innerJoin('ci')->on('incident.ci = ci.id')
+//            ->innerJoin('firma')->on('ci.firma = firma.id')
+            ->where('incident_stav = ?', self::INCIDENT_STAV_CEKAM_NA_VYJADRENI_ZAKAZNIKA)  // tikety ve stavu cekajici na vyjadreni
+            ->where('odezva_cekam = ?', true) // tikety kde se ceka na odezvu
+            ->where(['odezva_odeslan_pozadavek' => null]) // tikety kde se nebyla jeste odeslan pozadavek na feedback
+            ->where(['incident' => null]) // tikety ktere nemaji predka
+            ->where('typ_osoby NOT IN (3)');  // maily neposilam na systemove emaily
 
 
         // zapnu absolutni URL z duvodu potreby vegenerovani URL do mailu

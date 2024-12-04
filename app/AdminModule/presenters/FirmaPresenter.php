@@ -14,6 +14,7 @@ use App\Factory\Grids\FirmaDataGridFactory;
 use App\Factory\Grids\SimpleDataGridFactory;
 use Exception;
 use App\Model\FirmaModel;
+use JetBrains\PhpStorm\NoReturn;
 use Nette\Application\AbortException as AbortExceptionAlias;
 use Nette\Application\BadRequestException;
 use Nette\Application\UI\Form;
@@ -61,7 +62,7 @@ class FirmaPresenter extends AdminbasePresenter
     /**
      * @throws AbortExceptionAlias
      */
-    public function newInvoice(int $companyId)
+    public function newInvoice(int $companyId): void
     {
         $this->redirect('Faktura:add', ['companyId' => $companyId]);
     }

@@ -23,10 +23,10 @@ class TariffEditFormFactory
         $form->addHidden('id');
         $new = $form->addContainer('new');
         $new->addText('nazev', 'Název:', null, 100)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $new->addText('cena', 'Cena:', null, 13)
-            ->addRule(FormAlias::FILLED)
-            ->addRule(FormAlias::FLOAT);
+            ->addRule(FormAlias::Filled)
+            ->addRule(FormAlias::Float);
         // Obrana před Cross-Site Request Forgery (CSRF)
         $form->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat

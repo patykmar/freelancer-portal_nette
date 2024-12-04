@@ -13,7 +13,7 @@ final class FrontaModel extends BaseModel
 {
     use FetchPairsTrait;
 
-    public const TABLE_NAME = 'fronta';
+    public const string TABLE_NAME = 'fronta';
 
     public function __construct(Explorer $explorer)
     {

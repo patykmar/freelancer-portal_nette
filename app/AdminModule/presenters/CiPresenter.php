@@ -66,7 +66,7 @@ class CiPresenter extends AdminbasePresenter
      * @param ?int $id identifikator predka. Pokud je nastavena hodnota
      * vlozi se jako cizi klic do SelectBoxu.
      */
-    public function renderAdd(int $id = null)
+    public function renderAdd(?int $id): void
     {
         //nastaveni sablony
         $this->setView('../_add');

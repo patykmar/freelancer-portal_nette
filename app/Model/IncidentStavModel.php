@@ -13,7 +13,7 @@ final class IncidentStavModel extends BaseModel
 {
     use FetchPairsTrait;
 
-    public const TABLE_NAME = 'incident_stav';
+    public const string TABLE_NAME = 'incident_stav';
 
     public function __construct(Explorer $explorer)
     {

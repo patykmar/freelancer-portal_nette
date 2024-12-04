@@ -25,12 +25,13 @@ Developed on Nette framework ~2014.
 - 2024/12
     - Migrate `datagrid` from `miloslavkostir/datagrid` to `ublaboo/datagrid`
     - Upgraded to Nette framework 3.1 and PHP 8.0
+    - Upgraded to Nette framework 3.2 and PHP 8.3
 
 ## Versions of components
 
 | Nette | PHP |
 |-------|-----|
-| 3.1   | 8.0 |
+| 3.2   | 8.3 |
 
 ## Create missing folders
 
@@ -89,9 +90,4 @@ docker build -t freelancer-portal-nette .
 
 ## TODO
 
-- upgrade to nette 3.2
-- upgrade PHP to at least 8.2
-- upgrade xDebug to 3.4
-- WorkLogControl - use DI for dependencies
-- Navigation - most probably can be removed from project
 - for section Create missing folders add .gitignore file 

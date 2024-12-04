@@ -29,10 +29,10 @@ class EmailLinkToCiFormFactory
         $form = $this->formFactory->create();
         $form->addHidden('id');
         $form->addText('od', 'Odesilatel:', null, 150)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $form->addSelect('ci', 'Produkt:', $this->ciModel->fetchPairs())
             ->setPrompt(IForm::INPUT_SELECT_PROMPT)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         // Obrana před Cross-Site Request Forgery (CSRF)
         $form->addProtection(IForm::CSRF_PROTECTION_ERROR_MESSAGE);
         // Tlacitko odeslat

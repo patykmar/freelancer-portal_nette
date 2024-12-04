@@ -5,25 +5,23 @@ namespace App\Model;
 use Nette\Database\Explorer;
 use Nette\InvalidArgumentException;
 use Nette\Security\AuthenticationException;
-use Nette\Security\IAuthenticator;
-use Nette\Security\Identity;
-use Nette\SmartObject;
+use Nette\Security\Authenticator;
+use Nette\Security\SimpleIdentity;
+use Nette\Utils\Random;
 use Nette\Utils\Strings;
 
 
 /**
  * Users management.
  */
-class UserManager implements IAuthenticator
+class UserManager implements Authenticator
 {
-    use SmartObject;
-
-    const TABLE_NAME = 'osoba';
-    const COLUMN_ID = 'id';
-    const COLUMN_NAME = 'email';
-    const COLUMN_PASSWORD_HASH = 'password';
-    const COLUMN_ROLE = 'typ_osoby';
-    const PASSWORD_MAX_LENGTH = 4096;
+    const string TABLE_NAME = 'osoba';
+    const string COLUMN_ID = 'id';
+    const string COLUMN_NAME = 'email';
+    const string COLUMN_PASSWORD_HASH = 'password';
+    const string COLUMN_ROLE = 'typ_osoby';
+    const int PASSWORD_MAX_LENGTH = 4096;
 
     private Explorer $database;
 
@@ -35,13 +33,13 @@ class UserManager implements IAuthenticator
 
     /**
      * Performs an authentication.
-     * @param array $credentials
-     * @return Identity
+     * @param string $username
+     * @param string $password
+     * @return SimpleIdentity
      * @throws AuthenticationException
      */
-    public function authenticate(array $credentials): Identity
+    public function authenticate(string $username, string $password): SimpleIdentity
     {
-        list($username, $password) = $credentials;
         $row = $this->database->table(self::TABLE_NAME)
             ->where(self::COLUMN_NAME, $username)
             ->fetch();
@@ -53,15 +51,15 @@ class UserManager implements IAuthenticator
         } elseif (!Passwords::verify($password, $row[self::COLUMN_PASSWORD_HASH])) {
             throw new AuthenticationException('The password is incorrect.', self::INVALID_CREDENTIAL);
 
-        } elseif (Passwords::needsRehash($row[self::COLUMN_PASSWORD_HASH])) {
+        } elseif (Passwords::needsRehash($row[self::COLUMN_PASSWORD_HASH], null)) {
             $row->update(array(
-                self::COLUMN_PASSWORD_HASH => Passwords::hash($password),
+                self::COLUMN_PASSWORD_HASH => Passwords::hash($password, null),
             ));
         }
 
         $arr = $row->toArray();
         unset($arr[self::COLUMN_PASSWORD_HASH]);
-        return new Identity($row[self::COLUMN_ID], $row[self::COLUMN_ROLE], $arr);
+        return new SimpleIdentity($row[self::COLUMN_ID], $row[self::COLUMN_ROLE], $arr);
     }
 
 
@@ -75,7 +73,7 @@ class UserManager implements IAuthenticator
     {
         $this->database->table(self::TABLE_NAME)->insert(array(
             self::COLUMN_NAME => $username,
-            self::COLUMN_PASSWORD_HASH => Passwords::hash($password),
+            self::COLUMN_PASSWORD_HASH => Passwords::hash($password, null),
         ));
     }
 
@@ -85,7 +83,7 @@ class UserManager implements IAuthenticator
      * @param array|null $options
      * @return string
      */
-    public static function hashPassword(string $password, array $options = null): string
+    public static function hashPassword(string $password, ?array $options): string
     {
         if ($password === Strings::upper($password)) { // perhaps caps lock is on
             $password = Strings::lower($password);
@@ -94,7 +92,7 @@ class UserManager implements IAuthenticator
         $options = $options ?: implode('$', array(
             'algo' => PHP_VERSION_ID < 50307 ? '$2a' : '$2y', // blowfish
             'cost' => '07',
-            'salt' => Strings::random(22),
+            'salt' => Random::generate(22),
         ));
         return crypt($password, $options);
     }
@@ -111,7 +109,7 @@ class UserManager implements IAuthenticator
         if (!is_int($count) or ($count < 16)) {
             throw new InvalidArgumentException('Parameter must be type integer and length must be greater than sixteen characters!');
         }
-        return Strings::random($count, 'A-Z0-9a-z');
+        return Random::generate($count, 'A-Z0-9a-z');
     }
 
     /**
@@ -120,10 +118,10 @@ class UserManager implements IAuthenticator
      * @param array|null $hash
      * @return bool
      */
-    public static function verifyPassword(string $password, array $hash = null): bool
+    public static function verifyPassword(string $password, ?array $hash): bool
     {
         return self::hashPassword($password, $hash) === $hash
 
-            || (PHP_VERSION_ID >= 50307 && substr($hash, 0, 3) === '$2a' && self::hashPassword($password, $tmp = '$2x' . substr($hash, 3)) === $tmp);
+            || (PHP_VERSION_ID >= 50307 && str_starts_with($hash, '$2a') && self::hashPassword($password, $tmp = '$2x' . substr($hash, 3)) === $tmp);
     }
 }

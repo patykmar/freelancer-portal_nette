@@ -11,7 +11,7 @@ use Nette\Database\Explorer;
  */
 final class OsobaModel extends BaseModel
 {
-    public const TABLE_NAME = 'osoba';
+    public const string TABLE_NAME = 'osoba';
 
     public function __construct(Explorer $explorer)
     {

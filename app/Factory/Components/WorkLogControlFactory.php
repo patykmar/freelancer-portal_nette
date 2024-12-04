@@ -17,7 +17,8 @@ class WorkLogControlFactory
         $this->explorer = $explorer;
     }
 
-    public function create(): WorkLogControl{
+    public function create(): WorkLogControl
+    {
         return new WorkLogControl($this->explorer);
     }
 }

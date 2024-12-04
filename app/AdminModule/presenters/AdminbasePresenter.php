@@ -9,24 +9,24 @@
 namespace App\AdminModule\Presenters;
 
 use App\Presenters\BasePresenter;
-use Nette\Security\Identity;
 use Nette\Application\AbortException;
-use Nette\Security\IUserStorage;
+use Nette\Security\User;
+use Nette\Security\SimpleIdentity;
 
 abstract class AdminbasePresenter extends BasePresenter
 {
     protected int $userId;
-    protected Identity $identity;
+    protected ?SimpleIdentity $identity;
 
     /**
      * @throws AbortException
      */
-    protected function startup()
+    protected function startup(): void
     {
         parent::startup();
         $user = $this->getUser();
         if (!$user->isLoggedIn()) {
-            if ($user->getLogoutReason() === IUserStorage::INACTIVITY) {
+            if ($user->getLogoutReason() === User::LogoutInactivity) {
                 $this->flashMessage('Byl jste odhlašen z důvodu nečinnosti');
             }
             $this->redirect(':Front:Sign:in');

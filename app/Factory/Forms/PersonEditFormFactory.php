@@ -31,23 +31,23 @@ class PersonEditFormFactory
         $form->addHidden('id');
         $new = $form->addContainer('new');
         $new->addText('jmeno', 'Jméno:', null, 100)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $new->addText('prijmeni', 'Příjmení:', null, 100)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $new->addText('email', 'E-mail:', null, 150)
-            ->addRule(FormAlias::FILLED)
+            ->addRule(FormAlias::Filled)
             ->addRule(FormAlias::EMAIL);
         $new->addSelect('firma', 'Firma:', $this->firmaModel->fetchPairs())
-            ->addRule(FormAlias::FILLED)
+            ->addRule(FormAlias::Filled)
             ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $new->addSelect('typ_osoby', 'Typ osoby:', $this->typOsobyModel->fetchPairs())
-            ->addRule(FormAlias::FILLED)
+            ->addRule(FormAlias::Filled)
             ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $new->addSelect('time_zone', 'Časová zona:', $this->timeZoneModel->fetchPairs())
-            ->addRule(FormAlias::FILLED)
+            ->addRule(FormAlias::Filled)
             ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $new->addSelect('format_datum', 'Formád datumu:', $this->formatDatumModel->fetchPairs())
-            ->addRule(FormAlias::FILLED)
+            ->addRule(FormAlias::Filled)
             ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         $new->addCheckbox('je_admin', 'Jde o admina?');
         //Obrana před Cross-Site Request Forgery (CSRF)

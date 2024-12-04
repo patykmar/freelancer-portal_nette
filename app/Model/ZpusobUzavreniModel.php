@@ -13,7 +13,7 @@ final class ZpusobUzavreniModel extends BaseModel
 {
     use FetchPairsTrait;
 
-    public const TABLE_NAME = 'zpusob_uzavreni';
+    public const string TABLE_NAME = 'zpusob_uzavreni';
 
     public function __construct(Explorer $explorer)
     {

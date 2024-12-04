@@ -12,7 +12,7 @@ use Nette\Database\Explorer;
  */
 final class FakturaPolozkaModel extends BaseModel
 {
-    public const TABLE_NAME = 'faktura_polozka';
+    public const string TABLE_NAME = 'faktura_polozka';
     private $connection;
 
     public function __construct(Explorer $explorer, Connection $connection)

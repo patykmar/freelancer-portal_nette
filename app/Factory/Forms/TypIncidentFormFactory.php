@@ -29,17 +29,17 @@ class TypIncidentFormFactory
         $form = $this->formFactory->create();
         $form->addHidden('id');
         $form->addText('nazev', 'Název:', null, 100)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $form->addText('zkratka', 'Zkratka:', null, 10)
-            ->addRule(FormAlias::FILLED);
+            ->addRule(FormAlias::Filled);
         $form->addText('koeficient_cena', 'Koeficient cena:', null, 10)
             ->setType('number')
             ->setRequired()
-            ->addRule(FormAlias::FLOAT);
+            ->addRule(FormAlias::Float);
         $form->addText('koeficient_cas', 'Koeficient čas:', null, 10)
             ->setType('number')
             ->setRequired()
-            ->addRule(FormAlias::FLOAT);
+            ->addRule(FormAlias::Float);
         $form->addSelect('typ_incident', 'Typ incidentu - rodič:', $this->typIncidentModel->fetchPairs())
             ->setPrompt(IForm::INPUT_SELECT_PROMPT);
         //Obrana před Cross-Site Request Forgery (CSRF)

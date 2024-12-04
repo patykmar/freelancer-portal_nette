@@ -13,7 +13,7 @@ final class CiModel extends BaseModel
 {
     use FetchPairsTrait;
 
-    public const TABLE_NAME = "ci";
+    public const string TABLE_NAME = "ci";
 
     public function __construct(Explorer $explorer)
     {

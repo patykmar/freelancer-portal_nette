@@ -54,6 +54,7 @@ services:
     - App\Factory\ImapDriverFactory(%imapDriver.user%, %imapDriver.password%, %imapDriver.host%, %imapDriver.port%, %imapDriver.ssl%)
     - App\Factory\MPdfFactory
     - App\Factory\SmtpMailerFactory(%sendMail%, %email.receiver%)
+    - App\Factory\TexyWorkLogFactory
     - App\Model\ChangeStavModel
     - App\Model\CiModel
     - App\Model\CiLogModel

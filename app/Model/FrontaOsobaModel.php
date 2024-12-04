@@ -12,7 +12,7 @@ use stdClass;
  */
 final class FrontaOsobaModel extends BaseModel
 {
-    public const TABLE_NAME = 'fronta_osoba';
+    public const string TABLE_NAME = 'fronta_osoba';
 
     public function __construct(Explorer $explorer)
     {
